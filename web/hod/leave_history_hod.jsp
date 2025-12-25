@@ -228,8 +228,9 @@ tbody tr:nth-child(odd) {
     </div>
 
     <div class="profile">
-      <img src="https://i.imgur.com/7k12EPD.png">
-      <h4><%= session.getAttribute("name") != null ? session.getAttribute("name") : "HOD User" %></h4>
+      <img src="<%= request.getContextPath() %>/profile-image?path=<%= request.getAttribute("profileImg") %>"
+           onerror="this.src='<%= request.getContextPath()%>/images/default_profile.png'">
+      <h4><%= session.getAttribute("name") != null ? session.getAttribute("name") : "Staff User" %></h4>
       <p><%= session.getAttribute("position") != null ? session.getAttribute("position") : session.getAttribute("role") %></p>
     </div>
 
@@ -248,8 +249,8 @@ tbody tr:nth-child(odd) {
   <div class="main">
     <div class="header">Leave History Record</div>
 
-    <div class="top-bar" style="text-align:right; margin-bottom:15px;">
-      <input type="text" class="search" placeholder="Search leave..." id="searchInput" onkeyup="searchTable()">
+    <div class="top-bar">
+      <input type="text" class="search" placeholder="Search leave..." onkeyup="searchTable()" id="searchInput">
     </div>
 
     <div class="card">
@@ -270,9 +271,10 @@ tbody tr:nth-child(odd) {
     List<LeaveHistory> leaveHistory = (List<LeaveHistory>) request.getAttribute("leaveHistory");
     if (leaveHistory != null && !leaveHistory.isEmpty()) {
         for (LeaveHistory lh : leaveHistory) {
-            String statusClass = "status-pending";
+            String statusClass = "";
             if ("APPROVED".equalsIgnoreCase(lh.getStatus())) statusClass = "status-approved";
             else if ("REJECTED".equalsIgnoreCase(lh.getStatus())) statusClass = "status-rejected";
+            else statusClass = "status-pending";
 %>
           <tr>
             <td><%= lh.getRequestId() %></td>
@@ -296,6 +298,7 @@ tbody tr:nth-child(odd) {
     </div>
 
   </div>
+
 </div>
 
 <script>
@@ -306,11 +309,11 @@ function toggleSidebar() {
 function searchTable() {
   const input = document.getElementById("searchInput").value.toLowerCase();
   const table = document.getElementById("leaveTable");
-  const rows = table.getElementsByTagName("tr");
+  const trs = table.getElementsByTagName("tr");
 
-  for (let i = 1; i < rows.length; i++) {
-    const rowText = rows[i].textContent.toLowerCase();
-    rows[i].style.display = rowText.includes(input) ? "" : "none";
+  for (let i = 1; i < trs.length; i++) {
+    const row = trs[i].textContent.toLowerCase();
+    trs[i].style.display = row.includes(input) ? "" : "none";
   }
 }
 </script>

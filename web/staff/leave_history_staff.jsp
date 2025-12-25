@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-/* ===== Your Provided CSS ===== */
+/* ===== Use your provided CSS ===== */
 * {
   box-sizing: border-box;
   font-family: "Segoe UI", sans-serif;
@@ -135,6 +135,7 @@ body {
   margin-bottom: 20px;
 }
 
+/* Search */
 .top-bar {
   display: flex;
   justify-content: flex-end;
@@ -148,6 +149,7 @@ body {
   width: 220px;
 }
 
+/* Card */
 .card {
   background: white;
   padding: 20px;
@@ -155,10 +157,11 @@ body {
   overflow-x: auto;
 }
 
+/* Table */
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 650px;
+  min-width: 650px; /* forces horizontal scroll on small screens */
 }
 
 th, td {
@@ -171,9 +174,9 @@ th {
   font-weight: 600;
 }
 
-td {
-  color: #555;
-  font-weight: 600;
+td{
+    color : #555;
+    font-weight: 600;
 }
 
 tbody tr:nth-child(odd) {
@@ -194,6 +197,8 @@ tbody tr:nth-child(odd) {
   color: #ffab00;
   font-weight: bold;
 }
+
+
 </style>
 </head>
 
@@ -201,7 +206,7 @@ tbody tr:nth-child(odd) {
 
 <div class="wrapper">
 
-  <!-- ===== Sidebar UI ===== -->
+  <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
     <div class="brand">
       <span>TERLAJAK LARIS</span>
@@ -209,7 +214,8 @@ tbody tr:nth-child(odd) {
     </div>
 
     <div class="profile">
-      <img src="https://i.imgur.com/7k12EPD.png">
+      <img src="<%= request.getContextPath() %>/profile-image?path=<%= request.getAttribute("profileImg") %>"
+           onerror="this.src='<%= request.getContextPath()%>/images/default_profile.png'">
       <h4><%= session.getAttribute("name") != null ? session.getAttribute("name") : "Staff User" %></h4>
       <p><%= session.getAttribute("position") != null ? session.getAttribute("position") : session.getAttribute("role") %></p>
     </div>
@@ -224,12 +230,12 @@ tbody tr:nth-child(odd) {
     </div>
   </div>
 
-  <!-- ===== Main Content ===== -->
+  <!-- Main Content -->
   <div class="main">
     <div class="header">Leave History Record</div>
 
     <div class="top-bar">
-      <input type="text" class="search" placeholder="Search leave..." id="searchInput" onkeyup="searchTable()">
+      <input type="text" class="search" placeholder="Search leave..." onkeyup="searchTable()" id="searchInput">
     </div>
 
     <div class="card">
@@ -267,9 +273,7 @@ tbody tr:nth-child(odd) {
         }
     } else {
 %>
-          <tr>
-            <td colspan="6">No leave history found.</td>
-          </tr>
+          <tr><td colspan="6">No leave history found.</td></tr>
 <%
     }
 %>

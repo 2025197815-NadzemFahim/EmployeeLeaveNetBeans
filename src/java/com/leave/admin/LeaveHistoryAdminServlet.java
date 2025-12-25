@@ -31,40 +31,45 @@ public class LeaveHistoryAdminServlet extends HttpServlet {
 
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
 
-            // Fetch user details for sidebar
-            String userSql = "SELECT name, role, position, leave_balance FROM employee WHERE employee_id = ?";
-            try (PreparedStatement psUser = conn.prepareStatement(userSql);
-                 ResultSet rsUser = runQuery(psUser, employeeId)) {
+            // Fetch user details
+            try (PreparedStatement psUser = conn.prepareStatement(
+                    "SELECT name, role, position, profile_image FROM employee WHERE employee_id = ?")) {
+                psUser.setInt(1, employeeId);
+                ResultSet rsUser = psUser.executeQuery();
 
                 if (rsUser.next()) {
                     session.setAttribute("name", rsUser.getString("name"));
                     session.setAttribute("role", rsUser.getString("role"));
                     session.setAttribute("position", rsUser.getString("position"));
-                    session.setAttribute("leaveBalance", rsUser.getInt("leave_balance"));
+
+                    String profileImg = rsUser.getString("profile_image");
+                    if (profileImg == null || profileImg.isEmpty()) {
+                        profileImg = "default.jpg";
+                    }
+                    session.setAttribute("profileImg", profileImg);
+                    request.setAttribute("profileImg", profileImg);
                 }
             }
 
-            // Fetch only this user's leave history
-            String leaveSql = "SELECT request_id, type_id, status, start_date, end_date FROM leave_request WHERE submitted_by = ?";
-            try (PreparedStatement stmt = conn.prepareStatement(leaveSql)) {
+            // Fetch leave history
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "SELECT request_id, type_id, status, start_date, end_date " +
+                    "FROM leave_request WHERE submitted_by = ? ORDER BY request_id DESC")) {
                 stmt.setInt(1, employeeId);
-                try (ResultSet rs = stmt.executeQuery()) {
+                ResultSet rs = stmt.executeQuery();
 
-                    Integer leaveBalance = (Integer) session.getAttribute("leaveBalance");
-                    if (leaveBalance == null) leaveBalance = 0;
+                while (rs.next()) {
+                    int typeId = rs.getInt("type_id");
+                    int leaveBalance = getLeaveBalance(employeeId, typeId);
 
-                    while (rs.next()) {
-                        leaveHistoryList.add(new LeaveHistory(
-                                rs.getInt("request_id"),
-                                getLeaveTypeName(conn, rs.getInt("type_id")),
-                                rs.getString("status"),
-                                rs.getDate("start_date"),
-                                rs.getDate("end_date"),
-                                leaveBalance
-                        ));
-                    }
-
-                    System.out.println("Leave records fetched for ADMIN " + employeeId + ": " + leaveHistoryList.size());
+                    leaveHistoryList.add(new LeaveHistory(
+                            rs.getInt("request_id"),
+                            getLeaveTypeName(conn, typeId),
+                            rs.getString("status"),
+                            rs.getDate("start_date"),
+                            rs.getDate("end_date"),
+                            leaveBalance
+                    ));
                 }
             }
 
@@ -76,18 +81,30 @@ public class LeaveHistoryAdminServlet extends HttpServlet {
         request.getRequestDispatcher("/admin/leave_history_admin.jsp").forward(request, response);
     }
 
-    private ResultSet runQuery(PreparedStatement ps, int id) throws SQLException {
-        ps.setInt(1, id);
-        return ps.executeQuery();
+    private int getLeaveBalance(int employeeId, int typeId) {
+        int balance = 0;
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+             PreparedStatement ps = conn.prepareStatement(
+                     "SELECT balance FROM employee_leave_balance WHERE employee_id = ? AND type_id = ?")) {
+
+            ps.setInt(1, employeeId);
+            ps.setInt(2, typeId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                balance = rs.getInt("balance");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return balance;
     }
 
     private String getLeaveTypeName(Connection conn, int typeId) throws SQLException {
-        String sql = "SELECT name FROM leave_type WHERE type_id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement("SELECT name FROM leave_type WHERE type_id = ?")) {
             ps.setInt(1, typeId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getString("name") : "Unknown";
-            }
+            ResultSet rs = ps.executeQuery();
+            return rs.next() ? rs.getString("name") : "Unknown";
         }
     }
 }

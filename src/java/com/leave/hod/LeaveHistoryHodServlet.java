@@ -31,9 +31,9 @@ public class LeaveHistoryHodServlet extends HttpServlet {
 
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
 
-            // Fetch user details for sidebar
+            // Fetch user details
             try (PreparedStatement psUser = conn.prepareStatement(
-                    "SELECT name, role, position, leave_balance FROM employee WHERE employee_id = ?")) {
+                    "SELECT name, role, position, profile_image FROM employee WHERE employee_id = ?")) {
                 psUser.setInt(1, employeeId);
                 ResultSet rsUser = psUser.executeQuery();
 
@@ -41,30 +41,36 @@ public class LeaveHistoryHodServlet extends HttpServlet {
                     session.setAttribute("name", rsUser.getString("name"));
                     session.setAttribute("role", rsUser.getString("role"));
                     session.setAttribute("position", rsUser.getString("position"));
-                    session.setAttribute("leaveBalance", rsUser.getInt("leave_balance"));
+
+                    String profileImg = rsUser.getString("profile_image");
+                    if (profileImg == null || profileImg.isEmpty()) {
+                        profileImg = "default.jpg";
+                    }
+                    session.setAttribute("profileImg", profileImg);
+                    request.setAttribute("profileImg", profileImg);
                 }
             }
 
-            // Fetch only this HOD user's leave history
+            // Fetch leave history
             try (PreparedStatement stmt = conn.prepareStatement(
-                    "SELECT request_id, type_id, status, start_date, end_date FROM leave_request WHERE submitted_by = ? ORDER BY request_id DESC")) {
+                    "SELECT request_id, type_id, status, start_date, end_date " +
+                    "FROM leave_request WHERE submitted_by = ? ORDER BY request_id DESC")) {
                 stmt.setInt(1, employeeId);
                 ResultSet rs = stmt.executeQuery();
 
-                int leaveBalance = (int) session.getAttribute("leaveBalance");
-
                 while (rs.next()) {
+                    int typeId = rs.getInt("type_id");
+                    int leaveBalance = getLeaveBalance(employeeId, typeId);
+
                     leaveHistoryList.add(new LeaveHistory(
                             rs.getInt("request_id"),
-                            getLeaveTypeName(conn, rs.getInt("type_id")),
+                            getLeaveTypeName(conn, typeId),
                             rs.getString("status"),
                             rs.getDate("start_date"),
                             rs.getDate("end_date"),
                             leaveBalance
                     ));
                 }
-
-                System.out.println("Leave records fetched for HOD " + employeeId + ": " + leaveHistoryList.size());
             }
 
         } catch (SQLException e) {
@@ -73,6 +79,25 @@ public class LeaveHistoryHodServlet extends HttpServlet {
 
         request.setAttribute("leaveHistory", leaveHistoryList);
         request.getRequestDispatcher("/hod/leave_history_hod.jsp").forward(request, response);
+    }
+
+    private int getLeaveBalance(int employeeId, int typeId) {
+        int balance = 0;
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+             PreparedStatement ps = conn.prepareStatement(
+                     "SELECT balance FROM employee_leave_balance WHERE employee_id = ? AND type_id = ?")) {
+
+            ps.setInt(1, employeeId);
+            ps.setInt(2, typeId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                balance = rs.getInt("balance");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return balance;
     }
 
     private String getLeaveTypeName(Connection conn, int typeId) throws SQLException {

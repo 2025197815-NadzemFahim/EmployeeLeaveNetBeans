@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.List, com.leave.model.LeaveHistory" %>
+<%@ page import="java.util.List, com.leave.model.LeaveHistory, java.util.Arrays" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -109,7 +109,7 @@ body {
 
 /* Dropdown parent */
 .menu-group .menu-parent {
-  background: #e0e0e0;
+  background: #d0d0d0;
   font-weight: 600;
 }
 
@@ -279,11 +279,11 @@ body {
   .cards { grid-template-columns: 1fr; }
 }
 </style>
-
 </head>
+
 <body>
-    
-    <div class="wrapper">
+
+<div class="wrapper">
 
   <!-- ===== Sidebar ===== -->
   <div class="sidebar" id="sidebar">
@@ -298,88 +298,122 @@ body {
       <p><%= session.getAttribute("position") != null ? session.getAttribute("position") : session.getAttribute("role") %></p>
     </div>
 
-   <div class="menu">
-      <a href="#" class="active"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
-      <a href="#"><i class="fas fa-users"></i><span>Employees</span></a>
-      <a href="#"><i class="fas fa-file-lines"></i><span>Policies</span></a>
-      <a href="#"><i class="fas fa-clipboard"></i><span>Reports</span></a>
-      <a href="#"><i class="fas fa-bell"></i><span>Requests</span></a>
+    <div class="menu">
+      <a href="dashboard.jsp" class="active"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+      <a href="employees.jsp"><i class="fas fa-users"></i><span>Employees</span></a>
+      <a href="policies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
+      <a href="reports.jsp"><i class="fas fa-clipboard"></i><span>Reports</span></a>
 
-      <!-- Personal dropdown -->
       <div class="menu-group">
         <div class="menu-parent"><i class="fas fa-user"></i><span>Personal</span></div>
         <div class="submenu">
-          <a href="#"><i class="fas fa-id-badge"></i><span>Profile</span></a>
-          <a href="#"><i class="fas fa-calendar-plus"></i><span>Apply Leave</span></a>
-          <a href="#"><i class="fas fa-history"></i><span>Leave History</span></a>
-          <a href="#"><i class="fas fa-folder-open"></i><span>Generate Record</span></a>
+          <a href="profile.jsp"><i class="fas fa-id-badge"></i><span>Profile</span></a>
+          <a href="apply_leave.jsp"><i class="fas fa-calendar-plus"></i><span>Apply Leave</span></a>
+          <a href="leave_history_staff.jsp"><i class="fas fa-history"></i><span>Leave History</span></a>
         </div>
       </div>
 
-      <a href="#"><i class="fas fa-bell"></i><span>Notifications</span></a>
-      <a href="#"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
+      <a href="notifications.jsp"><i class="fas fa-bell"></i><span>Notifications</span></a>
+      <a href="LogoutServlet"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
     </div>
   </div>
 
-<div class="main">
-  <div class="main-content">
+  <!-- ===== Main Content ===== -->
+  <div class="main">
+    <div class="main-content">
 
-    <div class="header">Dashboard Overview</div>
+      <div class="header">Dashboard Overview</div>
 
-    <div class="cards">
-      <div class="card-item"><i class="fas fa-users"></i> Total Employees <h3><%= request.getAttribute("totalEmployees") %></h3></div>
-      <div class="card-item"><i class="fas fa-calendar-day"></i> Present Today <h3><%= request.getAttribute("presentToday") %></h3></div>
-      <div class="card-item"><i class="fas fa-plane"></i> On Leave <h3><%= request.getAttribute("onLeave") %></h3></div>
-      <div class="card-item"><i class="fas fa-clock"></i> Pending Approvals <h3><%= request.getAttribute("pending") %></h3></div>
+      <!-- Live Clock -->
+      <div class="card-item" style="font-size:20px;font-weight:bold;margin-bottom:15px;">
+        <i class="fas fa-clock"></i>
+        <span id="liveClock"></span>
+      </div>
+
+      <!-- Dashboard Cards -->
+      <div class="cards">
+        <div class="card-item"><i class="fas fa-users"></i> Total Employees 
+          <h3><%= request.getAttribute("totalEmployees") != null ? request.getAttribute("totalEmployees") : 0 %></h3>
+        </div>
+
+        <div class="card-item"><i class="fas fa-calendar-day"></i> Present Today 
+          <h3><%= request.getAttribute("presentToday") != null ? request.getAttribute("presentToday") : 0 %></h3>
+        </div>
+
+        <div class="card-item"><i class="fas fa-plane"></i> On Leave 
+          <h3><%= request.getAttribute("onLeave") != null ? request.getAttribute("onLeave") : 0 %></h3>
+        </div>
+
+        <div class="card-item"><i class="fas fa-book"></i> Leave Records 
+          <h3><%= request.getAttribute("leaveHistory") != null ? ((List)request.getAttribute("leaveHistory")).size() : 0 %></h3>
+        </div>
+      </div>
+
+      <!-- Chart split layout -->
+      <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
+
+        <!-- Monthly Leave Line Chart -->
+        <div class="chart-section" style="flex:2;min-width:300px;">
+          <canvas id="leaveChart"></canvas>
+        </div>
+
+        <!-- Leave Balance Panel -->
+        <div class="chart-section" style="flex:1;min-width:250px;font-size:14px;text-align:left;">
+          <h4>Leave Balance</h4>
+          <%
+            int[] bal = (int[]) request.getAttribute("leaveBalances");
+            String[] types = {"Annual","Medical","Emergency","Unpaid"};
+            if (bal != null) {
+                for (int i = 0; i < 4; i++) {
+          %>
+              <div><strong><%= types[i] %>:</strong> <%= bal[i] %> days</div>
+          <%
+                }
+            } else {
+          %>
+              <div>No leave balance data.</div>
+          <%
+            }
+          %>
+        </div>
+        
+        
+        
+
+      </div>
+
     </div>
-
-    <div class="chart-section">
-      <canvas id="leaveChart"></canvas>
-    </div>
-
-    <div class="approval-section">
-      <h4>Leave Requests for Approval</h4>
-      <%
-          List<LeaveHistory> latest = (List<LeaveHistory>) request.getAttribute("latestLeaves");
-          if (latest != null) {
-              for (LeaveHistory lh : latest) {
-      %>
-          <div class="approval-list">L<%= lh.getRequestId() %> – <%= lh.getLeaveType() %> (<%= lh.getStartDate() %> → <%= lh.getEndDate() %>) – <%= lh.getStatus() %></div>
-      <% 
-              }
-          }
-      %>
-    </div>
-
   </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <%
-  int[] c = (int[]) request.getAttribute("monthlyCount");
-  String dataPoints = "0,0,0,0,0,0,0,0,0,0,0,0";
-  if (c != null) {
-      StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < 12; i++) {
-          sb.append(c[i]);
-          if (i < 11) sb.append(",");
-      }
-      dataPoints = sb.toString();
+  int[] m = (int[]) request.getAttribute("monthlyCount");
+  String monthly = "[0,0,0,0,0,0,0,0,0,0,0,0]";
+  if (m != null) {
+      monthly = Arrays.toString(m);
   }
 %>
 
 <script>
-const ctx = document.getElementById('leaveChart').getContext('2d');
-new Chart(ctx, {
+// Live Clock Update
+function updateClock() {
+  const now = new Date();
+  document.getElementById("liveClock").innerText = now.toLocaleDateString() + " " + now.toLocaleTimeString();
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// Render Leave Chart
+const counts = <%= monthly %>;
+
+new Chart(document.getElementById('leaveChart'), {
   type: 'line',
   data: {
     labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-    datasets: [{
-      data: [<%= dataPoints %>],
-      fill: false,
-      tension: 0.3
-    }]
+    datasets: [{ data: counts, fill:false, tension:0.3 }]
   },
   options: {
     responsive: true,
@@ -387,19 +421,16 @@ new Chart(ctx, {
     scales: { y: { beginAtZero: true } }
   }
 });
-</script>
 
-<script>
-/* Sidebar open/close */
-document.querySelector(".toggle-btn").addEventListener("click", function() {
+// Sidebar Toggle
+document.querySelector(".toggle-btn").addEventListener("click", () => {
   document.getElementById("sidebar").classList.toggle("closed");
 });
 
-/* Dropdown Personal open/close */
+// Personal Dropdown
 document.querySelectorAll(".menu-group").forEach(group => {
   const parent = group.querySelector(".menu-parent");
   const submenu = group.querySelector(".submenu");
-
   parent.addEventListener("click", () => {
     parent.classList.toggle("open");
     submenu.classList.toggle("open");

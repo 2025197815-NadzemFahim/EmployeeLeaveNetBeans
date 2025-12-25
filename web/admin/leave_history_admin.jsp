@@ -279,8 +279,9 @@ tbody tr:nth-child(odd) {
     </div>
 
     <div class="profile">
-      <img src="https://i.imgur.com/7k12EPD.png">
-      <h4><%= session.getAttribute("name") != null ? session.getAttribute("name") : "Admin User" %></h4>
+      <img src="<%= request.getContextPath() %>/profile-image?path=<%= request.getAttribute("profileImg") %>"
+           onerror="this.src='<%= request.getContextPath()%>/images/default_profile.png'">
+      <h4><%= session.getAttribute("name") != null ? session.getAttribute("name") : "Staff User" %></h4>
       <p><%= session.getAttribute("position") != null ? session.getAttribute("position") : session.getAttribute("role") %></p>
     </div>
 
@@ -289,7 +290,7 @@ tbody tr:nth-child(odd) {
       <a href="employees.jsp"><i class="fas fa-users"></i><span>Employees</span></a>
       <a href="policies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
       <a href="reports.jsp"><i class="fas fa-clipboard"></i><span>Reports</span></a>
-      <a href="notifications_hod.jsp"><i class="fas fa-bell"></i>Requests</a>
+    
 
       <div class="menu-group">
         <div class="menu-parent"><i class="fas fa-user"></i><span>Personal</span></div>
@@ -306,12 +307,12 @@ tbody tr:nth-child(odd) {
     </div>
   </div>
 
-  <!-- ===== Main Content ===== -->
+   <!-- Main Content -->
   <div class="main">
     <div class="header">Leave History Record</div>
 
     <div class="top-bar">
-      <input type="text" class="search" placeholder="Search leave..." id="searchInput" onkeyup="searchTable()">
+      <input type="text" class="search" placeholder="Search leave..." onkeyup="searchTable()" id="searchInput">
     </div>
 
     <div class="card">
@@ -332,9 +333,10 @@ tbody tr:nth-child(odd) {
     List<LeaveHistory> leaveHistory = (List<LeaveHistory>) request.getAttribute("leaveHistory");
     if (leaveHistory != null && !leaveHistory.isEmpty()) {
         for (LeaveHistory lh : leaveHistory) {
-            String statusClass = "status-pending";
+            String statusClass = "";
             if ("APPROVED".equalsIgnoreCase(lh.getStatus())) statusClass = "status-approved";
             else if ("REJECTED".equalsIgnoreCase(lh.getStatus())) statusClass = "status-rejected";
+            else statusClass = "status-pending";
 %>
           <tr>
             <td><%= lh.getRequestId() %></td>
@@ -358,6 +360,7 @@ tbody tr:nth-child(odd) {
     </div>
 
   </div>
+
 </div>
 
 <script>
