@@ -26,30 +26,39 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.annotation.MultipartConfig;
 
-@WebServlet("/LoginServlet")
+@WebServlet("/ApplyLeaveServlet")
 public class ApplyLeaveServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute("employeeId") == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
         int employeeId = (int) session.getAttribute("employeeId");
 
-        int typeId = Integer.parseInt(request.getParameter("typeId"));
+        String typeIdStr = request.getParameter("typeId");
+        if (typeIdStr == null || typeIdStr.isEmpty()) {
+            response.sendRedirect("apply_leave.jsp?error=type");
+            return;
+        }
+
+        int typeId = Integer.parseInt(typeIdStr);
+
         Date startDate = Date.valueOf(request.getParameter("startDate"));
         Date endDate = Date.valueOf(request.getParameter("endDate"));
         String reason = request.getParameter("reason");
 
-        // Calculate leave days
         long diff = endDate.getTime() - startDate.getTime();
         int daysRequested = (int) (diff / (1000 * 60 * 60 * 24)) + 1;
 
-        try {
-            Connection conn = DriverManager.getConnection(
-                "jdbc:derby://localhost:1527/LeaveDB", "app", "app"
-            );
+        try (Connection conn = DriverManager.getConnection(
+                "jdbc:derby://localhost:1527/LeaveDB", "app", "app")) {
 
-            // 1. Get current balance
             PreparedStatement ps1 = conn.prepareStatement(
                 "SELECT leave_balance FROM employee WHERE employee_id=?"
             );
@@ -57,22 +66,18 @@ public class ApplyLeaveServlet extends HttpServlet {
             ResultSet rs = ps1.executeQuery();
 
             int balance = 0;
-            if (rs.next()) {
-                balance = rs.getInt("leave_balance");
-            }
+            if (rs.next()) balance = rs.getInt("leave_balance");
 
             if (daysRequested > balance) {
                 response.sendRedirect("apply_leave.jsp?error=balance");
-                conn.close();
                 return;
             }
 
-            // 2. Insert leave request
             PreparedStatement ps2 = conn.prepareStatement(
-                "INSERT INTO leave_request " +
-                "(start_date, end_date, reason, status, submitted_by, type_id) " +
-                "VALUES (?, ?, ?, 'PENDING', ?, ?)"
+                "INSERT INTO leave_request (start_date, end_date, reason, status, submitted_by, type_id) "
+              + "VALUES (?, ?, ?, 'PENDING', ?, ?)"
             );
+
             ps2.setDate(1, startDate);
             ps2.setDate(2, endDate);
             ps2.setString(3, reason);
@@ -80,7 +85,6 @@ public class ApplyLeaveServlet extends HttpServlet {
             ps2.setInt(5, typeId);
 
             ps2.executeUpdate();
-            conn.close();
 
             response.sendRedirect("LeaveHistoryServlet");
 
@@ -90,3 +94,4 @@ public class ApplyLeaveServlet extends HttpServlet {
         }
     }
 }
+

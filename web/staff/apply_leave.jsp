@@ -214,26 +214,77 @@
         </style>
     </head>
     <body>
+
         <%
-            int employeeId = (int) session.getAttribute("employeeId");
+            // ===== SESSION CHECK =====
+            Integer employeeId = (Integer) session.getAttribute("employeeId");
+            if (employeeId == null) {
+                response.sendRedirect("../login.jsp");
+                return;
+            }
 
-            int leaveBalance = 0;
+            boolean success = "1".equals(request.getParameter("success"));
 
+            // ===== DB CONNECTION =====
             Connection conn = DriverManager.getConnection(
                     "jdbc:derby://localhost:1527/LeaveDB", "app", "app"
             );
 
-            PreparedStatement ps = conn.prepareStatement(
-                    "SELECT leave_balance FROM employee WHERE employee_id=?"
-            );
-            ps.setInt(1, employeeId);
+            // ===== EMPLOYEE INFO =====
+            String empName = "";
+            String empRole = "";
+            String empDept = "";
+            int leaveBalance = 0;
+            String profileImage = "uploads/default.png";
 
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                leaveBalance = rs.getInt("leave_balance");
+            PreparedStatement psEmp = conn.prepareStatement(
+                    "SELECT name, role, department, leave_balance, profile_image "
+                    + "FROM employee WHERE employee_id=?"
+            );
+            psEmp.setInt(1, employeeId);
+            ResultSet rsEmp = psEmp.executeQuery();
+
+            if (rsEmp.next()) {
+                empName = rsEmp.getString("name");
+                empRole = rsEmp.getString("role");
+                empDept = rsEmp.getString("department");
+                leaveBalance = rsEmp.getInt("leave_balance");
+
+                if (rsEmp.getString("profile_image") != null) {
+                    profileImage = rsEmp.getString("profile_image");
+                }
             }
-            conn.close();
+
+            // ===== LEAVE TYPES =====
+            PreparedStatement psType
+                    = conn.prepareStatement("SELECT type_id, name FROM leave_type");
+            ResultSet rsType = psType.executeQuery();
         %>
+
+        <%-- SUCCESS POPUP --%>
+        <% if (success) { %>
+        <script>
+            alert("Leave application submitted successfully!");
+        </script>
+        <% }%>
+
+        <%
+            String dateError = request.getParameter("dateError");
+            if ("past".equals(dateError)) {
+        %>
+        <script>
+            alert("Start date must be today or a future date.");
+        </script>
+        <%
+        } else if ("range".equals(dateError)) {
+        %>
+        <script>
+            alert("End date cannot be before start date.");
+        </script>
+        <%
+            }
+        %>
+
 
         <div class="wrapper">
             <div class="sidebar" id="sidebar">
@@ -242,11 +293,16 @@
                     <span class="toggle-btn" onclick="toggleSidebar()">☰</span>
                 </div>
 
+
+                <!-- ================= SIDEBAR PROFILE ================= -->
                 <div class="profile">
-                    <img src="https://i.imgur.com/7k12EPD.png">
-                    <h4>AMIRUL AIMAN BIN LEO</h4>
-                    <p>HOD IT</p>
+                    <img src="<%= request.getContextPath() + "/" + profileImage%>"
+                         onerror="this.src='<%= request.getContextPath()%>/uploads/default.png'">
+                    
+                    <h4><%= empName%></h4>
+                    <p><%= empRole%> <%= empDept%></p>
                 </div>
+
 
                 <div class="menu">
                     <a><i class="fas fa-th-large"></i>Dashboard</a>
@@ -266,83 +322,125 @@
 
                 <div class="card">
 
-                    <form action="ApplyLeaveServlet" method="post" enctype="multipart/form-data">
+                    <form action="<%= request.getContextPath()%>/StaffApplyLeaveServlet"
+                          method="post"
+                          enctype="multipart/form-data"
+                          onsubmit="return validateDates();">
 
+                        <!-- Leave Type -->
                         <div class="form-row full">
                             <label>Leave Type</label>
                             <select name="typeId" required>
-                                <option value="1">Annual Leave (<%= leaveBalance%>)</option>
-                                <option value="2">Medical Leave</option>
-                                <option value="3">Emergency Leave</option>
+                                <% while (rsType.next()) {%>
+                                <option value="<%= rsType.getInt("type_id")%>">
+                                    <%= rsType.getString("name")%> (<%= leaveBalance%>)
+                                </option>
+                                <% } %>
                             </select>
                         </div>
 
+                        <!-- Start Date -->
                         <div class="form-row">
                             <label>Start Date</label>
                             <input type="date" name="startDate" required>
                         </div>
 
+                        <!-- End Date -->
                         <div class="form-row">
                             <label>End Date</label>
                             <input type="date" name="endDate" required>
                         </div>
 
+                        <!-- Reason -->
                         <div class="form-row full">
                             <label>Reason for Leave</label>
                             <textarea name="reason" required></textarea>
                         </div>
 
+                        <!-- Attachment -->
                         <div class="form-row full">
                             <label>Attachment (if any)</label>
-                            <input type="file" name="attachment">
+                            <input type="file" name="attachment" class="upload-btn">
                         </div>
 
+                        <!-- Buttons -->
                         <div class="actions">
                             <button type="reset" class="btn btn-cancel">Cancel</button>
                             <button type="submit" class="btn btn-submit">Submit</button>
                         </div>
 
                     </form>
-
                 </div>
-            </div>
-            <script>
-                function toggleSidebar() {
-                    const sidebar = document.getElementById('sidebar');
-                    sidebar.classList.toggle('closed');
-                }
 
-                /* Filter table by status */
-                function filterStatus() {
-                    const filter = document.getElementById("statusFilter").value.toLowerCase();
-                    const table = document.getElementById("leaveTable");
-                    const trs = table.tBodies[0].getElementsByTagName("tr");
-
-                    for (let i = 0; i < trs.length; i++) {
-                        const status = trs[i].getElementsByTagName("td")[4].textContent.toLowerCase();
-                        trs[i].style.display = (filter === "all" || status === filter) ? "" : "none";
+                <%
+                    conn.close();
+                %>
+                <script>
+                    function toggleSidebar() {
+                        const sidebar = document.getElementById('sidebar');
+                        sidebar.classList.toggle('closed');
                     }
-                }
 
-                /* Search table */
-                function searchTable() {
-                    const input = document.getElementById("searchInput").value.toLowerCase();
-                    const table = document.getElementById("leaveTable");
-                    const trs = table.tBodies[0].getElementsByTagName("tr");
+                    /* Filter table by status */
+                    function filterStatus() {
+                        const filter = document.getElementById("statusFilter").value.toLowerCase();
+                        const table = document.getElementById("leaveTable");
+                        const trs = table.tBodies[0].getElementsByTagName("tr");
 
-                    for (let i = 0; i < trs.length; i++) {
-                        let found = false;
-                        const tds = trs[i].getElementsByTagName("td");
-                        for (let j = 0; j < tds.length - 1; j++) { // exclude Details column
-                            if (tds[j].textContent.toLowerCase().includes(input)) {
-                                found = true;
-                                break;
-                            }
+                        for (let i = 0; i < trs.length; i++) {
+                            const status = trs[i].getElementsByTagName("td")[4].textContent.toLowerCase();
+                            trs[i].style.display = (filter === "all" || status === filter) ? "" : "none";
                         }
-                        trs[i].style.display = found ? "" : "none";
                     }
-                }
-            </script>
 
-    </body>
-</html>
+                    /* Search table */
+                    function searchTable() {
+                        const input = document.getElementById("searchInput").value.toLowerCase();
+                        const table = document.getElementById("leaveTable");
+                        const trs = table.tBodies[0].getElementsByTagName("tr");
+
+                        for (let i = 0; i < trs.length; i++) {
+                            let found = false;
+                            const tds = trs[i].getElementsByTagName("td");
+                            for (let j = 0; j < tds.length - 1; j++) { // exclude Details column
+                                if (tds[j].textContent.toLowerCase().includes(input)) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            trs[i].style.display = found ? "" : "none";
+                        }
+                    }
+
+                    function validateDates() {
+                        const startDate = document.querySelector('input[name="startDate"]').value;
+                        const endDate = document.querySelector('input[name="endDate"]').value;
+
+                        if (!startDate || !endDate)
+                            return true;
+
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        const start = new Date(startDate);
+                        const end = new Date(endDate);
+
+                        if (start < today) {
+                            alert("Start date must be today or a future date.");
+                            return false;
+                        }
+
+                        if (end < start) {
+                            alert("End date cannot be before start date.");
+                            return false;
+                        }
+
+                        return true;
+                    }
+                </script>
+
+                </body>
+                </html>
+
+
+
