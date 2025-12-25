@@ -36,72 +36,73 @@ public class StaffApplyLeaveServlet extends HttpServlet {
         String reason = request.getParameter("reason");
         int typeId = Integer.parseInt(request.getParameter("typeId"));
 
-        /* ===== DATE VALIDATION (INSERT HERE) ===== */
+        // ===== DATE VALIDATION =====
         LocalDate start = LocalDate.parse(startDate);
         LocalDate end = LocalDate.parse(endDate);
         LocalDate today = LocalDate.now();
 
-// ❌ Start date in the past
         if (start.isBefore(today)) {
             response.sendRedirect("staff/apply_leave.jsp?dateError=past");
             return;
         }
-
-// ❌ End date before start date
         if (end.isBefore(start)) {
             response.sendRedirect("staff/apply_leave.jsp?dateError=range");
             return;
         }
-        /* ===== END DATE VALIDATION ===== */
 
-/* ===== HANDLE ATTACHMENT (EXTERNAL FOLDER) ===== */
-Part filePart = request.getPart("attachment");
-String filePath = null;
+        // ===== CALCULATE LEAVE DAYS =====
+        long leaveDays = java.time.temporal.ChronoUnit.DAYS.between(start, end) + 1;
 
-if (filePart != null && filePart.getSize() > 0) {
+        // ===== HANDLE ATTACHMENT =====
+        Part filePart = request.getPart("attachment");
+        String filePath = null;
 
-    // ✔ Safe filename
-    String fileName = System.currentTimeMillis() + "_"
-            + java.nio.file.Paths
-                .get(filePart.getSubmittedFileName())
-                .getFileName()
-                .toString();
+        if (filePart != null && filePart.getSize() > 0) {
+            String fileName = System.currentTimeMillis() + "_"
+                    + java.nio.file.Paths.get(filePart.getSubmittedFileName())
+                            .getFileName().toString();
 
-    // ✔ External upload directory (CREATE THIS MANUALLY)
-    String uploadDirPath = "C:/leave_uploads/attachments";
+            String uploadDirPath = "C:/leave_uploads/attachments";
+            File uploadDir = new File(uploadDirPath);
+            if (!uploadDir.exists()) uploadDir.mkdirs();
 
-    File uploadDir = new File(uploadDirPath);
-    if (!uploadDir.exists()) {
-        uploadDir.mkdirs();   // backup safety
-    }
+            File file = new File(uploadDir, fileName);
+            try (InputStream input = filePart.getInputStream()) {
+                Files.copy(input, file.toPath(),
+                        java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            }
+            filePath = "attachments/" + fileName;
+        }
 
-    File file = new File(uploadDir, fileName);
+        try (Connection conn = DriverManager.getConnection(
+                "jdbc:derby://localhost:1527/LeaveDB", "app", "app")) {
 
-    try (InputStream input = filePart.getInputStream()) {
-        Files.copy(
-            input,
-            file.toPath(),
-            java.nio.file.StandardCopyOption.REPLACE_EXISTING
-        );
-    }
-
-    // ✔ Store RELATIVE path in DB (important)
-    filePath = "attachments/" + fileName;
-}
-
-
-
-        try {
-            Connection conn = DriverManager.getConnection(
-                    "jdbc:derby://localhost:1527/LeaveDB", "app", "app"
+            /* ===== CHECK LEAVE BALANCE (NEW) ===== */
+            PreparedStatement psBalance = conn.prepareStatement(
+                "SELECT balance FROM employee_leave_balance " +
+                "WHERE employee_id=? AND type_id=?"
             );
+            psBalance.setInt(1, employeeId);
+            psBalance.setInt(2, typeId);
+            ResultSet rsBalance = psBalance.executeQuery();
+
+            if (!rsBalance.next()) {
+                response.sendRedirect("staff/apply_leave.jsp?error=nobalance");
+                return;
+            }
+
+            int balance = rsBalance.getInt("balance");
+
+            if (leaveDays > balance) {
+                response.sendRedirect("staff/apply_leave.jsp?error=insufficient");
+                return;
+            }
 
             /* ===== GET STAFF DEPARTMENT ===== */
             String department = "";
-            PreparedStatement psDept
-                    = conn.prepareStatement(
-                            "SELECT department FROM employee WHERE employee_id=?"
-                    );
+            PreparedStatement psDept = conn.prepareStatement(
+                "SELECT department FROM employee WHERE employee_id=?"
+            );
             psDept.setInt(1, employeeId);
             ResultSet rsDept = psDept.executeQuery();
             if (rsDept.next()) {
@@ -110,10 +111,9 @@ if (filePart != null && filePart.getSize() > 0) {
 
             /* ===== GET HOD ===== */
             int hodId = 0;
-            PreparedStatement psHod
-                    = conn.prepareStatement(
-                            "SELECT employee_id FROM employee WHERE role='HOD' AND department=?"
-                    );
+            PreparedStatement psHod = conn.prepareStatement(
+                "SELECT employee_id FROM employee WHERE role='HOD' AND department=?"
+            );
             psHod.setString(1, department);
             ResultSet rsHod = psHod.executeQuery();
             if (rsHod.next()) {
@@ -121,12 +121,11 @@ if (filePart != null && filePart.getSize() > 0) {
             }
 
             /* ===== INSERT LEAVE REQUEST ===== */
-            PreparedStatement psInsert
-                    = conn.prepareStatement(
-                            "INSERT INTO leave_request "
-                            + "(start_date, end_date, reason, status, submitted_by, approved_by, type_id, attachment) "
-                            + "VALUES (?, ?, ?, 'PENDING', ?, ?, ?, ?)"
-                    );
+            PreparedStatement psInsert = conn.prepareStatement(
+                "INSERT INTO leave_request " +
+                "(start_date, end_date, reason, status, submitted_by, approved_by, type_id, attachment) " +
+                "VALUES (?, ?, ?, 'PENDING', ?, ?, ?, ?)"
+            );
 
             psInsert.setDate(1, Date.valueOf(startDate));
             psInsert.setDate(2, Date.valueOf(endDate));
@@ -137,14 +136,12 @@ if (filePart != null && filePart.getSize() > 0) {
             psInsert.setString(7, filePath);
 
             psInsert.executeUpdate();
-            conn.close();
 
-            // stay on page + popup
             response.sendRedirect("staff/apply_leave.jsp?success=1");
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("staff/apply_leave.jsp");
+            response.sendRedirect("staff/apply_leave.jsp?error=server");
         }
     }
 }

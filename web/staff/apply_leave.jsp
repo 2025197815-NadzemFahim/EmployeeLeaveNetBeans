@@ -234,11 +234,11 @@
             String empName = "";
             String empRole = "";
             String empDept = "";
-            int leaveBalance = 0;
+            String empPost = "";
             String profileImage = "uploads/default.png";
 
             PreparedStatement psEmp = conn.prepareStatement(
-                    "SELECT name, role, department, leave_balance, profile_image "
+                    "SELECT name, role, department, profile_image, position "
                     + "FROM employee WHERE employee_id=?"
             );
             psEmp.setInt(1, employeeId);
@@ -248,7 +248,7 @@
                 empName = rsEmp.getString("name");
                 empRole = rsEmp.getString("role");
                 empDept = rsEmp.getString("department");
-                leaveBalance = rsEmp.getInt("leave_balance");
+                empPost = rsEmp.getString("position");
 
                 if (rsEmp.getString("profile_image") != null) {
                     profileImage = rsEmp.getString("profile_image");
@@ -256,9 +256,16 @@
             }
 
             // ===== LEAVE TYPES =====
-            PreparedStatement psType
-                    = conn.prepareStatement("SELECT type_id, name FROM leave_type");
-            ResultSet rsType = psType.executeQuery();
+            PreparedStatement psType = conn.prepareStatement(
+    "SELECT lt.type_id, lt.name, elb.balance " +
+    "FROM employee_leave_balance elb " +
+    "JOIN leave_type lt ON elb.type_id = lt.type_id " +
+    "WHERE elb.employee_id = ?"
+);
+psType.setInt(1, employeeId);
+ResultSet rsType = psType.executeQuery();
+
+            
         %>
 
         <%-- SUCCESS POPUP --%>
@@ -268,22 +275,31 @@
         </script>
         <% }%>
 
-        <%
-            String dateError = request.getParameter("dateError");
-            if ("past".equals(dateError)) {
-        %>
-        <script>
-            alert("Start date must be today or a future date.");
-        </script>
-        <%
-        } else if ("range".equals(dateError)) {
-        %>
-        <script>
-            alert("End date cannot be before start date.");
-        </script>
-        <%
-            }
-        %>
+       <%
+String dateError = request.getParameter("dateError");
+if ("past".equals(dateError)) {
+%>
+<script>alert("Start date must be today or a future date.");</script>
+<%
+} else if ("range".equals(dateError)) {
+%>
+<script>alert("End date cannot be before start date.");</script>
+<%
+}
+
+String error = request.getParameter("error");
+if ("insufficient".equals(error)) {
+%>
+<script>alert("Insufficient leave balance for selected leave type.");</script>
+<%
+} else if ("nobalance".equals(error)) {
+%>
+<script>alert("No leave balance found for this leave type.");</script>
+<%
+}
+%>
+
+
 
 
         <div class="wrapper">
@@ -299,14 +315,14 @@
                     <img src="<%= request.getContextPath()%>/profile-image?path=<%= profileImage%>"
                          onerror="this.src='<%= request.getContextPath()%>/images/default_profile.png'">
                     <h4><%= empName%></h4>
-                    <p><%= empRole%> <%= empDept%></p>
+                    <p><%= empPost%></p>
                 </div>
 
 
                 <div class="menu">
                     <a><i class="fas fa-th-large"></i>Dashboard</a>
-                    <a><i class="fas fa-user"></i>Profile</a>
-                    <a  class="active"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
+                    <a href="<%= request.getContextPath()%>/ViewProfileServlet"><i class="fas fa-user"></i>Profile</a>
+                    <a  href="<%= request.getContextPath()%>/staff/apply_leave.jsp" class="active"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
                     <a><i class="fas fa-history"></i>Leave History</a>
                     <a><i class="fas fa-bell"></i>Notifications</a>
                     <a><i class="fas fa-sign-out-alt"></i>Logout</a>
@@ -332,7 +348,8 @@
                             <select name="typeId" required>
                                 <% while (rsType.next()) {%>
                                 <option value="<%= rsType.getInt("type_id")%>">
-                                    <%= rsType.getString("name")%> (<%= leaveBalance%>)
+                                    <%= rsType.getString("name")%>
+                                    (Remaining: <%= rsType.getInt("balance")%> days)
                                 </option>
                                 <% } %>
                             </select>
