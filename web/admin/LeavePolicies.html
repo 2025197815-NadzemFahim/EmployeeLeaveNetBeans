@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Leave Policies - Admin</title>
+
+<!-- Keep EXACT same external deps as LeaveHistory_Admin.html -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+/* ====== BASE (match LeaveHistory_Admin.html sizing & feel) ====== */
+* { box-sizing: border-box; font-family: "Segoe UI", sans-serif; }
+body { margin: 0; background: #f2f2f2; }
+.wrapper { display: flex; min-height: 100vh; }
+
+/* ====== SIDEBAR (copied 1:1 from LeaveHistory_Admin.html) ====== */
+.sidebar {
+  width: 260px;
+  background: #e0e0e0;
+  padding: 15px;
+  transition: width 0.3s ease;
+}
+.sidebar.closed { width: 60px; }
+
+.brand {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+.sidebar.closed .brand span:first-child { display: none; }
+
+.profile {
+  text-align: center;
+  margin-bottom: 25px;
+  transition: opacity 0.3s ease;
+}
+.sidebar.closed .profile { opacity: 0; pointer-events: none; }
+
+.profile img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #ccc;
+  margin-bottom: 10px;
+}
+.profile h4 { margin: 5px 0 0; font-size: 14px; }
+.profile p { margin: 0; font-size: 12px; color: #555; }
+
+.menu a, .menu-parent {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 6px;
+  text-decoration: none;
+  color: #000;
+  border-radius: 6px;
+  font-size: 14px;
+  gap: 12px;
+}
+
+.menu a i { width: 20px; text-align: center; font-size: 16px; }
+.menu a:hover { background: #cfcfcf; }
+.menu a.active { background: #bdbdbd; font-weight: bold; }
+
+/* Dropdown parent (no default highlight; only hover/active link highlights) */
+.menu-group .menu-parent { font-weight: 600; }
+
+/* Arrow indicator */
+.menu-group .menu-parent::after {
+  content: "▼";
+  font-size: 10px;
+  margin-left: auto;
+  margin-right: 10px;
+  transition: transform 0.2s ease;
+}
+.menu-group .menu-parent.open::after { transform: rotate(180deg); }
+
+/* Submenu */
+.menu-group .submenu { margin-left: 32px; display: none; flex-direction: column; }
+.menu-group .submenu.open { display: flex; }
+
+.menu a:hover, .menu-parent:hover { background: #cfcfcf; }
+.menu a.active { background: #bdbdbd; font-weight: bold; }
+
+/* Collapse mode → icon center */
+.sidebar.closed .menu a,
+.sidebar.closed .menu-parent {
+  justify-content: center;
+  padding: 12px 0;
+  font-size: 0;
+  gap: 0;
+}
+.sidebar.closed .menu a i,
+.sidebar.closed .menu-parent i {
+  font-size: 18px;
+  width: auto;
+}
+.sidebar.closed .menu a span,
+.sidebar.closed .menu-parent span { display: none; }
+.sidebar.closed .menu-parent::after { display: none; }
+.sidebar.closed .submenu { margin-left: 0; align-items: center; }
+.sidebar.closed .submenu a { justify-content: center; padding: 10px 0; gap: 0; }
+.sidebar.closed .submenu a i { font-size: 16px; }
+
+/* ====== MAIN (match LeaveHistory_Admin.html) ====== */
+.main { flex: 1; padding: 20px; }
+
+.header {
+  background: linear-gradient(to right, #bdbdbd, #eeeeee);
+  padding: 18px;
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Top actions area (search + add button; same height/feel) */
+.top-bar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+.search {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 220px;
+}
+.btn {
+  border: none;
+  border-radius: 999px;
+  padding: 9px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #4f4f4f;
+  color: white;
+}
+.btn:active { transform: translateY(1px); }
+.btn.secondary { background: #9e9e9e; color: #000; }
+.btn.danger { background: #d32f2f; }
+.btn.danger:hover { filter: brightness(0.95); }
+.btn.inline { border-radius: 8px; padding: 7px 14px; font-weight: 600; }
+
+/* Card */
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+/* Table (match style) */
+table { width: 100%; border-collapse: collapse; min-width: 750px; }
+th, td { padding: 14px; text-align: center; }
+th { color: black; font-weight: 600; }
+td { color: #555; font-weight: 600; }
+tbody tr:nth-child(odd) { background: #f2f2f2; }
+
+/* Status colors (align with leave history style) */
+.status-active { color: #00c853; font-weight: bold; }
+.status-disabled { color: #ff1744; font-weight: bold; }
+
+/* Forms (simple, like your screenshots) */
+.form-wrap {
+  background: white;
+  padding: 28px 26px;
+  border-radius: 10px;
+  max-width: 760px;
+  margin: 0 auto;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 16px 18px;
+  align-items: center;
+  margin-top: 10px;
+}
+.label { font-weight: 700; color: #333; text-align: right; padding-right: 10px; }
+.input, select, textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #cfcfcf;
+  font-weight: 600;
+  color: #444;
+  background: #fff;
+}
+textarea { min-height: 90px; resize: vertical; }
+
+.readonly {
+  background: #f3f3f3;
+  border-color: #d5d5d5;
+  color: #666;
+}
+
+.status-row {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: flex-start;
+}
+.status-row label { display:flex; align-items:center; gap:8px; font-weight:700; }
+.status-row .green { color:#00c853; }
+.status-row .red { color:#ff1744; }
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* Hide/show sections */
+.section { display: none; }
+.section.active { display: block; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .wrapper { flex-direction: column; }
+  .sidebar { width: 100%; }
+  .sidebar.closed { width: 100%; }
+  .header { font-size: 22px; text-align: center; }
+  .top-bar { justify-content: center; flex-wrap: wrap; }
+  .search { width: 100%; max-width: 300px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .label { text-align: left; padding-right: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+  <!-- Sidebar EXACT structure like LeaveHistory_Admin.html -->
+  <div class="sidebar" id="sidebar">
+    <div class="brand">
+      <span>TERLAJAK LARIS</span>
+      <span class="toggle-btn">☰</span>
+    </div>
+
+    <div class="profile">
+      <img src="../images/default_profile.png" alt="profile">
+      <h4>AMIRUL AIMAN BIN LEO</h4>
+      <p>Admin</p>
+    </div>
+
+    <div class="menu">
+      <a href="admin_dashboard.html"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+      <a href="#"><i class="fas fa-users"></i><span>Employees</span></a>
+      <a href="LeavePolicies.html" class="active" id="navPolicies"><i class="fas fa-file-lines"></i><span>Policies</span></a>
+      <a href="#"><i class="fas fa-clipboard"></i><span>Reports</span></a>
+
+      <!-- Personal dropdown -->
+      <div class="menu-group">
+        <div class="menu-parent"><i class="fas fa-user"></i><span>Personal</span></div>
+        <div class="submenu">
+          <a href="../staff/profile.html"><i class="fas fa-id-badge"></i><span>Profile</span></a>
+          <a href="../staff/apply_leave.html"><i class="fas fa-calendar-plus"></i><span>Apply Leave</span></a>
+          <a href="../staff/leave_history_staff.html"><i class="fas fa-history"></i><span>Leave History</span></a>
+          <a href="#"><i class="fas fa-folder-open"></i><span>Generate Record</span></a>
+        </div>
+      </div>
+
+      <a href="../staff/notification.html"><i class="fas fa-bell"></i><span>Notifications</span></a>
+      <a href="../login.jsp"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="header" id="pageTitle">Leave policies</div>
+
+    <!-- LIST SECTION -->
+    <div class="section active" id="sectionList">
+      <div class="top-bar">
+        <input type="text" id="searchInput" class="search" placeholder="Search leave policies...">
+        <button class="btn" id="btnAddNew">Add New</button>
+      </div>
+
+      <div class="card">
+        <table id="policyTable">
+          <thead>
+            <tr>
+              <th>Type ID</th>
+              <th>Leave Type</th>
+              <th>Max Day Allowed</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="policyTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ADD SECTION -->
+    <div class="section" id="sectionAdd">
+      <div class="form-wrap">
+        <div class="form-grid">
+          <div class="label">Leave Type</div>
+          <input class="input" id="addLeaveType" placeholder="e.g. Annual Leave">
+
+          <div class="label">Type ID</div>
+          <input class="input" id="addTypeId" placeholder="e.g. P001">
+
+          <div class="label">Max Day Allowed</div>
+          <input class="input" id="addMaxDays" type="number" min="0" placeholder="e.g. 14">
+
+          <div class="label">Status</div>
+          <div class="status-row">
+            <label class="green"><input type="radio" name="addStatus" value="Active" checked> Active</label>
+            <label class="red"><input type="radio" name="addStatus" value="Disabled"> Disabled</label>
+          </div>
+
+          <div class="label">Description</div>
+          <textarea class="input" id="addDesc" placeholder="Description..."></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn secondary" id="btnAddBack">Back</button>
+          <button class="btn" id="btnAddSave">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDIT SECTION -->
+    <div class="section" id="sectionEdit">
+      <div class="form-wrap">
+        <div class="form-grid">
+          <div class="label">Leave Type</div>
+          <input class="input readonly" id="editLeaveType" readonly>
+
+          <div class="label">Type ID</div>
+          <input class="input readonly" id="editTypeId" readonly>
+
+          <div class="label">Max Day Allowed</div>
+          <input class="input" id="editMaxDays" type="number" min="0">
+
+          <div class="label">Status</div>
+          <div class="status-row">
+            <label class="green"><input type="radio" name="editStatus" value="Active"> Active</label>
+            <label class="red"><input type="radio" name="editStatus" value="Disabled"> Disabled</label>
+          </div>
+
+          <div class="label">Description</div>
+          <textarea class="input" id="editDesc"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn secondary" id="btnEditBack">Back</button>
+          <button class="btn danger" id="btnEditDelete">Delete</button>
+          <button class="btn" id="btnEditUpdate">Update</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ===== Sidebar open/close (EXACT behavior) ===== */
+document.querySelector(".toggle-btn").addEventListener("click", function() {
+  document.getElementById("sidebar").classList.toggle("closed");
+});
+
+/* Dropdown Personal open/close (same as LeaveHistory_Admin.html) */
+document.querySelectorAll(".menu-group").forEach(group => {
+  const parent = group.querySelector(".menu-parent");
+  const submenu = group.querySelector(".submenu");
+
+  parent.addEventListener("click", () => {
+    parent.classList.toggle("open");
+    submenu.classList.toggle("open");
+  });
+});
+
+/* ===== Sidebar active highlight on click ===== */
+document.querySelectorAll(".menu a").forEach(a => {
+  a.addEventListener("click", (e) => {
+    // keep demo on same page
+    if (a.getAttribute("href") === "#") e.preventDefault();
+    document.querySelectorAll(".menu a").forEach(x => x.classList.remove("active"));
+    a.classList.add("active");
+  });
+});
+
+/* ===== Page state: list/add/edit in ONE file ===== */
+const pageTitle = document.getElementById("pageTitle");
+const sectionList = document.getElementById("sectionList");
+const sectionAdd = document.getElementById("sectionAdd");
+const sectionEdit = document.getElementById("sectionEdit");
+
+function showSection(name) {
+  sectionList.classList.remove("active");
+  sectionAdd.classList.remove("active");
+  sectionEdit.classList.remove("active");
+
+  if (name === "list") {
+    sectionList.classList.add("active");
+    pageTitle.textContent = "Leave policies";
+  }
+  if (name === "add") {
+    sectionAdd.classList.add("active");
+    pageTitle.textContent = "Leave policies";
+  }
+  if (name === "edit") {
+    sectionEdit.classList.add("active");
+    pageTitle.textContent = "Leave policies";
+  }
+}
+
+/* ===== Demo data (replace with DB later) ===== */
+let policies = [
+  { typeId: "P001", leaveType: "Annual Leave", maxDays: 14, status: "Active", desc: "Statutory paid leave entitlement for all employees." },
+  { typeId: "P002", leaveType: "Medical Leave", maxDays: 7, status: "Active", desc: "Medical leave for certified illness." },
+  { typeId: "P003", leaveType: "Emergency Leave", maxDays: 5, status: "Active", desc: "Emergency situations (family matters, etc.)." },
+  { typeId: "P004", leaveType: "Replacement Leave", maxDays: 5, status: "Active", desc: "Replacement leave based on approved arrangement." }
+];
+
+const tbody = document.getElementById("policyTbody");
+
+function statusCell(status) {
+  if (status === "Active") return '<span class="status-active">Active</span>';
+  return '<span class="status-disabled">Disabled</span>';
+}
+
+function renderTable(filterText = "") {
+  const f = (filterText || "").toLowerCase();
+  tbody.innerHTML = "";
+
+  policies
+    .filter(p => (p.typeId + " " + p.leaveType + " " + p.maxDays + " " + p.status).toLowerCase().includes(f))
+    .forEach((p, idx) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${p.typeId}</td>
+        <td>${p.leaveType}</td>
+        <td>${p.maxDays}</td>
+        <td>${statusCell(p.status)}</td>
+        <td>
+          <button class="btn inline" data-action="edit" data-idx="${idx}">Edit</button>
+          <button class="btn inline danger" data-action="delete" data-idx="${idx}">Delete</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+}
+renderTable();
+
+/* Search realtime */
+document.getElementById("searchInput").addEventListener("keyup", function() {
+  renderTable(this.value);
+});
+
+/* Buttons: Add New */
+document.getElementById("btnAddNew").addEventListener("click", () => {
+  // clear add form
+  document.getElementById("addLeaveType").value = "";
+  document.getElementById("addTypeId").value = "";
+  document.getElementById("addMaxDays").value = "";
+  document.getElementById("addDesc").value = "";
+  document.querySelectorAll('input[name="addStatus"]').forEach(r => r.checked = (r.value === "Active"));
+  showSection("add");
+});
+
+/* Back from Add */
+document.getElementById("btnAddBack").addEventListener("click", () => showSection("list"));
+
+/* Save Add */
+document.getElementById("btnAddSave").addEventListener("click", () => {
+  const leaveType = document.getElementById("addLeaveType").value.trim();
+  const typeId = document.getElementById("addTypeId").value.trim();
+  const maxDays = Number(document.getElementById("addMaxDays").value);
+  const status = document.querySelector('input[name="addStatus"]:checked').value;
+  const desc = document.getElementById("addDesc").value.trim();
+
+  if (!leaveType || !typeId || Number.isNaN(maxDays)) {
+    alert("Please fill in Leave Type, Type ID and Max Day Allowed.");
+    return;
+  }
+  // basic uniqueness check
+  if (policies.some(p => p.typeId.toLowerCase() === typeId.toLowerCase())) {
+    alert("Type ID already exists. Please use another Type ID.");
+    return;
+  }
+
+  policies.push({ typeId, leaveType, maxDays, status, desc });
+  renderTable(document.getElementById("searchInput").value);
+  showSection("list");
+});
+
+/* Edit/Delete actions from table */
+let currentEditIndex = -1;
+
+tbody.addEventListener("click", (e) => {
+  const btn = e.target.closest("button");
+  if (!btn) return;
+
+  const action = btn.getAttribute("data-action");
+  const idx = Number(btn.getAttribute("data-idx"));
+
+  if (Number.isNaN(idx)) return;
+
+  if (action === "delete") {
+    const ok = confirm("Delete this policy?");
+    if (!ok) return;
+    policies.splice(idx, 1);
+    renderTable(document.getElementById("searchInput").value);
+    return;
+  }
+
+  if (action === "edit") {
+    currentEditIndex = idx;
+    const p = policies[idx];
+
+    document.getElementById("editLeaveType").value = p.leaveType;
+    document.getElementById("editTypeId").value = p.typeId;
+    document.getElementById("editMaxDays").value = p.maxDays;
+    document.getElementById("editDesc").value = p.desc || "";
+    document.querySelectorAll('input[name="editStatus"]').forEach(r => r.checked = (r.value === p.status));
+
+    showSection("edit");
+  }
+});
+
+/* Back from Edit */
+document.getElementById("btnEditBack").addEventListener("click", () => showSection("list"));
+
+/* Delete from Edit */
+document.getElementById("btnEditDelete").addEventListener("click", () => {
+  if (currentEditIndex < 0) return;
+  const ok = confirm("Delete this policy?");
+  if (!ok) return;
+  policies.splice(currentEditIndex, 1);
+  currentEditIndex = -1;
+  renderTable(document.getElementById("searchInput").value);
+  showSection("list");
+});
+
+/* Update from Edit */
+document.getElementById("btnEditUpdate").addEventListener("click", () => {
+  if (currentEditIndex < 0) return;
+
+  const maxDays = Number(document.getElementById("editMaxDays").value);
+  const status = document.querySelector('input[name="editStatus"]:checked').value;
+  const desc = document.getElementById("editDesc").value.trim();
+
+  if (Number.isNaN(maxDays)) {
+    alert("Please enter Max Day Allowed.");
+    return;
+  }
+
+  policies[currentEditIndex].maxDays = maxDays;
+  policies[currentEditIndex].status = status;
+  policies[currentEditIndex].desc = desc;
+
+  renderTable(document.getElementById("searchInput").value);
+  showSection("list");
+});
+</script>
+
+</body>
+</html>
