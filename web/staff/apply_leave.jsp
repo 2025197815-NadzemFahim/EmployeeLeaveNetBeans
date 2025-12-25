@@ -219,7 +219,7 @@
             // ===== SESSION CHECK =====
             Integer employeeId = (Integer) session.getAttribute("employeeId");
             if (employeeId == null) {
-                response.sendRedirect("../login.jsp");
+                response.sendRedirect("login.jsp");
                 return;
             }
 
@@ -296,9 +296,8 @@
 
                 <!-- ================= SIDEBAR PROFILE ================= -->
                 <div class="profile">
-                    <img src="<%= request.getContextPath() + "/" + profileImage%>"
-                         onerror="this.src='<%= request.getContextPath()%>/uploads/default.png'">
-                    
+                    <img src="<%= request.getContextPath()%>/profile-image?path=<%= profileImage%>"
+                         onerror="this.src='<%= request.getContextPath()%>/images/default_profile.png'">
                     <h4><%= empName%></h4>
                     <p><%= empRole%> <%= empDept%></p>
                 </div>

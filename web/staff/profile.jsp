@@ -275,7 +275,7 @@ body {
     <div class="menu">
       <a><i class="fas fa-th-large"></i>Dashboard</a>
       <a  class="active"><i class="fas fa-user"></i>Profile</a>
-      <a><i class="fas fa-calendar-plus"></i>Apply Leave</a>
+      <a href="<%= request.getContextPath()%>/staff/apply_leave.jsp"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
       <a><i class="fas fa-history"></i>Leave History</a>
       <a><i class="fas fa-bell"></i>Notifications</a>
       <a><i class="fas fa-sign-out-alt"></i>Logout</a>
