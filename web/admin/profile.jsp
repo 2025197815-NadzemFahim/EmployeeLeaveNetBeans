@@ -510,6 +510,22 @@
                                 }
                             }
                         </script>
+                         <script>
+// Sidebar Toggle
+                    document.querySelector(".toggle-btn").addEventListener("click", () => {
+                        document.getElementById("sidebar").classList.toggle("closed");
+                    });
+
+// Personal Dropdown
+                    document.querySelectorAll(".menu-group").forEach(group => {
+                        const parent = group.querySelector(".menu-parent");
+                        const submenu = group.querySelector(".submenu");
+                        parent.addEventListener("click", () => {
+                            parent.classList.toggle("open");
+                            submenu.classList.toggle("open");
+                        });
+                    });
+                </script>
 
                         </body>
                         </html>
