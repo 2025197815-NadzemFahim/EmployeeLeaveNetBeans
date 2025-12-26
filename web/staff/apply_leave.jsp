@@ -9,7 +9,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Approve / Reject Leave</title>
+        <title>Apply Leave</title>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -214,6 +214,7 @@
         </style>
     </head>
     <body>
+    
 
         <%
             // ===== SESSION CHECK =====
@@ -318,12 +319,11 @@ if ("insufficient".equals(error)) {
                     <p><%= empPost%></p>
                 </div>
 
-
                 <div class="menu">
-                    <a><i class="fas fa-th-large"></i>Dashboard</a>
+                    <a href="<%= request.getContextPath()%>/StaffDashboardServlet"><i class="fas fa-th-large"></i>Dashboard</a>
                     <a href="<%= request.getContextPath()%>/ViewProfileServlet"><i class="fas fa-user"></i>Profile</a>
                     <a  href="<%= request.getContextPath()%>/staff/apply_leave.jsp" class="active"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
-                    <a><i class="fas fa-history"></i>Leave History</a>
+                    <a href="<%= request.getContextPath()%>/LeaveHistoryStaffServlet"><i class="fas fa-history"></i>Leave History</a>
                     <a><i class="fas fa-bell"></i>Notifications</a>
                     <a><i class="fas fa-sign-out-alt"></i>Logout</a>
                 </div>

@@ -276,7 +276,7 @@ body {
       <a href=""><i class="fas fa-th-large"></i>Dashboard</a>
       <a  href="<%= request.getContextPath()%>/ViewProfileServlet" class="active"><i class="fas fa-user"></i>Profile</a>
       <a href="<%= request.getContextPath()%>/staff/apply_leave.jsp"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
-      <a><i class="fas fa-history"></i>Leave History</a>
+      <a href="<%= request.getContextPath()%>/LeaveHistoryStaffServlet"><i class="fas fa-history"></i>Leave History</a>
       <a><i class="fas fa-bell"></i>Notifications</a>
       <a><i class="fas fa-sign-out-alt"></i>Logout</a>
     </div>
