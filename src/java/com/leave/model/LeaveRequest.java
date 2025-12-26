@@ -1,15 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package com.leave.model;
-
-/**
- *
- * @author suweg
- */
-
+/* * To change this license header, choose License Headers in Project Properties. 
+* To change this template file, choose Tools | Templates 
+* and open the template in the editor. 
+*/ 
+package com.leave.model; 
+/** 
+ * 
+ * 
+ * @author suweg */
 import java.sql.Date;
 
 public class LeaveRequest {
@@ -24,10 +21,12 @@ public class LeaveRequest {
     private int typeId;
     private String attachment;
     private String reasonRejection;
+    private String leaveType;   
+    private String staffName;   
 
     public LeaveRequest() {}
 
-    // Getters & Setters
+
     public int getRequestId() { return requestId; }
     public void setRequestId(int requestId) { this.requestId = requestId; }
 
@@ -59,5 +58,10 @@ public class LeaveRequest {
     public void setReasonRejection(String reasonRejection) {
         this.reasonRejection = reasonRejection;
     }
-}
 
+    public String getLeaveType() { return leaveType; }
+    public void setLeaveType(String leaveType) { this.leaveType = leaveType; }
+
+    public String getStaffName() { return staffName; }
+    public void setStaffName(String staffName) { this.staffName = staffName; }
+}

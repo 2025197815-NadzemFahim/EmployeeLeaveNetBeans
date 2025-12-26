@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Staff Dashboard</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+* { box-sizing: border-box; font-family: "Segoe UI", sans-serif; }
+body { margin: 0; background: #f2f2f2; overflow: hidden; }
+
+.wrapper { display: flex; height: 100vh; }
+
+* {
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f2f2f2;
+}
+
+.wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 260px;
+  background: #e0e0e0;
+  padding: 15px;
+  transition: width 0.3s ease;
+}
+
+.sidebar.closed {
+  width: 60px;
+}
+
+.brand {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.sidebar.closed .brand span:first-child {
+  display: none;
+}
+
+.profile {
+  text-align: center;
+  margin-bottom: 25px;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar.closed .profile {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.profile img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #ccc;
+  margin-bottom: 10px;
+}
+
+.profile h4 {
+  margin: 5px 0 0;
+  font-size: 14px;
+}
+
+.profile p {
+  margin: 0;
+  font-size: 12px;
+  color: #555;
+}
+
+.menu a {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 6px;
+  text-decoration: none;
+  color: #000;
+  border-radius: 6px;
+  font-size: 14px;
+  gap: 12px;
+}
+
+.menu a i {
+  width: 20px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.menu a:hover {
+  background: #cfcfcf;
+}
+
+.menu a.active {
+  background: #bdbdbd;
+  font-weight: bold;
+}
+
+.sidebar.closed .menu a {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+  font-size: 0;
+  gap: 0;
+}
+
+.sidebar.closed .menu a i {
+  font-size: 18px;
+  width: auto;
+}
+
+/* ===== MAIN ===== */
+.main {
+  flex: 1;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: linear-gradient(to right, #bdbdbd, #eeeeee);
+  padding: 14px;
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+/* ===== STATUS CARDS ===== 
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.card {
+  background: white;
+  padding: 14px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
+}
+.card h3 { margin: 6px 0 0; font-size: 22px; }*/
+
+/* ===== Dashboard Cards ===== */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.card-item {
+  background: white;
+  padding: 18px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
+  color: #333;
+}
+
+.card-item h3 {
+  margin: 8px 0 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #000;
+}
+
+/* ===== INFO ROW ===== */
+.info-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.section {
+  background: white;
+  padding: 14px;
+  border-radius: 8px;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
+}
+.section h4 { margin: 0 0 10px; font-size: 16px; }
+
+/* ===== CALENDAR ===== */
+.calendar {
+  background: white;
+  padding: 14px;
+  border-radius: 8px;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
+  flex: 1;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.calendar-header button {
+  background: #d0d0d0;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.day-name {
+  text-align: center;
+  font-weight: 700;
+  font-size: 13px;
+  color: #555;
+}
+
+.date {
+  background: #eeeeee;
+  border-radius: 6px;
+  padding: 6px;
+  height: 72px;
+  font-size: 12px;
+}
+
+.date strong { font-size: 13px; }
+
+.date.today { background: #c8e6c9; }
+
+.leave-text {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #b71c1c;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+  <div class="sidebar" id="sidebar">
+    <div class="brand">
+      <span>TERLAJAK LARIS</span>
+      <span class="toggle-btn" onclick="toggleSidebar()">☰</span>
+    </div>
+
+    <div class="profile">
+      <img src="https://i.imgur.com/7k12EPD.png">
+      <h4>AMIRUL AIMAN BIN LEO</h4>
+      <p>STAFF</p>
+    </div>
+
+    <div class="menu">
+      <a class="active"><i class="fas fa-th-large"></i>Dashboard</a>
+      <a><i class="fas fa-user"></i>Profile</a>
+      <a><i class="fas fa-calendar-plus"></i>Apply Leave</a>
+      <a><i class="fas fa-history"></i>Leave History</a>
+      <a><i class="fas fa-bell"></i>Notifications</a>
+      <a><i class="fas fa-sign-out-alt"></i>Logout</a>
+    </div>
+  </div>
+
+<!-- MAIN -->
+<div class="main">
+
+<div class="header">Staff Dashboard</div>
+
+<!-- STATUS CARDS -->
+<div class="cards">
+  <div class="card">
+    <div class="card-item"><i class="fas fa-calendar-day"></i> Status Today <h3>Present</h3></div>
+  </div>
+
+  <div class="card">
+          <div class="card-item"><i class="fas fa-users"></i> Leave Balance<h3>9 Days</h3></div>
+          
+  </div>
+
+  <div class="card">
+    <div class="card-item"><i class="fas fa-clock"></i> Pending Apply Leave <h3 style="font-size:14px; margin-top:8px; font-weight:600;">
+    31 December 2025 – 1 January 2026<br><span style="font-size:13px; color:#b71c1c;">Annual Leave</span>
+    </h3></div>
+          
+    
+  </div>
+</div>
+
+<!-- INFO -->
+<div class="info-row">
+  <div class="section">
+    <h4>Absent Today</h4>
+    <p>Nur Aisyah – Medical</p>
+    <p>Daniel Hakim – Annual Leave</p>
+  </div>
+
+  <div class="section">
+    <h4>Upcoming Leave</h4>
+    <p>20 Jun – Aina</p>
+    <p>5 Jul – Emergency</p>
+  </div>
+</div>
+
+<!-- CALENDAR -->
+<div class="calendar">
+  <div class="calendar-header">
+    <button onclick="changeMonth(-1)">◀</button>
+    <div id="monthYear"></div>
+    <button onclick="changeMonth(1)">▶</button>
+  </div>
+
+  <div class="calendar-grid" id="calendar"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+    function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  sidebar.classList.toggle('closed');
+}
+
+const calendar = document.getElementById("calendar");
+const monthYear = document.getElementById("monthYear");
+
+const leaveData = {
+  "2025-06-20": "AINA – Annual Leave",
+  "2025-06-21": "AINA – Annual Leave",
+  "2025-07-05": "HAKIM – Emergency Leave"
+};
+
+let currentDate = new Date();
+
+function renderCalendar() {
+  calendar.innerHTML = "";
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  monthYear.innerText = currentDate.toLocaleString("default", {
+    month: "long",
+    year: "numeric"
+  });
+
+  ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].forEach(d => {
+    const div = document.createElement("div");
+    div.className = "day-name";
+    div.innerText = d;
+    calendar.appendChild(div);
+  });
+
+  const firstDay = new Date(year, month, 1).getDay() || 7;
+  for (let i = 1; i < firstDay; i++) calendar.appendChild(document.createElement("div"));
+
+  const days = new Date(year, month + 1, 0).getDate();
+
+  for (let d = 1; d <= days; d++) {
+    const dateBox = document.createElement("div");
+    dateBox.className = "date";
+    dateBox.innerHTML = `<strong>${d}</strong>`;
+
+    const key = `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const today = new Date();
+
+    if (
+      d === today.getDate() &&
+      month === today.getMonth() &&
+      year === today.getFullYear()
+    ) {
+      dateBox.classList.add("today");
+    }
+
+    if (leaveData[key]) {
+      const leave = document.createElement("div");
+      leave.className = "leave-text";
+      leave.innerText = leaveData[key];
+      dateBox.appendChild(leave);
+    }
+
+    calendar.appendChild(dateBox);
+  }
+}
+
+function changeMonth(step) {
+  currentDate.setMonth(currentDate.getMonth() + step);
+  renderCalendar();
+}
+
+renderCalendar();
+</script>
+
+</body>
+</html>
