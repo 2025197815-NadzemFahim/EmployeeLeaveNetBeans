@@ -381,7 +381,7 @@ body {
       <a href="<%= request.getContextPath()%>/AdminDashboardServlet" class="active"><i class="fas fa-th-large"></i><span>Dashboard</span></a>    
       <a href="employees.jsp"><i class="fas fa-users"></i><span>Employees</span></a>
       <a href="policies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
-      <a href="reports.jsp"><i class="fas fa-clipboard"></i><span>Reports</span></a>
+      <a href="<%= request.getContextPath()%>/GenerateRecord"><i class="fas fa-th-large"></i>Reports</a>
 
       <div class="menu-group">
         <div class="menu-parent"><i class="fas fa-user"></i><span>Personal</span></div>
