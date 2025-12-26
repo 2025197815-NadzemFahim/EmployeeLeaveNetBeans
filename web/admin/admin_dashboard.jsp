@@ -26,6 +26,7 @@ body {
   min-height: 100vh;
 }
 
+/* ===== Sidebar (kekal) ===== */
 .sidebar {
   width: 260px;
   background: #e0e0e0;
@@ -107,13 +108,11 @@ body {
   font-weight: bold;
 }
 
-/* Dropdown parent */
 .menu-group .menu-parent {
   background: #d0d0d0;
   font-weight: 600;
 }
 
-/* Arrow indicator (fix, kekal di kanan & tak duplicate) */
 .menu-group .menu-parent::after {
   content: "▼";
   font-size: 10px;
@@ -122,12 +121,10 @@ body {
   transition: transform 0.2s ease;
 }
 
-/* Rotate arrow bila buka */
 .menu-group .menu-parent.open::after {
   transform: rotate(180deg);
 }
 
-/* Submenu */
 .menu-group .submenu {
   margin-left: 32px;
   display: none;
@@ -147,7 +144,6 @@ body {
   font-weight: bold;
 }
 
-/* Collapse mode → icon center */
 .sidebar.closed .menu a,
 .sidebar.closed .menu-parent {
   justify-content: center;
@@ -185,7 +181,8 @@ body {
 .sidebar.closed .submenu a i {
   font-size: 16px;
 }
-/* ===== Main Content ===== */
+
+/* ===== Main Content (kekal logic) ===== */
 .main {
   flex: 1;
   padding: 25px 30px;
@@ -204,7 +201,6 @@ body {
   margin-bottom: 20px;
 }
 
-/* ===== Dashboard Cards ===== */
 .cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -226,47 +222,162 @@ body {
   margin: 8px 0 0;
   font-size: 24px;
   font-weight: 700;
-  color: #000;
 }
 
-/* ===== Leave Chart Section ===== */
-.chart-section {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  box-shadow: 2px 2px 8px rgba(0,0,0,0.04);
+/* ===== Leave Types Circle ===== */
+.leave-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
 }
 
-/* ===== Approval List Section ===== */
-.approval-section {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 2px 2px 8px rgba(0,0,0,0.04);
+.card {
+  background: #fff;
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  text-align: center;
+  font-weight: 600;
 }
 
-.approval-section h4 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 18px;
-  font-weight: 700;
-  color: #222;
+.circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 8px solid #e5e5e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0 auto 8px auto;
+  position: relative;
+}
+
+.circle span {
+  position: absolute;
+}
+
+/* Warna circle ikut leave type */
+.circle-annual svg path {
+  stroke: MediumSeaGreen;
+}
+
+.circle-medical svg path {
+  stroke: Tomato;
+}
+
+.circle-emergency svg path {
+  stroke: DodgerBlue;
+}
+
+.circle-maternity svg path {
+  stroke: Orchid;
+}
+
+/* ===== Leave Circle Colors ===== */
+.circle-annual { border-color: MediumSeaGreen; }
+.circle-medical { border-color: Tomato; }
+.circle-emergency { border-color: DodgerBlue; }
+.circle-maternity { border-color: Orchid; }
+
+.circle-annual span { color: MediumSeaGreen; }
+.circle-medical span { color: Tomato; }
+.circle-emergency span { color: DodgerBlue; }
+.circle-maternity span { color: Orchid; }
+
+/* Optional hover glow */
+.circle:hover {
+  transform: scale(1.05);
+  transition: 0.2s ease;
+}
+
+
+
+
+/* ===== Chart Section ===== */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.chart-box {
+  background: #fff;
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.chart-placeholder {
+  height: 120px;
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #777;
+  margin-top: 8px;
+}
+
+/* ===== Leave Panels ===== */
+.leave-panel {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.panel-box {
+  flex: 1;
+  min-width: 260px;
+  background: #fff;
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
 .approval-list {
   width: 100%;
-  border-left: 4px solid #9e9e9e;
+  border-left-width: 4px;
+  border-left-style: solid;
   padding: 10px 15px;
   margin-bottom: 10px;
   background: #fafafa;
   border-radius: 6px;
   font-size: 14px;
   font-weight: 600;
-  color: #333;
 }
 
-/* ===== Responsive ===== */
+/* ===== Calendar ===== */
+.calendar-box {
+  background: #fff;
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  margin-top: 24px;
+}
+
+.calendar-box input {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-top: 8px;
+  width: fit-content;
+}
+
+/* ===== Responsive Leave Section ===== */
+@media (max-width: 900px) {
+  .leave-grid { grid-template-columns: repeat(2, 1fr); }
+  .chart-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .leave-grid { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 900px) {
   .cards { grid-template-columns: repeat(2, 1fr); }
 }
@@ -279,6 +390,8 @@ body {
   .cards { grid-template-columns: 1fr; }
 }
 </style>
+
+
 </head>
 
 <body>
@@ -317,111 +430,152 @@ body {
       <a href="LogoutServlet"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
     </div>
   </div>
+    
+<div class="main">
+  <div class="main-content">
 
-  <!-- ===== Main Content ===== -->
-  <div class="main">
-    <div class="main-content">
+    <div class="header">Admin Dashboard</div>
 
-      <div class="header">Dashboard Overview</div>
-
-      <!-- Live Clock -->
-      <div class="card-item" style="font-size:20px;font-weight:bold;margin-bottom:15px;">
-        <i class="fas fa-clock"></i>
-        <span id="liveClock"></span>
-      </div>
-
-      <!-- Dashboard Cards -->
-      <div class="cards">
-        <div class="card-item"><i class="fas fa-users"></i> Total Employees 
-          <h3><%= request.getAttribute("totalEmployees") != null ? request.getAttribute("totalEmployees") : 0 %></h3>
-        </div>
-
-        <div class="card-item"><i class="fas fa-calendar-day"></i> Present Today 
-          <h3><%= request.getAttribute("presentToday") != null ? request.getAttribute("presentToday") : 0 %></h3>
-        </div>
-
-        <div class="card-item"><i class="fas fa-plane"></i> On Leave 
-          <h3><%= request.getAttribute("onLeave") != null ? request.getAttribute("onLeave") : 0 %></h3>
-        </div>
-
-        <div class="card-item"><i class="fas fa-book"></i> Leave Records 
-          <h3><%= request.getAttribute("leaveHistory") != null ? ((List)request.getAttribute("leaveHistory")).size() : 0 %></h3>
-        </div>
-      </div>
-
-      <!-- Chart split layout -->
-      <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
-
-        <!-- Monthly Leave Line Chart -->
-        <div class="chart-section" style="flex:2;min-width:300px;">
-          <canvas id="leaveChart"></canvas>
-        </div>
-
-        <!-- Leave Balance Panel -->
-        <div class="chart-section" style="flex:1;min-width:250px;font-size:14px;text-align:left;">
-          <h4>Leave Balance</h4>
-          <%
-            int[] bal = (int[]) request.getAttribute("leaveBalances");
-            String[] types = {"Annual","Medical","Emergency","Unpaid"};
-            if (bal != null) {
-                for (int i = 0; i < 4; i++) {
-          %>
-              <div><strong><%= types[i] %>:</strong> <%= bal[i] %> days</div>
-          <%
-                }
-            } else {
-          %>
-              <div>No leave balance data.</div>
-          <%
-            }
-          %>
-        </div>
-        
-        
-        
-
-      </div>
-
+    <!-- Live Clock -->
+    <div class="card" style="font-size:20px;font-weight:bold;margin-bottom:15px;text-align:center;">
+      <i class="fas fa-clock"></i>
+      <span id="liveClock"></span>
     </div>
-  </div>
 
+    <!-- Leave Types Circles (fetch dari DB) -->
+    <div class="leave-grid">
+      <%
+        int[] balances = (int[]) request.getAttribute("leaveBalanceList");
+        String[] types = {"Maternity","Annual","Emergency","Medical"};
+
+        if (balances != null) {
+            for (int i = 0; i < types.length; i++) {
+                String c = "";
+                if ("Annual".equals(types[i])) {
+                    c = "circle-annual";
+                } else if ("Medical".equals(types[i])) {
+                    c = "circle-medical";
+                } else if ("Emergency".equals(types[i])) {
+                    c = "circle-emergency";
+                } else if ("Maternity".equals(types[i])) {
+                    c = "circle-maternity";
+                }
+      %>
+        <div class="card">
+          <div class="circle <%= c %>">
+            <span><%= balances[i] %></span>
+          </div>
+          <p><%= types[i] %></p>
+          <small><%= balances[i] %> days left</small>
+        </div>
+      <%
+            }
+        } else {
+      %>
+        <div>No leave balance data.</div>
+      <% } %>
+    </div>
+
+    <!-- People On Leave & Upcoming Leave -->
+    <div class="leave-panel">
+      <div class="panel-box">
+        <h4>People On Leave</h4>
+        <%
+          List<String> on = (List<String>) request.getAttribute("peopleOnLeave");
+          if (on != null && !on.isEmpty()) {
+              for (String x : on) {
+        %>
+            <div class="approval-list"><%= x %></div>
+        <%
+              }
+          } else {
+        %>
+            <div>No one is on leave today.</div>
+        <% } %>
+
+      </div>
+
+      <div class="panel-box">
+        <h4>Upcoming Leave</h4>
+        <%
+          List<String> up = (List<String>) request.getAttribute("upcomingLeave");
+          if (up != null && !up.isEmpty()) {
+              for (String x : up) {
+        %>
+            <div class="approval-list"><%= x %></div>
+        <%
+              }
+          } else {
+        %>
+            <div>No upcoming leave records.</div>
+        <% } %>
+
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="chart-grid">
+      <div class="chart-box">
+        <p><b>Weekly Leave Pattern</b></p>
+        <canvas id="weeklyChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <p><b>Monthly Leave Pattern</b></p>
+        <canvas id="monthlyChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Calendar -->
+    <div class="calendar-box">
+      <h4>Leave Calendar</h4>
+      <input type="month">
+      <div class="chart-placeholder">Calendar view here</div>
+    </div>
+
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<%
-  int[] m = (int[]) request.getAttribute("monthlyCount");
-  String monthly = "[0,0,0,0,0,0,0,0,0,0,0,0]";
-  if (m != null) {
-      monthly = Arrays.toString(m);
-  }
-%>
-
 <script>
-// Live Clock Update
+const monthly = <%= request.getAttribute("monthlyCount") != null 
+    ? Arrays.toString((int[])request.getAttribute("monthlyCount")) 
+    : "[0,0,0,0,0,0,0,0,0,0,0,0]" %>;
+
+// Live Clock
 function updateClock() {
   const now = new Date();
-  document.getElementById("liveClock").innerText = now.toLocaleDateString() + " " + now.toLocaleTimeString();
+  document.getElementById("liveClock").innerText =
+    now.toLocaleDateString() + " " + now.toLocaleTimeString();
 }
 setInterval(updateClock, 1000);
 updateClock();
 
-// Render Leave Chart
-const counts = <%= monthly %>;
-
-new Chart(document.getElementById('leaveChart'), {
-  type: 'line',
+// Weekly Bar Chart
+new Chart(document.getElementById('weeklyChart').getContext('2d'), {
+  type: 'bar',
   data: {
-    labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-    datasets: [{ data: counts, fill:false, tension:0.3 }]
+    labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    datasets: [{ data: [2,3,1,4,2,0,1] }]
   },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: { y: { beginAtZero: true } }
-  }
+  options: { responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
 });
 
+// Monthly Line Chart
+new Chart(document.getElementById('monthlyChart').getContext('2d'), {
+  type: 'line',
+  data: {
+    labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    datasets:[{ data: monthly }]
+  },
+  options:{ responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
+});
+</script>
+
+
+
+
+
+<script>
 // Sidebar Toggle
 document.querySelector(".toggle-btn").addEventListener("click", () => {
   document.getElementById("sidebar").classList.toggle("closed");
