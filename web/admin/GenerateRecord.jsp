@@ -266,19 +266,17 @@
     </div>
 
     <div class="menu">
-      <a href="dashboard.jsp"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
-      <a href="employees.jsp"><i class="fas fa-users"></i><span>Employees</span></a>
-      <a href="policies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
-      <a href="<%= request.getContextPath() %>/GenerateRecord" class="active">
-        <i class="fas fa-clipboard"></i><span>Reports</span>
-      </a>
+      <a href="<%= request.getContextPath()%>/admin/admin_dashboard.jsp"><i class="fas fa-th-large"></i>Dashboard</a>
+      <a href="<%= request.getContextPath()%>employees.jsp"><i class="fas fa-users"></i>Employees</a>
+      <a href="<%= request.getContextPath()%>LeavePolicies.jsp"><i class="fas fa-file-lines"></i>Policies</a>
+      <a href="<%= request.getContextPath() %>/GenerateRecord" class="active"><i class="fas fa-clipboard"></i><span>Reports</span></a>
 
       <div class="menu-group">
         <div class="menu-parent"><i class="fas fa-user"></i><span>Personal</span></div>
         <div class="submenu">
-          <a href="profile.jsp"><i class="fas fa-id-badge"></i><span>Profile</span></a>
-          <a href="apply_leave.jsp"><i class="fas fa-calendar-plus"></i><span>Apply Leave</span></a>
-          <a href="leave_history_staff.jsp"><i class="fas fa-history"></i><span>Leave History</span></a>
+            <a href="<%= request.getContextPath()%>/ViewProfileAdminServlet"><i class="fas fa-id-badge"></i>Profile</a>
+            <a href="<%= request.getContextPath()%>/admin/apply_leave.jsp"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
+            <a href="<%= request.getContextPath()%>/LeaveHistoryAdminServlet"><i class="fas fa-history"></i>Leave History</a>
         </div>
       </div>
 
@@ -377,6 +375,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 
 <script>
+    // Sidebar Toggle
+document.querySelector(".toggle-btn").addEventListener("click", () => {
+  document.getElementById("sidebar").classList.toggle("closed");
+});
+
+// Personal Dropdown
+document.querySelectorAll(".menu-group").forEach(group => {
+  const parent = group.querySelector(".menu-parent");
+  const submenu = group.querySelector(".submenu");
+  parent.addEventListener("click", () => {
+    parent.classList.toggle("open");
+    submenu.classList.toggle("open");
+  });
+});
 window.onload = function() {
 
     /* ===== ADMIN NAME FROM SESSION (NO HARDCODE) ===== */
