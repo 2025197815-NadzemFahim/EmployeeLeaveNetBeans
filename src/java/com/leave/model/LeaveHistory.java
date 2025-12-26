@@ -21,6 +21,14 @@ public class LeaveHistory {
         
     }
 
+    public LeaveHistory() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public LeaveHistory(int aInt, String string, String string0, String string1, java.sql.Date date, java.sql.Date date0, int i) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     public int getRequestId() {
         return requestId;
     }
@@ -67,6 +75,10 @@ public class LeaveHistory {
 
     public void setLeaveBalance(int leaveBalance) {
         this.leaveBalance = leaveBalance;
+    }
+
+    public void setEmployeeName(String string) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
     

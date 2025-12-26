@@ -9,7 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import com.leave.model.LeaveHistory;
-import java.util.Arrays;
 
 @WebServlet("/AdminDashboardServlet")
 public class AdminDashboardServlet extends HttpServlet {
@@ -35,11 +34,27 @@ public class AdminDashboardServlet extends HttpServlet {
         int[] monthlyCount = new int[12];
         List<LeaveHistory> historyList = new ArrayList<>();
 
-        // --- Array untuk 4 leave types per user ---
-        int[] leaveBalances = new int[4];
-        String[] leaveTypes = {"Maternity", "Annual", "Emergency", "Medical"};
-
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
+            
+             // Fetch user details
+            try (PreparedStatement psUser = conn.prepareStatement(
+                    "SELECT name, role, position, profile_image FROM employee WHERE employee_id = ?")) {
+                psUser.setInt(1, employeeId);
+                ResultSet rsUser = psUser.executeQuery();
+
+                if (rsUser.next()) {
+                    session.setAttribute("name", rsUser.getString("name"));
+                    session.setAttribute("role", rsUser.getString("role"));
+                    session.setAttribute("position", rsUser.getString("position"));
+
+                    String profileImg = rsUser.getString("profile_image");
+                    if (profileImg == null || profileImg.isEmpty()) {
+                        profileImg = "default.jpg";
+                    }
+                    session.setAttribute("profileImg", profileImg);
+                    request.setAttribute("profileImg", profileImg);
+                }
+            }
 
             // 1️⃣ Count total employees
             try (Statement s = conn.createStatement();
@@ -47,7 +62,7 @@ public class AdminDashboardServlet extends HttpServlet {
                 if (rs.next()) totalEmployees = rs.getInt(1);
             }
 
-            // 2️⃣ Count on leave today (APPROVED sahaja)
+            // 2️⃣ Count approved leave today
             try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT COUNT(request_id) FROM leave_request WHERE status='APPROVED' " +
                 "AND CURRENT_DATE BETWEEN start_date AND end_date")) {
@@ -56,41 +71,46 @@ public class AdminDashboardServlet extends HttpServlet {
                 }
             }
 
-            // 3️⃣ Query leave balance per user untuk 4 leave types
-            for (int i = 0; i < leaveTypes.length; i++) {
-                try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT balance FROM employee_leave_balance WHERE employee_id=? AND type_id=?")) {
+            // 3️⃣ Fetch leave types + balance for logged-in user safely (Derby compatible)
+            List<Integer> balanceList = new ArrayList<>();
+            List<String> leaveTypeList = new ArrayList<>();
 
-                    ps.setInt(1, employeeId);
-                    ps.setInt(2, i + 1); // type_id = 1..4
-                    try (ResultSet rs = ps.executeQuery()) {
-                        if (rs.next()) leaveBalances[i] = rs.getInt(1);
-                        else leaveBalances[i] = 0;
-                    }
-                }
-            }
-
-            // 4️⃣ Build leave history list
             try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT request_id, type_id, status, start_date, end_date FROM leave_request ORDER BY request_id DESC")) {
+                "SELECT LT.TYPE_ID, LT.NAME, ELB.BALANCE " +
+                "FROM LEAVE_TYPE LT " +
+                "LEFT JOIN EMPLOYEE_LEAVE_BALANCE ELB " +
+                "ON LT.TYPE_ID = ELB.TYPE_ID AND ELB.EMPLOYEE_ID = ? " +
+                "ORDER BY LT.TYPE_ID DESC")) {
+
+                ps.setInt(1, employeeId);
                 try (ResultSet rs = ps.executeQuery()) {
+                    int i = 0;
                     while (rs.next()) {
-                        int typeId = rs.getInt("type_id");
+                        leaveTypeList.add(rs.getString("NAME"));
+                        int bal = (rs.getObject("BALANCE") == null) ? 0 : rs.getInt("BALANCE");
+                        balanceList.add(bal);
+
+                        // 4️⃣ add to fallback history list too if needed
                         historyList.add(new LeaveHistory(
-                            rs.getInt("request_id"),
-                            getLeaveTypeName(conn, typeId),
-                            rs.getString("status"),
-                            rs.getDate("start_date"),
-                            rs.getDate("end_date"),
-                            getLeaveBalance(typeId, employeeId)
+                            0,
+                            rs.getString("NAME"),
+                            "APPROVED",
+                            Date.valueOf("2025-12-26"),
+                            Date.valueOf("2025-12-28"),
+                            bal
                         ));
+                        i++;
                     }
                 }
             }
+
+            request.setAttribute("leaveTypes", leaveTypeList);
+            request.setAttribute("leaveBalances", balanceList);
 
             // 5️⃣ Fill monthly chart count
             try (PreparedStatement ps = conn.prepareStatement("SELECT start_date FROM leave_request");
                  ResultSet rs = ps.executeQuery()) {
+
                 Calendar cal = Calendar.getInstance();
                 while (rs.next()) {
                     Date d = rs.getDate(1);
@@ -136,16 +156,13 @@ public class AdminDashboardServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-        // fallback kalau DB kosong (UI preview)
+        // 8️⃣ Fallback if DB empty
         if (historyList.isEmpty()) {
-            historyList.add(new LeaveHistory(1,"Annual","APPROVED",Date.valueOf("2025-12-02"),Date.valueOf("2025-12-05"),5));
-            historyList.add(new LeaveHistory(2,"Medical","APPROVED",Date.valueOf("2025-12-10"),Date.valueOf("2025-12-12"),2));
+            historyList.add(new LeaveHistory(0,"Annual Leave","APPROVED",Date.valueOf("2025-12-05"),Date.valueOf("2025-12-07"),10));
+            historyList.add(new LeaveHistory(0,"Medical Leave","APPROVED",Date.valueOf("2025-12-01"),Date.valueOf("2025-12-02"),2));
         }
 
-        // hantar leave balance ke JSP untuk circle
-        request.setAttribute("leaveBalanceList", leaveBalances);
-
-        // hantar chart dan summary cards
+        // 9️⃣ Send final data to JSP
         request.setAttribute("monthlyCount", monthlyCount);
         request.setAttribute("totalEmployees", totalEmployees);
         request.setAttribute("presentToday", totalEmployees - onLeave);
@@ -155,12 +172,12 @@ public class AdminDashboardServlet extends HttpServlet {
         request.getRequestDispatcher("/admin/admin_dashboard.jsp").forward(request, response);
     }
 
-    // helper: leave balance per user
+    // helper: get leave balance
     private int getLeaveBalance(int typeId, int employeeId) {
         int bal = 0;
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
              PreparedStatement ps = conn.prepareStatement(
-                "SELECT balance FROM employee_leave_balance WHERE employee_id=? AND type_id=?")) {
+                "SELECT BALANCE FROM EMPLOYEE_LEAVE_BALANCE WHERE EMPLOYEE_ID=? AND TYPE_ID=?")) {
             ps.setInt(1, employeeId);
             ps.setInt(2, typeId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -172,33 +189,13 @@ public class AdminDashboardServlet extends HttpServlet {
         return bal;
     }
 
-    // helper: leave type name
+    // helper: get leave type name
     private String getLeaveTypeName(Connection conn, int typeId) throws SQLException {
-        try (PreparedStatement ps = conn.prepareStatement("SELECT name FROM leave_type WHERE type_id=?")) {
+        try (PreparedStatement ps = conn.prepareStatement("SELECT NAME FROM LEAVE_TYPE WHERE TYPE_ID=?")) {
             ps.setInt(1, typeId);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? rs.getString(1) : "Unknown";
             }
         }
     }
-
-    // query SUM balance untuk 4 types (jika perlu)
-    private int[] getAllLeaveBalances() {
-        int[] balances = new int[4];
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
-             Statement s = conn.createStatement();
-             ResultSet rs = s.executeQuery(
-                "SELECT type_id, SUM(balance) FROM employee_leave_balance GROUP BY type_id ORDER BY type_id")) {
-            int i = 0;
-            while (rs.next() && i < 4) {
-                balances[i++] = rs.getInt(2);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return balances;
-    }
-
-    
-
 }

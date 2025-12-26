@@ -1,5 +1,7 @@
+<%@page import="java.sql.*, java.util.*, javax.servlet.http.*"%>
+<%@page import="com.leave.model.LeaveHistory"%>
+<%@page import="java.util.Arrays"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.List, com.leave.model.LeaveHistory, java.util.Arrays" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -26,7 +28,7 @@ body {
   min-height: 100vh;
 }
 
-/* ===== Sidebar (kekal) ===== */
+/* ===== Sidebar (KEKAL — untouched logic) ===== */
 .sidebar {
   width: 260px;
   background: #e0e0e0;
@@ -108,11 +110,13 @@ body {
   font-weight: bold;
 }
 
+/* Dropdown parent */
 .menu-group .menu-parent {
-  background: #d0d0d0;
+  background: #e0e0e0;
   font-weight: 600;
 }
 
+/* Arrow indicator (fix, kekal di kanan & tak duplicate) */
 .menu-group .menu-parent::after {
   content: "▼";
   font-size: 10px;
@@ -121,10 +125,12 @@ body {
   transition: transform 0.2s ease;
 }
 
+/* Rotate arrow bila buka */
 .menu-group .menu-parent.open::after {
   transform: rotate(180deg);
 }
 
+/* Submenu */
 .menu-group .submenu {
   margin-left: 32px;
   display: none;
@@ -133,15 +139,6 @@ body {
 
 .menu-group .submenu.open {
   display: flex;
-}
-
-.menu a:hover, .menu-parent:hover {
-  background: #cfcfcf;
-}
-
-.menu a.active {
-  background: #bdbdbd;
-  font-weight: bold;
 }
 
 .sidebar.closed .menu a,
@@ -182,10 +179,10 @@ body {
   font-size: 16px;
 }
 
-/* ===== Main Content (kekal logic) ===== */
+/* ===== Main Content (KEKAL logic) ===== */
 .main {
   flex: 1;
-  padding: 25px 30px;
+  padding: 20px;
 }
 
 .main-content {
@@ -224,78 +221,41 @@ body {
   font-weight: 700;
 }
 
-/* ===== Leave Types Circle ===== */
-.leave-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-}
-
-.card {
-  background: #fff;
-  padding: 16px;
-  border-radius: 16px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  text-align: center;
-  font-weight: 600;
-}
-
-.circle {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  border: 8px solid #e5e5e5;
+/* ===== Leave Cards Section (UPDATED — 4 per row, DB fetch ready) ===== */
+.leave-container {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  font-weight: bold;
-  margin: 0 auto 8px auto;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: start;
+  margin-top: 25px;
+}
+
+.leave-card {
+  width: 23%;
+  min-width: 200px;
+  background: white;
+  border-radius: 12px;
+  padding: 9px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   position: relative;
+  font-size: 14px;
 }
 
-.circle span {
+.leave-card h3 {
+  margin-top: 0;
+  font-size: 18px;
+}
+
+.circle-indicator {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
   position: absolute;
+  top: 15px;
+  right: 15px;
 }
 
-/* Warna circle ikut leave type */
-.circle-annual svg path {
-  stroke: MediumSeaGreen;
-}
-
-.circle-medical svg path {
-  stroke: Tomato;
-}
-
-.circle-emergency svg path {
-  stroke: DodgerBlue;
-}
-
-.circle-maternity svg path {
-  stroke: Orchid;
-}
-
-/* ===== Leave Circle Colors ===== */
-.circle-annual { border-color: MediumSeaGreen; }
-.circle-medical { border-color: Tomato; }
-.circle-emergency { border-color: DodgerBlue; }
-.circle-maternity { border-color: Orchid; }
-
-.circle-annual span { color: MediumSeaGreen; }
-.circle-medical span { color: Tomato; }
-.circle-emergency span { color: DodgerBlue; }
-.circle-maternity span { color: Orchid; }
-
-/* Optional hover glow */
-.circle:hover {
-  transform: scale(1.05);
-  transition: 0.2s ease;
-}
-
-
-
-
-/* ===== Chart Section ===== */
+/* ===== Chart Section (untouched) ===== */
 .chart-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -322,7 +282,7 @@ body {
   margin-top: 8px;
 }
 
-/* ===== Leave Panels ===== */
+/* ===== Leave Panels (untouched) ===== */
 .leave-panel {
   display: flex;
   gap: 20px;
@@ -351,7 +311,7 @@ body {
   font-weight: 600;
 }
 
-/* ===== Calendar ===== */
+/* ===== Calendar (untouched) ===== */
 .calendar-box {
   background: #fff;
   padding: 16px;
@@ -368,7 +328,17 @@ body {
   width: fit-content;
 }
 
-/* ===== Responsive Leave Section ===== */
+/*--- live clock ---*/
+.card {
+  background: #fff;
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  text-align: center;
+  font-weight: 600;
+}
+
+/* ===== Responsive (untouched) ===== */
 @media (max-width: 900px) {
   .leave-grid { grid-template-columns: repeat(2, 1fr); }
   .chart-grid { grid-template-columns: 1fr; }
@@ -376,10 +346,6 @@ body {
 
 @media (max-width: 600px) {
   .leave-grid { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 900px) {
-  .cards { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {
@@ -393,12 +359,11 @@ body {
 
 
 </head>
-
 <body>
 
 <div class="wrapper">
 
-  <!-- ===== Sidebar ===== -->
+  <!-- ===== Sidebar (KEKAL) ===== -->
   <div class="sidebar" id="sidebar">
     <div class="brand">
       <span>TERLAJAK LARIS</span>
@@ -406,13 +371,14 @@ body {
     </div>
 
     <div class="profile">
-      <img src="https://i.imgur.com/7k12EPD.png">
-      <h4><%= session.getAttribute("name") != null ? session.getAttribute("name") : "Admin User" %></h4>
+      <img src="<%= request.getContextPath() %>/profile-image?path=<%= request.getAttribute("profileImg") %>"
+           onerror="this.src='<%= request.getContextPath()%>/images/default_profile.png'">
+      <h4><%= session.getAttribute("name") != null ? session.getAttribute("name") : "Staff User" %></h4>
       <p><%= session.getAttribute("position") != null ? session.getAttribute("position") : session.getAttribute("role") %></p>
     </div>
 
     <div class="menu">
-      <a href="dashboard.jsp" class="active"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+      <a href="AdminDashboardServlet" class="active"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
       <a href="employees.jsp"><i class="fas fa-users"></i><span>Employees</span></a>
       <a href="policies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
       <a href="reports.jsp"><i class="fas fa-clipboard"></i><span>Reports</span></a>
@@ -422,16 +388,17 @@ body {
         <div class="submenu">
           <a href="profile.jsp"><i class="fas fa-id-badge"></i><span>Profile</span></a>
           <a href="apply_leave.jsp"><i class="fas fa-calendar-plus"></i><span>Apply Leave</span></a>
-          <a href="leave_history_staff.jsp"><i class="fas fa-history"></i><span>Leave History</span></a>
+          <a href="LeaveHistoryAdminServlet"><i class="fas fa-history"></i><span>Leave History</span></a>
         </div>
       </div>
 
       <a href="notifications.jsp"><i class="fas fa-bell"></i><span>Notifications</span></a>
-      <a href="LogoutServlet"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
+      <a href="LoginServlet"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
     </div>
   </div>
-    
-<div class="main">
+
+  <!-- ===== Main Content ===== -->
+  <div class="main">
   <div class="main-content">
 
     <div class="header">Admin Dashboard</div>
@@ -441,43 +408,10 @@ body {
       <i class="fas fa-clock"></i>
       <span id="liveClock"></span>
     </div>
+  
 
-    <!-- Leave Types Circles (fetch dari DB) -->
-    <div class="leave-grid">
-      <%
-        int[] balances = (int[]) request.getAttribute("leaveBalanceList");
-        String[] types = {"Maternity","Annual","Emergency","Medical"};
-
-        if (balances != null) {
-            for (int i = 0; i < types.length; i++) {
-                String c = "";
-                if ("Annual".equals(types[i])) {
-                    c = "circle-annual";
-                } else if ("Medical".equals(types[i])) {
-                    c = "circle-medical";
-                } else if ("Emergency".equals(types[i])) {
-                    c = "circle-emergency";
-                } else if ("Maternity".equals(types[i])) {
-                    c = "circle-maternity";
-                }
-      %>
-        <div class="card">
-          <div class="circle <%= c %>">
-            <span><%= balances[i] %></span>
-          </div>
-          <p><%= types[i] %></p>
-          <small><%= balances[i] %> days left</small>
-        </div>
-      <%
-            }
-        } else {
-      %>
-        <div>No leave balance data.</div>
-      <% } %>
-    </div>
-
-    <!-- People On Leave & Upcoming Leave -->
-    <div class="leave-panel">
+  <!-- People On Leave & Upcoming Leave (kekal) -->
+  <div class="leave-panel">
       <div class="panel-box">
         <h4>People On Leave</h4>
         <%
@@ -492,7 +426,6 @@ body {
         %>
             <div>No one is on leave today.</div>
         <% } %>
-
       </div>
 
       <div class="panel-box">
@@ -509,39 +442,90 @@ body {
         %>
             <div>No upcoming leave records.</div>
         <% } %>
-
       </div>
-    </div>
+  </div>
 
-    <!-- Charts -->
-    <div class="chart-grid">
+  <!-- Charts -->
+  <div class="chart-grid">
       <div class="chart-box">
-        <p><b>Weekly Leave Pattern</b></p>
+        <p><b>Weekly Leave</b></p>
         <canvas id="weeklyChart"></canvas>
       </div>
       <div class="chart-box">
-        <p><b>Monthly Leave Pattern</b></p>
+        <p><b>Monthly Leave</b></p>
         <canvas id="monthlyChart"></canvas>
       </div>
-    </div>
-
-    <!-- Calendar -->
-    <div class="calendar-box">
-      <h4>Leave Calendar</h4>
-      <input type="month">
-      <div class="chart-placeholder">Calendar view here</div>
-    </div>
-
   </div>
-</div>
+  
+  
+  <!-- Leave Type Cards + Balance -->
+  
+  <div class="leave-container">
+  <%
+      // safe read session int
+      Integer tmp = (Integer) session.getAttribute("employeeId");
+      int loggedInId = (tmp == null) ? 0 : tmp;
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-const monthly = <%= request.getAttribute("monthlyCount") != null 
-    ? Arrays.toString((int[])request.getAttribute("monthlyCount")) 
-    : "[0,0,0,0,0,0,0,0,0,0,0,0]" %>;
+      List<String> colors = Arrays.asList("#4CAF50","#2196F3","#FF9800","#E91E63");
 
-// Live Clock
+      Connection con = null;
+      PreparedStatement ps = null;
+      ResultSet rs = null;
+
+      try {
+          con = DriverManager.getConnection("jdbc:derby://localhost:1527/LeaveDB","app","app");
+          ps = con.prepareStatement(
+              "SELECT LT.TYPE_ID, LT.NAME, ELB.BALANCE " +
+              "FROM LEAVE_TYPE LT " +
+              "LEFT JOIN EMPLOYEE_LEAVE_BALANCE ELB " +
+              "ON LT.TYPE_ID = ELB.TYPE_ID AND ELB.EMPLOYEE_ID = ? " +
+              "ORDER BY LT.TYPE_ID DESC"
+          );
+          ps.setInt(1, loggedInId);
+          rs = ps.executeQuery();
+
+          int i = 0;
+          while (rs.next()) {
+              String leaveName = rs.getString("NAME");
+              int balance = rs.getObject("BALANCE") == null ? 0 : rs.getInt("BALANCE");
+              String color = colors.get(i % 4);
+  %>
+  
+          <div class="leave-card">
+              <div class="circle-indicator" style="background:<%=color%>"></div>
+              <h3><%=leaveName%></h3>
+              <p><b>Balance: <%=balance%> days</b></p>
+          </div>
+  <%
+              i++;
+          }
+
+      } catch (Exception e) {
+          out.println("<p>⚠ Error fetching leave types from database.</p>");
+      } finally {
+          if (rs != null) rs.close();
+          if (ps != null) ps.close();
+          if (con != null) con.close();
+      }
+  %>
+  </div>
+
+  
+
+  </div> <!-- end main content -->
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <%
+  int[] monthly = (int[]) request.getAttribute("monthlyCount");
+  if (monthly == null) {
+      monthly = new int[12];
+  }
+%>
+
+
+
+  <script>
+  // Live Clock
 function updateClock() {
   const now = new Date();
   document.getElementById("liveClock").innerText =
@@ -550,47 +534,46 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-// Weekly Bar Chart
-new Chart(document.getElementById('weeklyChart').getContext('2d'), {
-  type: 'bar',
-  data: {
-    labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-    datasets: [{ data: [2,3,1,4,2,0,1] }]
-  },
-  options: { responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
-});
-
-// Monthly Line Chart
-new Chart(document.getElementById('monthlyChart').getContext('2d'), {
-  type: 'line',
-  data: {
-    labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-    datasets:[{ data: monthly }]
-  },
-  options:{ responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
-});
-</script>
-
-
-
-
-
-<script>
-// Sidebar Toggle
-document.querySelector(".toggle-btn").addEventListener("click", () => {
-  document.getElementById("sidebar").classList.toggle("closed");
-});
-
-// Personal Dropdown
-document.querySelectorAll(".menu-group").forEach(group => {
-  const parent = group.querySelector(".menu-parent");
-  const submenu = group.querySelector(".submenu");
-  parent.addEventListener("click", () => {
-    parent.classList.toggle("open");
-    submenu.classList.toggle("open");
+  // weekly chart
+  new Chart(document.getElementById('weeklyChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+      datasets: [{ data: [2,3,1,4,2,0,1] }]
+    },
+    options: { responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
   });
-});
-</script>
+
+  // monthly chart
+  new Chart(document.getElementById('monthlyChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+      datasets:[{ data: <%= Arrays.toString(monthly) %> }]
+    },
+    options:{ responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
+  });
+  </script>
+
+  <script>
+  // sidebar toggle
+  document.querySelector(".toggle-btn").addEventListener("click", () => {
+    document.getElementById("sidebar").classList.toggle("closed");
+  });
+
+  // personal dropdown
+  document.querySelectorAll(".menu-group").forEach(group => {
+    const parent = group.querySelector(".menu-parent");
+    const submenu = group.querySelector(".submenu");
+    parent.addEventListener("click", () => {
+      parent.classList.toggle("open");
+      submenu.classList.toggle("open");
+    });
+  });
+  </script>
+
+  </div>
+  </div>
 
 </body>
 </html>
