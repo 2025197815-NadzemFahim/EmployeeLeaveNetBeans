@@ -378,7 +378,7 @@ body {
     </div>
 
     <div class="menu">
-      <a href="AdminDashboardServlet" class="active"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+      <a href="<%= request.getContextPath()%>/AdminDashboardServlet" class="active"><i class="fas fa-th-large"></i><span>Dashboard</span></a>    
       <a href="employees.jsp"><i class="fas fa-users"></i><span>Employees</span></a>
       <a href="policies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
       <a href="reports.jsp"><i class="fas fa-clipboard"></i><span>Reports</span></a>
@@ -386,14 +386,14 @@ body {
       <div class="menu-group">
         <div class="menu-parent"><i class="fas fa-user"></i><span>Personal</span></div>
         <div class="submenu">
-          <a href="profile.jsp"><i class="fas fa-id-badge"></i><span>Profile</span></a>
-          <a href="apply_leave.jsp"><i class="fas fa-calendar-plus"></i><span>Apply Leave</span></a>
-          <a href="LeaveHistoryAdminServlet"><i class="fas fa-history"></i><span>Leave History</span></a>
+          <a href="<%= request.getContextPath()%>/ViewProfileAdminServlet"><i class="fas fa-id-badge"></i><span>Profile</span></a>
+          <a href="<%= request.getContextPath()%>/admin/apply_leave.jsp"><i class="fas fa-calendar-plus"></i><span>Apply Leave</span></a>
+          <a href="<%= request.getContextPath()%>/LeaveHistoryAdminServlet"><i class="fas fa-history"></i><span>Leave History</span></a>
         </div>
       </div>
 
       <a href="notifications.jsp"><i class="fas fa-bell"></i><span>Notifications</span></a>
-      <a href="LoginServlet"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
+      <a href="login.jsp"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
     </div>
   </div>
 

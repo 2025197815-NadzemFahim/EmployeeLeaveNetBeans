@@ -286,7 +286,7 @@ tbody tr:nth-child(odd) {
     </div>
 
     <div class="menu">
-      <a href="AdminDashboardServlet"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+      <a  href="<%= request.getContextPath()%>/AdminDashboardServlet"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
       <a href="employees.jsp"><i class="fas fa-users"></i><span>Employees</span></a>
       <a href="policies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
       <a href="reports.jsp"><i class="fas fa-clipboard"></i><span>Reports</span></a>
@@ -295,14 +295,14 @@ tbody tr:nth-child(odd) {
       <div class="menu-group">
         <div class="menu-parent"><i class="fas fa-user"></i><span>Personal</span></div>
         <div class="submenu">
-        <a  href="<%= request.getContextPath()%>/ViewProfileServlet" class="active"><i class="fas fa-user"></i>Profile</a>
-          <a href="apply_leave_admin.jsp"><i class="fas fa-calendar-plus"></i><span>Apply Leave</span></a>
-          <a href="LeaveHistoryAdminServlet" class="active"><i class="fas fa-history"></i><span>Leave History</span></a>
+        <a  href="<%= request.getContextPath()%>/ViewProfileServlet" ><i class="fas fa-user"></i>Profile</a>
+        <a  href="<%= request.getContextPath()%>/admin/apply_leave.jsp"><i class="fas fa-calendar-plus"></i><span>Apply Leave</span></a>
+        <a  href="<%= request.getContextPath()%>/LeaveHistoryAdminServlet" class="active"><i class="fas fa-history"></i><span>Leave History</span></a>
         </div>
       </div>
 
       <a href="notifications_admin.jsp"><i class="fas fa-bell"></i><span>Notifications</span></a>
-      <a href="LoginServlet"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
+      <a href="login.jsp"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
     </div>
   </div>
 
