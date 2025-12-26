@@ -20,7 +20,7 @@ public class ProfileImageServlet extends HttpServlet {
             return;
         }
 
-        File file = new File("C:/leave_uploads/profile/" + path);
+        File file = new File("C:/leave_uploads/" + path);
 
         if (!file.exists()) {
             response.sendError(404);
