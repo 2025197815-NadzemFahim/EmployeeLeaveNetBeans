@@ -23,8 +23,10 @@ public class GenerateRecordServlet extends HttpServlet {
 
         List<GenerateRecord> records = db.getAllRecords();
         System.out.println("Total records fetched: " + records.size());
+
         request.setAttribute("recordList", records);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/admin/GenerateRecord.jsp");
-        dispatcher.forward(request, response);
+        RequestDispatcher rd =
+                request.getRequestDispatcher("/admin/GenerateRecord.jsp");
+        rd.forward(request, response);
     }
 }
