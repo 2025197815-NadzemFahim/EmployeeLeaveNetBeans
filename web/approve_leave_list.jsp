@@ -455,12 +455,7 @@ function searchTable() {
   }
 }
 
-function logout() {
-    if (confirm('Are you sure you want to logout?')) {
-        window.location.href = '<%= request.getContextPath() %>/LogoutServlet';
-    }
-}
 </script>
 
 </body>
-</html>
+</html> 

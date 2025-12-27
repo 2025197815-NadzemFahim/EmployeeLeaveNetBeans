@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.*" %>
+<%@ page import="java.sql.*" %>
 <%
     HttpSession userSession = request.getSession();
     if (userSession.getAttribute("employeeId") == null) {
@@ -31,32 +32,64 @@
     String attachment = leave.get("attachment");
     boolean hasAttachment = attachment != null && !attachment.isEmpty();
     
-    // Determine color based on leave type - FIXED: Replaced switch with if-else
-    String leaveType = leave.get("leaveType");
-    String leaveColor = "#6aff00"; // Default color
-    
-    if (leaveType != null) {
-        String lowerType = leaveType.toLowerCase();
-        if ("annual leave".equals(lowerType)) {
-            leaveColor = "#FF9800"; // Orange
-        } else if ("medical leave".equals(lowerType)) {
-            leaveColor = "#2196F3"; // Blue
-        } else if ("emergency leave".equals(lowerType)) {
-            leaveColor = "#F44336"; // Red
-        } else if ("maternity leave".equals(lowerType)) {
-            leaveColor = "#9C27B0"; // Purple
-        }
+    // Get current leave balance if approved
+    int currentBalance = 0;
+    if ("APPROVED".equals(status)) {
+        int submittedBy = Integer.parseInt(leave.get("employeeId"));
+        int typeId = Integer.parseInt(leave.get("typeId"));
+        currentBalance = getCurrentLeaveBalance(submittedBy, typeId);
     }
+    
+    // Get error message from request
+    String error = (String) request.getAttribute("error");
+    boolean hasError = error != null && !error.isEmpty();
     
     // Get profile image
     String profileImage = "uploads/default.png";
-    // We'll get this from session or database, but for now use default
+%>
+<%!
+    // Helper method to get current leave balance
+    private int getCurrentLeaveBalance(int employeeId, int typeId) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        int balance = 0;
+        
+        try {
+            Class.forName("org.apache.derby.jdbc.ClientDriver");
+            conn = DriverManager.getConnection(
+                "jdbc:derby://localhost:1527/LeaveDB",
+                "app",
+                "app"
+            );
+            
+            String sql = "SELECT balance FROM employee_leave_balance " +
+                        "WHERE employee_id = ? AND type_id = ?";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, employeeId);
+            ps.setInt(2, typeId);
+            rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                balance = rs.getInt("balance");
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception e) {}
+            try { if (ps != null) ps.close(); } catch (Exception e) {}
+            try { if (conn != null) conn.close(); } catch (Exception e) {}
+        }
+        
+        return balance;
+    }
 %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Leave Details</title> <!-- Removed - CEO/HOD -->
+    <title>Leave Details</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -230,14 +263,6 @@
           resize: none;
         }
 
-        .leave-color {
-          width: 18px;
-          height: 18px;
-          background: <%= leaveColor %>;
-          border: 1px solid #555;
-          border-radius: 3px;
-        }
-
         .attachment {
           background: #666;
           color: #fff;
@@ -289,10 +314,13 @@
         }
         
         .status-badge {
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 12px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
             font-weight: bold;
+            display: inline-block;
+            min-width: 100px;
+            text-align: center;
         }
         
         .status-pending-badge {
@@ -310,6 +338,7 @@
             color: #fff;
         }
         
+        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -319,30 +348,62 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0,0,0,0.4);
+            align-items: center;
+            justify-content: center;
         }
         
         .modal-content {
             background-color: #fff;
-            margin: 10% auto;
-            padding: 20px;
+            padding: 0;
             border-radius: 8px;
             width: 400px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            overflow: hidden;
         }
         
         .modal-header {
+            background: linear-gradient(to right, #ff9800, #ffab00);
+            color: white;
+            padding: 15px 20px;
             font-size: 18px;
             font-weight: bold;
-            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         
         .modal-body {
-            margin-bottom: 20px;
+            padding: 20px;
+            text-align: center;
+            color: #333;
+            font-size: 14px;
+            line-height: 1.5;
         }
         
         .modal-footer {
+            padding: 15px 20px;
             display: flex;
-            justify-content: flex-end;
-            gap: 10px;
+            justify-content: center;
+            background-color: #f5f5f5;
+            border-top: 1px solid #ddd;
+        }
+        
+        .modal-btn {
+            padding: 8px 30px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .modal-btn-ok {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .modal-btn-ok:hover {
+            background-color: #f57c00;
         }
         
         .modal-textarea {
@@ -352,9 +413,10 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             resize: none;
+            font-size: 14px;
         }
         
-        /* File attachment section - UPDATED */
+        /* File attachment section */
         .file-attachment {
             grid-column: 1/3;
             display: flex;
@@ -397,17 +459,6 @@
         
         .no-attachment i {
             color: #999;
-        }
-        
-        .leave-type-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .leave-type-label {
-            font-weight: 600;
-            color: #333;
         }
         
         /* Menu group for HOD */
@@ -459,9 +510,41 @@
             padding: 10px 0;
             gap: 0;
         }
+        
+        /* Error message */
+        .error-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 15px 20px;
+            text-align: center;
+            font-weight: 600;
+            z-index: 999;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
+
+<% if (hasError) { %>
+    <!-- Error Message Banner -->
+    <div class="error-message show">
+        <i class="fas fa-exclamation-triangle"></i> <%= error %>
+    </div>
+<% } %>
 
 <div class="wrapper">
   <div class="sidebar" id="sidebar">
@@ -499,7 +582,7 @@
   </div>
 
   <div class="main">
-    <div class="header" style="color: #ffffff;">Leave Request Details</div> <!-- Removed - CEO/HOD -->
+    <div class="header" style="color: #ffffff;">Leave Request Details</div>
 
     <div class="content">
       <div class="card">
@@ -530,10 +613,7 @@
           </div>
           <div class="row">
             <div class="label">Leave Type</div>
-            <div class="leave-type-info">
-              <div class="leave-color" style="background: <%= leaveColor %>"></div>
-              <input value="<%= leave.get("leaveType") %>" readonly>
-            </div>
+            <input value="<%= leave.get("leaveType") %>" readonly>
           </div>
           <div class="row">
             <div class="label">End Date</div>
@@ -543,25 +623,43 @@
             <div class="label">Status</div>
             <%
                 String statusClass = "";
+                String statusText = status;
+                String statusColor = "";
+                
                 if ("PENDING".equals(status)) {
                     statusClass = "status-pending-badge";
+                    statusColor = "#ffab00"; // Orange
+                    statusText = "PENDING";
                 } else if ("APPROVED".equals(status)) {
                     statusClass = "status-approved-badge";
+                    statusColor = "#00c853"; // Green
+                    statusText = "APPROVED";
                 } else if ("REJECTED".equals(status)) {
                     statusClass = "status-rejected-badge";
+                    statusColor = "#ff1744"; // Red
+                    statusText = "REJECTED";
                 }
             %>
-            <span class="status-badge <%= statusClass %>"><%= status %></span>
+            <span class="status-badge <%= statusClass %>" 
+                  style="background-color: <%= statusColor %>; color: white;">
+                <%= statusText %>
+            </span>
           </div>
           
-          <!-- File Attachment Section - UPDATED: Always visible -->
+          <!-- File Attachment Section -->
           <div class="file-attachment">
             <div class="label">Attachment</div>
             <div class="attachment-container">
-              <% if (hasAttachment) { %>
+              <% if (hasAttachment) { 
+                  // Extract filename from path
+                  String fileName = attachment;
+                  if (attachment.contains("/")) {
+                      fileName = attachment.substring(attachment.lastIndexOf("/") + 1);
+                  }
+              %>
                   <a href="LeaveDetailsServlet?download=true&id=<%= leave.get("requestId") %>" class="download-btn">
                     <i class="fas fa-download"></i>
-                    Download <%= attachment %>
+                    Download <%= fileName %>
                   </a>
               <% } else { %>
                   <div class="no-attachment">
@@ -598,17 +696,38 @@
   </div>
 </div>
 
+<!-- Error Modal -->
+<div id="errorModal" class="modal" style="display: <%= hasError ? "flex" : "none" %>;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span>Leave Approval Error</span>
+    </div>
+    <div class="modal-body">
+      <% if (hasError) { %>
+        <%= error %>
+      <% } else { %>
+        An error occurred while processing your request.
+      <% } %>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-ok" onclick="closeErrorModal()">OK</button>
+    </div>
+  </div>
+</div>
+
 <!-- Rejection Modal -->
 <div id="rejectModal" class="modal">
   <div class="modal-content">
-    <div class="modal-header">Reject Leave Request</div>
+    <div class="modal-header" style="background: linear-gradient(to right, #e53935, #ef5350);">
+      <span>Reject Leave Request</span>
+    </div>
     <div class="modal-body">
       <textarea id="rejectionReason" class="modal-textarea" 
                 placeholder="Enter reason for rejection..." required></textarea>
     </div>
     <div class="modal-footer">
-      <button class="btn back" onclick="closeModal()">Cancel</button>
-      <button class="btn reject" onclick="submitRejection()">Submit Rejection</button>
+      <button class="modal-btn" onclick="closeRejectModal()" style="background: #ddd; color: #333;">Cancel</button>
+      <button class="modal-btn" onclick="submitRejection()" style="background: #e53935; color: white;">Submit Rejection</button>
     </div>
   </div>
 </div>
@@ -619,11 +738,24 @@ function toggleSidebar() {
   sidebar.classList.toggle('closed');
 }
 
-function openRejectModal() {
-  document.getElementById('rejectModal').style.display = 'block';
+// Error Modal functions
+function showErrorModal(message) {
+  const modal = document.getElementById('errorModal');
+  const modalBody = modal.querySelector('.modal-body');
+  modalBody.textContent = message;
+  modal.style.display = 'flex';
 }
 
-function closeModal() {
+function closeErrorModal() {
+  document.getElementById('errorModal').style.display = 'none';
+}
+
+// Rejection Modal functions
+function openRejectModal() {
+  document.getElementById('rejectModal').style.display = 'flex';
+}
+
+function closeRejectModal() {
   document.getElementById('rejectModal').style.display = 'none';
   document.getElementById('rejectionReason').value = '';
 }
@@ -635,35 +767,37 @@ function submitRejection() {
     return;
   }
   
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = 'LeaveDetailsServlet';
-  
-  const requestId = document.createElement('input');
-  requestId.type = 'hidden';
-  requestId.name = 'requestId';
-  requestId.value = '<%= leave.get("requestId") %>';
-  
-  const action = document.createElement('input');
-  action.type = 'hidden';
-  action.name = 'action';
-  action.value = 'reject';
-  
-  const reasonInput = document.createElement('input');
-  reasonInput.type = 'hidden';
-  reasonInput.name = 'reason';
-  reasonInput.value = reason;
-  
-  form.appendChild(requestId);
-  form.appendChild(action);
-  form.appendChild(reasonInput);
-  
-  document.body.appendChild(form);
-  form.submit();
+  if (confirm('Are you sure you want to reject this leave request?')) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'LeaveDetailsServlet';
+    
+    const requestId = document.createElement('input');
+    requestId.type = 'hidden';
+    requestId.name = 'requestId';
+    requestId.value = '<%= leave.get("requestId") %>';
+    
+    const action = document.createElement('input');
+    action.type = 'hidden';
+    action.name = 'action';
+    action.value = 'reject';
+    
+    const reasonInput = document.createElement('input');
+    reasonInput.type = 'hidden';
+    reasonInput.name = 'reason';
+    reasonInput.value = reason;
+    
+    form.appendChild(requestId);
+    form.appendChild(action);
+    form.appendChild(reasonInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+  }
 }
 
 function approveLeave() {
-  if (confirm('Are you sure you want to approve this leave request?')) {
+  if (confirm('Are you sure you want to approve this leave request?\n\nThis will deduct the leave days from the employee\'s balance.')) {
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = 'LeaveDetailsServlet';
@@ -688,12 +822,35 @@ function approveLeave() {
 
 // Close modal when clicking outside
 window.onclick = function(event) {
-  const modal = document.getElementById('rejectModal');
-  if (event.target == modal) {
-    closeModal();
+  const errorModal = document.getElementById('errorModal');
+  const rejectModal = document.getElementById('rejectModal');
+  
+  if (event.target == errorModal) {
+    closeErrorModal();
+  }
+  if (event.target == rejectModal) {
+    closeRejectModal();
   }
 }
 
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        window.location.href = '<%= request.getContextPath() %>/LogoutServlet';
+    }
+}
+
+// Auto-hide error banner after 5 seconds
+if (<%= hasError %>) {
+    setTimeout(() => {
+        const errorBanner = document.querySelector('.error-message');
+        if (errorBanner) {
+            errorBanner.classList.remove('show');
+            setTimeout(() => {
+                errorBanner.style.display = 'none';
+            }, 300);
+        }
+    }, 5000);
+}
 </script>
 
 </body>
