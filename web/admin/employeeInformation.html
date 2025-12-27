@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Employee Information Interface</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    /* ---------- GLOBAL RESET ---------- */
+    * {
+        box-sizing: border-box;
+        font-family: "Segoe UI", sans-serif;
+    }
+    body {
+        margin: 0;
+        background: #f2f2f2;
+    }
+
+    /* ---------- MAIN LAYOUT ---------- */
+    .wrapper {
+        display: flex;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    /* ---------- SIDEBAR ---------- */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;          /* ✅ exact viewport height */
+        left: 0;
+        width: 260px;
+        background: #e0e0e0;
+        padding: 15px;
+        overflow: hidden;   /* ✅ NO scrolling at all */
+        transition: width 0.3s ease;
+    }
+    
+    .sidebar.closed {
+        width: 60px;
+    }
+    
+    .sidebar.closed ~ .content {
+        max-width: calc(100vw - 60px);
+    }
+
+
+    /* ---------- BRAND ---------- */
+    .brand {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    .sidebar.closed .brand span:first-child {
+        display: none;
+    }
+
+    /* ---------- PROFILE ---------- */
+    .profile {
+        text-align: center;
+        margin-bottom: 25px;
+        transition: opacity 0.3s ease;
+    }
+    .sidebar.closed .profile {
+        opacity: 0;
+        pointer-events: none;
+    }
+    .profile img {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #ccc;
+        margin-bottom: 10px;
+    }
+    .profile h4 {
+        margin: 5px 0 0;
+        font-size: 14px;
+    }
+    .profile p {
+        margin: 0;
+        font-size: 12px;
+        color: #555;
+    }
+
+    /* ---------- MENU ---------- */
+    .menu a, .menu-parent {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        margin-bottom: 6px;
+        text-decoration: none;
+        color: #000;
+        border-radius: 6px;
+        font-size: 14px;
+        gap: 12px;
+    }
+    .menu a i {
+        width: 20px;
+        text-align: center;
+        font-size: 16px;
+    }
+    .menu a:hover { background: #cfcfcf; }
+    .menu a.active { background: #bdbdbd; font-weight: bold; }
+
+    /* ---------- DROPDOWN ---------- */
+    .menu-group .menu-parent { font-weight: 600; }
+    .menu-group .menu-parent::after {
+        content: "▼";
+        font-size: 10px;
+        margin-left: auto;
+        margin-right: 10px;
+        transition: transform 0.2s ease;
+    }
+    .menu-group .menu-parent.open::after { transform: rotate(180deg); }
+    .menu-group .submenu {
+        margin-left: 32px;
+        display: none;
+        flex-direction: column;
+    }
+    .menu-group .submenu.open { display: flex; }
+
+    /* ---------- MAIN CONTENT ---------- */
+    .content {
+        flex: 1;
+        padding: 25px 30px;   /* RESTORE padding */
+        background: #fff;
+        margin-left: 260px; /* leave space for fixed sidebar */
+        overflow-x: hidden;
+        max-width: calc(100vw-260px);
+    }
+    .page-title {
+        background: linear-gradient(to right, #bdbdbd, #eeeeee);
+        padding: 18px;
+        font-size: 32px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    .toolbar {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    select, input {
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+    }
+    .search-box {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        background: #eee;
+        padding: 8px 12px;
+        border-radius: 20px;
+    }
+    .search-box input {
+        border: none;
+        outline: none;
+        background: transparent;
+        margin-left: 8px;
+    }
+    .btn {
+        padding: 10px 16px;
+        border-radius: 20px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .btn-add { background: #4a4a4a; color: white; }
+
+    /* ---------- EMPLOYEE LIST ---------- */
+    .employee-section {
+        margin-left: -30px;   /* cancel content padding */
+        margin-right: -30px;
+    }
+
+    .employee-row {
+        display: grid;
+        grid-template-columns: 100px 60px 1.5fr 1.5fr 1fr 180px 60px;
+        align-items: center;
+        padding: 15px 30px;   /* ✅ ONE consistent padding */
+        margin-bottom: 10px;
+        border-radius: 10px;
+        background: #f7f7f7;
+    }
+
+    .employee-row:nth-child(even) {
+        background: #ffffff; /* ✅ background ONLY */
+    }
+
+    .employee-row img {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+    }
+
+
+    .status {
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 13px;
+        font-weight: 600;
+        width: fit-content;
+    }
+    
+    .available {
+        border: 1px solid #4caf50; color: #4caf50; 
+    }
+    
+    .leave {
+        border: 1px solid red; color: red; 
+    }
+    
+    .edit-btn {
+        cursor: pointer; font-size: 18px;
+    }
+    
+    html, body {
+        overflow-x: hidden;
+    }
+
+    .sidebar.closed ~ .content {
+        margin-left: 60px;
+    }
+    
+    /* ---------- FILTER MODAL ---------- */
+    .btn-filter {
+        background: #fff;
+        border: 1px solid #000;
+    }
+
+    .filter-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.3);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+    }
+
+    .filter-box {
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        width: 320px;
+    }
+
+    .filter-box label {
+        display: block;
+        margin-top: 12px;
+        font-weight: 600;
+    }
+
+    .filter-box select {
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    .filter-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    /* Chrome / Edge / Safari */
+    body::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+
+    /* If scrolling happens inside .content */
+    .content::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar,
+    .content::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+
+    .sidebar::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+
+
+</style>
+</head>
+
+<body>
+<div class="wrapper">
+
+    <!-- ================= SIDEBAR ================= -->
+    <div class="sidebar" id="sidebar">
+
+        <!-- Brand / Toggle -->
+        <div class="brand">
+            <span>TERLAJAK LARIS</span>
+            <span class="toggle-btn">☰</span>
+        </div>
+
+        <!-- User Profile -->
+        <div class="profile">
+            <img src="https://i.imgur.com/7k12EPD.png" alt="Profile Picture">
+            <h4>AMIRUL AIMAN BIN LEO</h4>
+            <p>Admin</p>
+        </div>
+
+        <!-- Navigation Menu -->
+        <div class="menu">
+            <a href="#"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+            <a href="#" class="active"><i class="fas fa-users"></i><span>Employees</span></a>
+            <a href="#"><i class="fas fa-file-lines"></i><span>Policies</span></a>
+            <a href="#"><i class="fas fa-clipboard"></i><span>Reports</span></a>
+
+            <!-- Dropdown Menu -->
+            <div class="menu-group">
+                <div class="menu-parent">
+                    <i class="fas fa-user"></i><span>Personal</span>
+                </div>
+                <div class="submenu">
+                    <a href="#"><i class="fas fa-id-badge"></i><span>Profile</span></a>
+                    <a href="#"><i class="fas fa-calendar-plus"></i><span>Apply Leave</span></a>
+                    <a href="#"><i class="fas fa-history"></i><span>Leave History</span></a>
+                    <a href="#"><i class="fas fa-folder-open"></i><span>Generate Record</span></a>
+                </div>
+            </div>
+
+            <a href="#"><i class="fas fa-bell"></i><span>Notifications</span></a>
+            <a href="#"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
+        </div>
+
+    </div>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <div class="content">
+
+        <!-- Page Title -->
+        <div class="page-title">Employee Information</div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            
+            <select id="sortField">
+                <option value="">Any</option>
+                <option value="id">ID</option>
+                <option value="name">Name</option>
+                <option value="position">Position</option>
+                <option value="department">Department</option>
+            </select>
+
+            <select id="sortOrder">
+                <option value="">Any</option>
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+            </select>
+
+            <!-- Filter button (NEW) -->
+            <button class="btn btn-filter" id="openFilter">
+                <i class="fas fa-filter"></i> Filter
+            </button>
+
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input id="searchInput" placeholder="Search">
+            </div>
+
+            <button class="btn btn-add" onclick="location.href='addEmployee.html'">
+                Add Employee
+            </button>
+        </div>
+
+        <!-- Employee List -->
+        <div class="employee-section">
+            <div id="employeeList"></div>
+        </div>
+    </div>
+
+</div>
+    
+<!-- Filter Modal -->
+<div class="filter-modal" id="filterModal">
+    <div class="filter-box">
+        <h3>Filter Employees</h3>
+
+        <label>Department</label>
+        <select id="filterDept">
+            <option value="">Any</option>
+            <option>IT</option>
+            <option>Finance</option>
+            <option>Sales</option>
+            <option>Administration</option>
+        </select>
+
+        <label>Position</label>
+        <select id="filterPosition">
+            <option value="">Any</option>
+            <option>Software Engineer</option>
+            <option>Data Analyst</option>
+            <option>Accountant</option>
+            <option>Sales Executive</option>
+            <option>Administrative</option>
+            <option>HR Manager</option>
+        </select>
+
+        <label>Status</label>
+        <select id="filterStatus">
+            <option value="">Any</option>
+            <option>Available</option>
+            <option>On Leave</option>
+        </select>
+
+        <div class="filter-actions">
+            <button class="btn" id="resetFilter">Reset</button>
+            <button class="btn btn-add" id="applyFilter">Apply</button>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ================= SIDEBAR LOGIC ================= */
+document.querySelector(".toggle-btn").addEventListener("click", () => {
+    document.getElementById("sidebar").classList.toggle("closed");
+});
+
+document.querySelectorAll(".menu-group").forEach(group => {
+    const parent = group.querySelector(".menu-parent");
+    const submenu = group.querySelector(".submenu");
+    parent.addEventListener("click", () => {
+        parent.classList.toggle("open");
+        submenu.classList.toggle("open");
+    });
+});
+
+/* ================= FILTER MODAL LOGIC ================= */
+const filterModal = document.getElementById("filterModal");
+const openFilterBtn = document.getElementById("openFilter");
+
+openFilterBtn.addEventListener("click", () => {
+    filterModal.style.display = "flex";
+});
+
+filterModal.addEventListener("click", e => {
+    if (e.target === filterModal) {
+        filterModal.style.display = "none";
+    }
+});
+
+/* ================= EMPLOYEE DATA ================= */
+const employees = [
+    {id:102345, name:"Son Hyun-Woo", position:"Software Engineer", department:"IT", status:"Available"},
+    {id:984210, name:"Nur Umairah", position:"Accountant", department:"Finance", status:"Available"},
+    {id:562903, name:"Mokhtar Dahari", position:"Sales Executive", department:"Sales", status:"On Leave"},
+    {id:447128, name:"Kwon Ji-Yong", position:"Data Analyst", department:"IT", status:"Available"},
+    {id:731089, name:"Scott McTominay", position:"Administrative", department:"Administration", status:"On Leave"},
+    {id:102346, name:"Alice Johnson", position:"HR Manager", department:"Administration", status:"Available"},
+    {id:102347, name:"Michael Smith", position:"Software Engineer", department:"IT", status:"Available"},
+    {id:102348, name:"Emma Brown", position:"Accountant", department:"Finance", status:"On Leave"},
+    {id:102349, name:"Liam Williams", position:"Sales Executive", department:"Sales", status:"Available"},
+    {id:102350, name:"Olivia Jones", position:"Data Analyst", department:"IT", status:"Available"},
+    {id:102351, name:"Noah Miller", position:"Software Engineer", department:"IT", status:"On Leave"},
+    {id:102352, name:"Ava Davis", position:"Accountant", department:"Finance", status:"Available"},
+    {id:102353, name:"Ethan Wilson", position:"Sales Executive", department:"Sales", status:"Available"},
+    {id:102354, name:"Sophia Moore", position:"Data Analyst", department:"IT", status:"On Leave"},
+    {id:102355, name:"Mason Taylor", position:"Administrative", department:"Administration", status:"Available"},
+    {id:102356, name:"Isabella Anderson", position:"HR Manager", department:"Administration", status:"Available"},
+    {id:102357, name:"Lucas Thomas", position:"Software Engineer", department:"IT", status:"On Leave"},
+    {id:102358, name:"Mia Jackson", position:"Accountant", department:"Finance", status:"Available"},
+    {id:102359, name:"Benjamin White", position:"Sales Executive", department:"Sales", status:"Available"},
+    {id:102360, name:"Charlotte Harris", position:"Data Analyst", department:"IT", status:"Available"},
+    {id:102361, name:"James Martin", position:"Software Engineer", department:"IT", status:"On Leave"},
+    {id:102362, name:"Amelia Thompson", position:"Accountant", department:"Finance", status:"Available"},
+    {id:102363, name:"Alexander Garcia", position:"Sales Executive", department:"Sales", status:"Available"},
+    {id:102364, name:"Harper Martinez", position:"Data Analyst", department:"IT", status:"Available"},
+    {id:102365, name:"Daniel Robinson", position:"Administrative", department:"Administration", status:"On Leave"},
+    {id:102366, name:"Evelyn Clark", position:"HR Manager", department:"Administration", status:"Available"},
+    {id:102367, name:"Henry Rodriguez", position:"Software Engineer", department:"IT", status:"Available"},
+    {id:102368, name:"Abigail Lewis", position:"Accountant", department:"Finance", status:"On Leave"},
+    {id:102369, name:"Sebastian Lee", position:"Sales Executive", department:"Sales", status:"Available"},
+    {id:102370, name:"Ella Walker", position:"Data Analyst", department:"IT", status:"Available"},
+    {id:102371, name:"Jack Hall", position:"Software Engineer", department:"IT", status:"Available"},
+    {id:102372, name:"Scarlett Allen", position:"Accountant", department:"Finance", status:"Available"},
+    {id:102373, name:"Owen Young", position:"Sales Executive", department:"Sales", status:"On Leave"},
+    {id:102374, name:"Lily Hernandez", position:"Data Analyst", department:"IT", status:"Available"},
+    {id:102375, name:"Aiden King", position:"Administrative", department:"Administration", status:"Available"},
+    {id:102376, name:"Grace Wright", position:"HR Manager", department:"Administration", status:"On Leave"},
+    {id:102377, name:"Wyatt Scott", position:"Software Engineer", department:"IT", status:"Available"},
+    {id:102378, name:"Chloe Green", position:"Accountant", department:"Finance", status:"Available"},
+    {id:102379, name:"David Adams", position:"Sales Executive", department:"Sales", status:"Available"},
+    {id:102380, name:"Zoe Baker", position:"Data Analyst", department:"IT", status:"On Leave"},
+    {id:102381, name:"Samuel Nelson", position:"Software Engineer", department:"IT", status:"Available"},
+    {id:102382, name:"Hannah Carter", position:"Accountant", department:"Finance", status:"Available"},
+    {id:102383, name:"Matthew Mitchell", position:"Sales Executive", department:"Sales", status:"On Leave"},
+    {id:102384, name:"Victoria Perez", position:"Data Analyst", department:"IT", status:"Available"},
+    {id:102385, name:"Joseph Roberts", position:"Administrative", department:"Administration", status:"Available"},
+    {id:102386, name:"Ella Turner", position:"HR Manager", department:"Administration", status:"Available"},
+    {id:102387, name:"Ryan Phillips", position:"Software Engineer", department:"IT", status:"On Leave"},
+    {id:102388, name:"Madison Campbell", position:"Accountant", department:"Finance", status:"Available"},
+    {id:102389, name:"Nathan Parker", position:"Sales Executive", department:"Sales", status:"Available"},
+    {id:102390, name:"Aria Evans", position:"Data Analyst", department:"IT", status:"Available"},
+    {id:102391, name:"Christian Edwards", position:"Software Engineer", department:"IT", status:"Available"},
+    {id:102392, name:"Emily Collins", position:"Accountant", department:"Finance", status:"On Leave"},
+    {id:102393, name:"Anthony Stewart", position:"Sales Executive", department:"Sales", status:"Available"},
+    {id:102394, name:"Penelope Sanchez", position:"Data Analyst", department:"IT", status:"Available"}
+];
+
+
+const list = document.getElementById("employeeList");
+const searchInput = document.getElementById("searchInput");
+const sortField = document.getElementById("sortField");
+const sortOrder = document.getElementById("sortOrder");
+
+const filterDept = document.getElementById("filterDept");
+const filterPosition = document.getElementById("filterPosition");
+const filterStatus = document.getElementById("filterStatus");
+
+/* ================= RENDER FUNCTION ================= */
+function render(data) {
+    list.innerHTML = "";
+    data.forEach(e => {
+        list.innerHTML += `
+            <div class="employee-row">
+                <strong>${e.id}</strong>
+                <img src="https://i.imgur.com/7k12EPD.png" alt="Employee">
+                <strong>${e.name}</strong>
+                <div><small>${e.position}</small></div>
+                <div><small>${e.department}</small></div>
+                <span class="status ${e.status === "Available" ? "available" : "leave"}">${e.status}</span>
+                <i class="fas fa-pen edit-btn" onclick="location.href='editEmployee.html?id=${e.id}'"></i>
+            </div>`;
+    });
+}
+
+/* ================= FILTER, SORT, SEARCH ================= */
+function applyAll() {
+    let data = [...employees];
+    
+    const search = searchInput.value.toLowerCase();
+    const field = sortField.value;
+    const order = sortOrder.value;
+
+    const dept = filterDept.value;
+    const pos = filterPosition.value;
+    const status = filterStatus.value;
+    
+    if (search) {
+    data = data.filter(e =>
+        e.name.toLowerCase().includes(search) ||
+        e.position.toLowerCase().includes(search) ||
+        e.department.toLowerCase().includes(search) ||
+        e.status.toLowerCase().includes(search) ||
+        String(e.id).includes(search)
+    );
+}
+    
+    if (dept) data = data.filter(e => e.department === dept);
+    if (pos) data = data.filter(e => e.position === pos);
+    if (status) data = data.filter(e => e.status === status);
+    
+    if (field && order) {
+        data.sort((a, b) => {
+            let x = a[field];
+            let y = b[field];
+
+            if (typeof x === "string") x = x.toLowerCase();
+            if (typeof y === "string") y = y.toLowerCase();
+            return order === "asc"
+            ? (x > y ? 1 : -1)
+            : (x < y ? 1 : -1);
+        });
+    }
+
+    render(data);
+}
+
+const departmentPositions = {
+    IT: ["Software Engineer", "Data Analyst"],
+    Finance: ["Accountant"],
+    Sales: ["Sales Executive"],
+    Administration: ["Administrative", "HR Manager"]
+};
+
+filterDept.addEventListener("change", () => {
+    const dept = filterDept.value;
+
+    // Reset position dropdown
+    filterPosition.innerHTML = `<option value="">Any</option>`;
+
+    if (!dept) return;
+
+    departmentPositions[dept].forEach(pos => {
+        const option = document.createElement("option");
+        option.value = pos;
+        option.textContent = pos;
+        filterPosition.appendChild(option);
+    });
+});
+
+
+/* ================= FILTER MODAL BUTTONS ================= */
+document.getElementById("applyFilter").addEventListener("click", () => {
+    applyAll();
+    filterModal.style.display = "none";
+});
+
+/* ================= RESET ================= */
+document.getElementById("resetFilter").addEventListener("click", () => {
+    filterDept.value = "";
+    filterPosition.innerHTML = `<option value="">Any</option>`;
+    filterStatus.value = "";
+    applyAll();
+});
+
+/* ================= LIVE EVENTS ================= */
+document.querySelectorAll("#sortField, #sortOrder, #searchInput")
+    .forEach(el => el.addEventListener("input", applyAll));
+
+/* Initial render */
+render(employees);
+</script>
+
+</body>
+</html>
