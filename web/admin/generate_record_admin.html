@@ -343,30 +343,34 @@ tbody tr:nth-child(odd) {
 <body>
 
 <div class="wrapper">
-  <div class="sidebar" id="sidebar">
+ <div class="sidebar" id="sidebar">
     <div class="brand">
       <span>TERLAJAK LARIS</span>
       <span class="toggle-btn">☰</span>
     </div>
+
     <div class="profile">
       <img src="https://i.imgur.com/7k12EPD.png">
       <h4>AMIRUL AIMAN BIN LEO</h4>
       <p>Admin</p>
     </div>
-    <div class="menu">
+
+     <div class="menu">
       <a href="#"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
       <a href="#"><i class="fas fa-users"></i><span>Employees</span></a>
       <a href="#"><i class="fas fa-file-lines"></i><span>Policies</span></a>
-      <a href="#"><i class="fas fa-clipboard"></i><span>Reports</span></a>
+      <a href="#" class="active"><i class="fas fa-clipboard"></i><span>Reports</span></a>
+
+      <!-- Personal dropdown -->
       <div class="menu-group">
         <div class="menu-parent"><i class="fas fa-user"></i><span>Personal</span></div>
         <div class="submenu">
           <a href="#"><i class="fas fa-id-badge"></i><span>Profile</span></a>
           <a href="#"><i class="fas fa-calendar-plus"></i><span>Apply Leave</span></a>
-          <a href="#" ><i class="fas fa-history"></i><span>Leave History</span></a>
-          <a href="#" class="active"><i class="fas fa-folder-open"></i><span>Generate Record</span></a>
+          <a href="#" class="active"><i class="fas fa-history"></i><span>Leave History</span></a>
         </div>
       </div>
+
       <a href="#"><i class="fas fa-bell"></i><span>Notifications</span></a>
       <a href="#"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
     </div>

@@ -1,26 +1,33 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.leave.model;
 
-/**
- *
- * @author nurna
- */
+import java.util.Date;
+
 public class LeaveHistory {
-    
     private int requestId;
     private String leaveType;
     private String status;
-    private String startDate;
-    private String endDate;
-    private int balance;
-    
-    public LeaveHistory() {}
-    
-    // getter & setter
+    private Date startDate;
+    private Date endDate;
+    private int leaveBalance;
+
+    public LeaveHistory(int requestId, String leaveType, String status, Date startDate, Date endDate, int leaveBalance) {
+        this.requestId = requestId;
+        this.leaveType = leaveType;
+        this.status = status;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.leaveBalance = leaveBalance;
+        
+        
+    }
+
+    public LeaveHistory() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public LeaveHistory(int aInt, String string, String string0, String string1, java.sql.Date date, java.sql.Date date0, int i) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
     public int getRequestId() {
         return requestId;
@@ -46,29 +53,32 @@ public class LeaveHistory {
         this.status = status;
     }
 
-    public String getStartDate() {
+    public Date getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(String startDate) {
+    public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
 
-    public String getEndDate() {
+    public Date getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(String endDate) {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 
-    public int getBalance() {
-        return balance;
+    public int getLeaveBalance() {
+        return leaveBalance;
     }
 
-    public void setBalance(int balance) {
-        this.balance = balance;
+    public void setLeaveBalance(int leaveBalance) {
+        this.leaveBalance = leaveBalance;
     }
-    
-    
+
+    public void setEmployeeName(String string) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
+    

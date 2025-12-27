@@ -252,35 +252,38 @@
 </head>
 <body>
 <div class="wrapper">
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="brand">
-            <span>TERLAJAK LARIS</span>
-            <span class="toggle-btn">☰</span>
-        </div>
-        <div class="profile">
-            <img src="https://i.imgur.com/7k12EPD.png" alt="Profile">
-            <h4>AMIRUL AIMAN BIN LEO</h4>
-            <p>Admin</p>
-        </div>
-        <div class="menu">
-            <a href="#"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
-            <a href="#"><i class="fas fa-users"></i><span>Employees</span></a>
-            <a href="#"><i class="fas fa-file-lines"></i><span>Policies</span></a>
-            <a href="#"><i class="fas fa-clipboard"></i><span>Reports</span></a>
-            <div class="menu-group">
-                <div class="menu-parent"><i class="fas fa-user"></i><span>Personal</span></div>
-                <div class="submenu">
-                    <a href="#"><i class="fas fa-id-badge"></i><span>Profile</span></a>
-                    <a href="#"><i class="fas fa-calendar-plus"></i><span>Apply Leave</span></a>
-                    <a href="#"><i class="fas fa-history"></i><span>Leave History</span></a>
-                    <a href="#" class="active"><i class="fas fa-folder-open"></i><span>Generate Record</span></a>
-                </div>
-            </div>
-            <a href="#"><i class="fas fa-bell"></i><span>Notifications</span></a>
-            <a href="#"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
-        </div>
+   <!-- ===== Sidebar ===== -->
+  <div class="sidebar" id="sidebar">
+    <div class="brand">
+      <span>TERLAJAK LARIS</span>
+      <span class="toggle-btn">☰</span>
     </div>
+
+    <div class="profile">
+      <img src="https://i.imgur.com/7k12EPD.png">
+      <h4><%= session.getAttribute("name") != null ? session.getAttribute("name") : "Admin User" %></h4>
+      <p><%= session.getAttribute("position") != null ? session.getAttribute("position") : session.getAttribute("role") %></p>
+    </div>
+
+    <div class="menu">
+      <a href="<%= request.getContextPath()%>/admin/admin_dashboard.jsp"><i class="fas fa-th-large"></i>Dashboard</a>
+      <a href="<%= request.getContextPath()%>employees.jsp"><i class="fas fa-users"></i>Employees</a>
+      <a href="<%= request.getContextPath()%>LeavePolicies.jsp"><i class="fas fa-file-lines"></i>Policies</a>
+      <a href="<%= request.getContextPath() %>/GenerateRecord" class="active"><i class="fas fa-clipboard"></i><span>Reports</span></a>
+
+      <div class="menu-group">
+        <div class="menu-parent"><i class="fas fa-user"></i><span>Personal</span></div>
+        <div class="submenu">
+            <a href="<%= request.getContextPath()%>/ViewProfileAdminServlet"><i class="fas fa-id-badge"></i>Profile</a>
+            <a href="<%= request.getContextPath()%>/admin/apply_leave.jsp"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
+            <a href="<%= request.getContextPath()%>/LeaveHistoryAdminServlet"><i class="fas fa-history"></i>Leave History</a>
+        </div>
+      </div>
+
+      <a href="notifications.jsp"><i class="fas fa-bell"></i><span>Notifications</span></a>
+      <a href="LogoutServlet"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
+    </div>
+  </div>
 
     <!-- Main -->
     <div class="main">
@@ -372,9 +375,28 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 
 <script>
-window.onload = function() {
-    const adminName = "HWANG IN YEOP";
+    // Sidebar Toggle
+document.querySelector(".toggle-btn").addEventListener("click", () => {
+  document.getElementById("sidebar").classList.toggle("closed");
+});
 
+// Personal Dropdown
+document.querySelectorAll(".menu-group").forEach(group => {
+  const parent = group.querySelector(".menu-parent");
+  const submenu = group.querySelector(".submenu");
+  parent.addEventListener("click", () => {
+    parent.classList.toggle("open");
+    submenu.classList.toggle("open");
+  });
+});
+window.onload = function() {
+
+    /* ===== ADMIN NAME FROM SESSION (NO HARDCODE) ===== */
+    const adminName = "<%= session.getAttribute("name") != null 
+            ? session.getAttribute("name").toString() 
+            : "" %>";
+
+    /* ===== FILTER TABLE ===== */
     function filterTable() {
         const leaveType = document.getElementById("leaveType").value;
         const status = document.getElementById("status").value;
@@ -383,23 +405,27 @@ window.onload = function() {
 
         document.querySelectorAll("#leaveTable tbody tr").forEach(r => {
             let show = true;
+
             if (leaveType && r.cells[1].innerText.trim() !== leaveType) show = false;
             if (status && r.cells[2].innerText.trim().toUpperCase() !== status) show = false;
             if (startDate && r.cells[3].innerText < startDate) show = false;
             if (endDate && r.cells[4].innerText > endDate) show = false;
+
             r.style.display = show ? "" : "none";
         });
     }
 
+    /* ===== RESET FILTER ===== */
     function resetFilters() {
-        document.querySelectorAll("input,select").forEach(e => e.value = "");
+        document.querySelectorAll("input, select").forEach(e => e.value = "");
         document.querySelectorAll("#leaveTable tbody tr").forEach(r => r.style.display = "");
     }
 
+    /* ===== EXPORT EXCEL ===== */
     function exportExcel() {
         let csv = [];
         document.querySelectorAll("#leaveTable tr").forEach((row, index) => {
-            if(index === 0 || row.style.display !== "none") {
+            if (index === 0 || row.style.display !== "none") {
                 csv.push([...row.children].map(c => `"${c.innerText}"`).join(","));
             }
         });
@@ -410,65 +436,98 @@ window.onload = function() {
         a.click();
     }
 
+    /* ===== PRINT ===== */
     function printSelected() {
-        let w = window.open("");
-        w.document.write("<h2>TERLAJAK LARIS</h2><h1>Leave Record</h1>");
-        w.document.write(`<p>Generated by: ${adminName} (Admin)</p>`);
-        w.document.write("<table border='1' width='100%' cellpadding='6'>");
-        w.document.write("<tr><th>ID</th><th>Type</th><th>Status</th><th>Start</th><th>End</th><th>Balance</th></tr>");
-        document.querySelectorAll("#leaveTable tbody tr").forEach(r => {
-            if(r.style.display !== "none") {
-                w.document.write(`<tr>
-                    <td>${r.cells[0].innerText}</td>
-                    <td>${r.cells[1].innerText}</td>
-                    <td>${r.cells[2].innerText}</td>
-                    <td>${r.cells[3].innerText}</td>
-                    <td>${r.cells[4].innerText}</td>
-                    <td>${r.cells[5].innerText}</td>
-                </tr>`);
-            }
-        });
-        w.document.write("</table>");
+        let w = window.open("", "_blank");
+
+        let generatedBy = adminName
+            ? "<p><b>Generated by:</b> " + adminName + "</p>"
+            : "";
+
+        w.document.write(
+            "<html><head><title>Leave Record</title>" +
+            "<style>" +
+            "body{font-family:Poppins,Arial;padding:30px;color:#333;}" +
+            "table{width:100%;border-collapse:collapse;margin-top:15px;font-size:13px;}" +
+            "th,td{border:1px solid #aaa;padding:8px;text-align:center;}" +
+            "th{background:#f0f0f0;}" +
+            "</style></head><body>" +
+
+            "<h2 style='text-align:center'>TERLAJAK LARIS</h2>" +
+            "<h3 style='text-align:center;font-weight:normal'>Leave Record Report</h3>" +
+            generatedBy +
+            "<p><b>Date:</b> " + new Date().toLocaleDateString() + "</p>" +
+
+            document.getElementById("leaveTable").outerHTML +
+
+            "</body></html>"
+        );
+
+        w.document.close();
         w.print();
-        w.close();
     }
 
+    /* ===== EXPORT PDF ===== */
     function exportPDF() {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.text("TERLAJAK LARIS", 14, 10);
-        doc.text("Leave Record", 105, 10, { align: "center" });
-        doc.text(`Generated by: ${adminName} (Admin)`, 14, 20);
+        const doc = new jsPDF("p", "mm", "a4");
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(18);
+        doc.text("TERLAJAK LARIS", 105, 15, { align: "center" });
+
+        doc.setFontSize(14);
+        doc.text("Leave Record Report", 105, 23, { align: "center" });
+
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+
+        let y = 32;
+        if (adminName) {
+            doc.text("Generated by: " + adminName, 14, y);
+            y += 6;
+        }
+        doc.text("Date: " + new Date().toLocaleDateString(), 14, y);
 
         let rows = [];
         document.querySelectorAll("#leaveTable tbody tr").forEach(r => {
-            if(r.style.display !== "none") rows.push([...r.cells].map(c => c.innerText));
+            if (r.style.display !== "none") {
+                rows.push([
+                    r.cells[0].innerText,
+                    r.cells[1].innerText,
+                    r.cells[2].innerText,
+                    r.cells[3].innerText,
+                    r.cells[4].innerText,
+                    r.cells[5].innerText
+                ]);
+            }
         });
 
-        if(!rows.length) { alert("No records to export"); return; }
-        doc.autoTable({ startY: 30, head: [["ID","Type","Status","Start","End","Balance"]], body: rows });
-        doc.save("Leave_Record.pdf");
+        if (!rows.length) {
+            alert("No records to export");
+            return;
+        }
+
+        doc.autoTable({
+            startY: y + 8,
+            head: [["ID","Leave Type","Status","Start Date","End Date","Balance"]],
+            body: rows,
+            theme: "grid",
+            styles: { fontSize: 9, halign: "center" }
+        });
+
+        doc.save("Leave_Record_Report.pdf");
     }
 
+    /* ===== BUTTON EVENT BINDING ===== */
     document.querySelector(".btn-generate").onclick = filterTable;
     document.querySelector(".btn-reset").onclick = resetFilters;
     document.querySelector(".btn-excel").onclick = exportExcel;
     document.querySelector(".btn-print").onclick = printSelected;
     document.querySelector(".btn-pdf").onclick = exportPDF;
-
-    document.querySelector(".toggle-btn").addEventListener("click", () => 
-        document.getElementById("sidebar").classList.toggle("closed")
-    );
-
-    document.querySelectorAll(".menu-group").forEach(group => {
-        const parent = group.querySelector(".menu-parent");
-        const submenu = group.querySelector(".submenu");
-        parent.addEventListener("click", () => {
-            parent.classList.toggle("open");
-            submenu.classList.toggle("open");
-        });
-    });
 };
 </script>
+
+
 </body>
 </html>

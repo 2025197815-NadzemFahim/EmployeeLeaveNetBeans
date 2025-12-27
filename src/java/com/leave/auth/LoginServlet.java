@@ -67,7 +67,7 @@ public class LoginServlet extends HttpServlet {
                 // 4. Redirect by role
                 switch (role) {
                     case "STAFF":
-                        response.sendRedirect("ViewProfileServlet");
+                        response.sendRedirect("DashboardStaffServlet");
                         break;
 
                     case "ADMIN":
@@ -75,7 +75,7 @@ public class LoginServlet extends HttpServlet {
                         break;
 
                     case "HOD":
-                        response.sendRedirect("HodDashboardServlet");
+                        response.sendRedirect("LeaveHistoryHodServlet");
                         break;
 
                     case "CEO":

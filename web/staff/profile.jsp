@@ -7,6 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.sql.*"%>
 <%@page import="java.sql.ResultSet"%>
+<%@ page import="java.util.*" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -240,11 +241,11 @@ body {
 </style>
 </head>
 <body>
-    
     <%
-    ResultSet emp = (ResultSet) request.getAttribute("emp");
-    ResultSet leaveInfo = (ResultSet) request.getAttribute("leaveInfo");
+    Map emp = (Map) request.getAttribute("emp");
+    List<Map> leaveInfo = (List<Map>) request.getAttribute("leaveInfo");
 %>
+ 
 
   <% if ("password".equals(request.getParameter("success"))) { %>
     <script>alert("Password successfully updated");</script>
@@ -262,21 +263,20 @@ body {
     </div>
 
    <div class="profile">
-  <img src="<%= request.getContextPath() %>/profile-image?path=<%= emp.getString("profile_image") %>"
-       onerror="this.src='<%= request.getContextPath()%>/images/default_profile.png'">
+  <img src="<%= request.getContextPath() %>/profile-image?path=<%= emp.get("profile_image") %>"
+     onerror="this.src='<%= request.getContextPath() %>/images/default_profile.png'">
 
-  <h4><%= emp.getString("name") %></h4>
-
-  <p><%= emp.getString("role") %> <%= emp.getString("department") %></p>
+<h4><%= emp.get("name") %></h4>
+<p><%= emp.get("position") %></p>
 </div>
 
 
                
     <div class="menu">
-      <a><i class="fas fa-th-large"></i>Dashboard</a>
-      <a  class="active"><i class="fas fa-user"></i>Profile</a>
+      <a href="<%= request.getContextPath()%>/DashboardStaffServlet"><i class="fas fa-th-large"></i>Dashboard</a>
+      <a  href="<%= request.getContextPath()%>/ViewProfileServlet" class="active"><i class="fas fa-user"></i>Profile</a>
       <a href="<%= request.getContextPath()%>/staff/apply_leave.jsp"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
-      <a><i class="fas fa-history"></i>Leave History</a>
+      <a href="<%= request.getContextPath()%>/LeaveHistoryStaffServlet"><i class="fas fa-history"></i>Leave History</a>
       <a><i class="fas fa-bell"></i>Notifications</a>
       <a><i class="fas fa-sign-out-alt"></i>Logout</a>
     </div>
@@ -291,15 +291,15 @@ body {
     <div class="profile-left">
 
       <div class="profile-image">
-        <img src="<%= request.getContextPath() %>/profile-image?path=<%= emp.getString("profile_image") %>"
+        <img src="<%= request.getContextPath() %>/profile-image?path=<%= emp.get("profile_image") %>"
              onerror="this.src='<%= request.getContextPath()%>/images/default_profile.png'">
       </div>
 
-      <h2 class="profile-name"><%= emp.getString("name") %></h2>
+      <h2 class="profile-name"><%= emp.get("name") %></h2>
 
       <div class="profile-field">
         <label>Email</label>
-        <input type="email" value="<%= emp.getString("email") %>" readonly>
+        <input type="email" value="<%= emp.get("email") %>" readonly>
       </div>
 
       <!-- CHANGE PASSWORD -->
@@ -344,67 +344,63 @@ body {
 
         <div class="field">
             <label>Employee ID</label>
-            <input type="text" value="S<%= emp.getInt("employee_id") %>" readonly>
+            <input type="text" value="S<%= emp.get("employee_id") %>" readonly>
         </div>
 
         <div class="field">
             <label>Full Name</label>
-            <input type="text" value="<%= emp.getString("name") %>" readonly>
+            <input type="text" value="<%= emp.get("name") %>" readonly>
         </div>
 
         <div class="field">
             <label>Date of Birth</label>
-            <input type="text" value="<%= emp.getDate("date_of_birth") %>" readonly>
+            <input type="text" value="<%= emp.get("date_of_birth") %>" readonly>
         </div>
 
         <div class="field">
             <label>Address</label>
-            <input type="text" value="<%= emp.getString("address") %>" readonly>
+            <input type="text" value="<%= emp.get("address") %>" readonly>
         </div>
 
         <div class="field">
             <label>Admission Date</label>
-            <input type="text" value="<%= emp.getDate("admission_date") %>" readonly>
+            <input type="text" value="<%= emp.get("admission_date") %>" readonly>
         </div>
 
         <div class="field">
             <label>Department</label>
-            <input type="text" value="<%= emp.getString("department") %>" readonly>
+            <input type="text" value="<%= emp.get("department") %>" readonly>
         </div>
 
         <div class="field">
             <label>Role</label>
-            <input type="text" value="<%= emp.getString("role") %>" readonly>
+            <input type="text" value="<%= emp.get("role") %>" readonly>
         </div>
 
         <div class="field">
             <label>Position</label>
-            <input type="text" value="<%= emp.getString("position") %>" readonly>
+            <input type="text" value="<%= emp.get("position") %>" readonly>
         </div>
 
     </div>
 </div>
 
 
-      <div class="info-card">
+     <div class="info-card">
     <h3>Leave Information</h3>
 
     <div class="info-grid">
-        <% while (leaveInfo.next()) { %>
+        <% for (Map leave : leaveInfo) { %>
             <div class="field">
-                <label><%= leaveInfo.getString("name") %> Entitlement</label>
+                <label><%= leave.get("name") %></label>
                 <input type="text"
-                       value="<%= leaveInfo.getInt("max_days") %> Days"
+                       value="<%= leave.get("balance") %> / <%= leave.get("max_days") %> Days"
                        readonly>
             </div>
         <% } %>
     </div>
 </div>
 
-
-    </div>
-  </div>
-</div>
 <script>
 function toggleSidebar() {
   const sidebar = document.getElementById('sidebar');

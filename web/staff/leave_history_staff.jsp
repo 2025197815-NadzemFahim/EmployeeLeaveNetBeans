@@ -1,8 +1,12 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.util.List, com.leave.model.LeaveHistory" %>
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Approve / Reject Leave</title>
+<title>Leave History - Staff</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -197,9 +201,12 @@ tbody tr:nth-child(odd) {
 
 </style>
 </head>
+
 <body>
 
 <div class="wrapper">
+
+  <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
     <div class="brand">
       <span>TERLAJAK LARIS</span>
@@ -207,33 +214,32 @@ tbody tr:nth-child(odd) {
     </div>
 
     <div class="profile">
-      <img src="https://i.imgur.com/7k12EPD.png">
-      <h4>AMIRUL AIMAN BIN LEO</h4>
-      <p>HOD IT</p>
+      <img src="<%= request.getContextPath() %>/profile-image?path=<%= request.getAttribute("profileImg") %>"
+           onerror="this.src='<%= request.getContextPath()%>/images/default_profile.png'">
+      <h4><%= session.getAttribute("name") != null ? session.getAttribute("name") : "Staff User" %></h4>
+      <p><%= session.getAttribute("position") != null ? session.getAttribute("position") : session.getAttribute("role") %></p>
     </div>
 
     <div class="menu">
-      <a><i class="fas fa-th-large"></i>Dashboard</a>
-      <a><i class="fas fa-user"></i>Profile</a>
-      <a><i class="fas fa-clipboard-list"></i>Requests</a>
-      <a><i class="fas fa-calendar-plus"></i>Apply Leave</a>
-      <a  class="active"><i class="fas fa-history"></i>Leave History</a>
-      <a><i class="fas fa-bell"></i>Notifications</a>
-      <a><i class="fas fa-sign-out-alt"></i>Logout</a>
+      <a  href="<%= request.getContextPath()%>/DashboardStaffServlet"><i class="fas fa-user"></i>Dashboard</a>
+      <a  href="<%= request.getContextPath()%>/ViewProfileServlet"><i class="fas fa-user"></i>Profile</a>
+      <a href="<%= request.getContextPath()%>/staff/apply_leave.jsp"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
+      <a href="<%= request.getContextPath()%>/LeaveHistoryStaffServlet" class="active"><i class="fas fa-history"></i>Leave History</a>
+      <a href="notifications.jsp"><i class="fas fa-bell"></i>Notifications</a>
+      <a href="login.jsp"><i class="fas fa-sign-out-alt"></i>Logout</a>
     </div>
   </div>
 
   <!-- Main Content -->
   <div class="main">
-
     <div class="header">Leave History Record</div>
 
     <div class="top-bar">
-      <input type="text" class="search" placeholder="Search">
+      <input type="text" class="search" placeholder="Search leave..." onkeyup="searchTable()" id="searchInput">
     </div>
 
     <div class="card">
-      <table>
+      <table id="leaveTable">
         <thead>
           <tr>
             <th>Request ID</th>
@@ -245,46 +251,33 @@ tbody tr:nth-child(odd) {
           </tr>
         </thead>
         <tbody>
+
+<%
+    List<LeaveHistory> leaveHistory = (List<LeaveHistory>) request.getAttribute("leaveHistory");
+    if (leaveHistory != null && !leaveHistory.isEmpty()) {
+        for (LeaveHistory lh : leaveHistory) {
+            String statusClass = "";
+            if ("APPROVED".equalsIgnoreCase(lh.getStatus())) statusClass = "status-approved";
+            else if ("REJECTED".equalsIgnoreCase(lh.getStatus())) statusClass = "status-rejected";
+            else statusClass = "status-pending";
+%>
           <tr>
-            <td>L001</td>
-            <td>Medical Leave</td>
-            <td class="status-approved">Approved</td>
-            <td>18-02-2025</td>
-            <td>20-02-2025</td>
-            <td>5</td>
+            <td><%= lh.getRequestId() %></td>
+            <td><%= lh.getLeaveType() %></td>
+            <td class="<%= statusClass %>"><%= lh.getStatus() %></td>
+            <td><%= lh.getStartDate() %></td>
+            <td><%= lh.getEndDate() %></td>
+            <td><%= lh.getLeaveBalance() %></td>
           </tr>
-          <tr>
-            <td>L002</td>
-            <td>Annual Leave</td>
-            <td class="status-approved">Approved</td>
-            <td>16-04-2025</td>
-            <td>17-04-2025</td>
-            <td>5</td>
-          </tr>
-          <tr>
-            <td>L003</td>
-            <td>Annual Leave</td>
-            <td class="status-rejected">Rejected</td>
-            <td>14-04-2025</td>
-            <td>19-04-2025</td>
-            <td>5</td>
-          </tr>
-          <tr>
-            <td>L004</td>
-            <td>Emergency Leave</td>
-            <td class="status-approved">Approved</td>
-            <td>03-06-2025</td>
-            <td>03-06-2025</td>
-            <td>5</td>
-          </tr>
-          <tr>
-            <td>L005</td>
-            <td>Unpaid Leave</td>
-            <td class="status-pending">Pending</td>
-            <td>27-07-2025</td>
-            <td>28-07-2025</td>
-            <td>5</td>
-          </tr>
+<%
+        }
+    } else {
+%>
+          <tr><td colspan="6">No leave history found.</td></tr>
+<%
+    }
+%>
+
         </tbody>
       </table>
     </div>
@@ -295,38 +288,17 @@ tbody tr:nth-child(odd) {
 
 <script>
 function toggleSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  sidebar.classList.toggle('closed');
+  document.getElementById('sidebar').classList.toggle('closed');
 }
 
-/* Filter table by status */
-function filterStatus() {
-  const filter = document.getElementById("statusFilter").value.toLowerCase();
-  const table = document.getElementById("leaveTable");
-  const trs = table.tBodies[0].getElementsByTagName("tr");
-
-  for (let i = 0; i < trs.length; i++) {
-    const status = trs[i].getElementsByTagName("td")[4].textContent.toLowerCase();
-    trs[i].style.display = (filter === "all" || status === filter) ? "" : "none";
-  }
-}
-
-/* Search table */
 function searchTable() {
   const input = document.getElementById("searchInput").value.toLowerCase();
   const table = document.getElementById("leaveTable");
-  const trs = table.tBodies[0].getElementsByTagName("tr");
+  const trs = table.getElementsByTagName("tr");
 
-  for (let i = 0; i < trs.length; i++) {
-    let found = false;
-    const tds = trs[i].getElementsByTagName("td");
-    for (let j = 0; j < tds.length - 1; j++) { // exclude Details column
-      if (tds[j].textContent.toLowerCase().includes(input)) {
-        found = true;
-        break;
-      }
-    }
-    trs[i].style.display = found ? "" : "none";
+  for (let i = 1; i < trs.length; i++) {
+    const row = trs[i].textContent.toLowerCase();
+    trs[i].style.display = row.includes(input) ? "" : "none";
   }
 }
 </script>

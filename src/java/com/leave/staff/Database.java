@@ -2,47 +2,52 @@ package com.leave.staff;
 
 import com.leave.model.GenerateRecord;
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Database {
 
-    private String jdbcURL = "jdbc:derby://localhost:1527/LeaveDB";
-    private String jdbcUsername = "app";
-    private String jdbcPassword = "app";
+    private static final String URL = "jdbc:derby://localhost:1527/leaveDB";
+    private static final String USER = "app";
+    private static final String PASS = "app";
 
-    private static final String SELECT_ALL =
-        "SELECT lr.request_id, lt.name AS leave_type, lr.status, lr.start_date, lr.end_date, e.leave_balance " +
-        "FROM leave_request lr " +
-        "JOIN leave_type lt ON lr.type_id = lt.type_id " +
-        "JOIN employee e ON lr.submitted_by = e.employee_id";
+    public Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(URL, USER, PASS);
+    }
 
     public List<GenerateRecord> getAllRecords() {
-        List<GenerateRecord> records = new ArrayList<>();
-        try {
-            Class.forName("org.apache.derby.jdbc.ClientDriver"); // Load Derby driver
-            try (Connection conn = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
-                 PreparedStatement ps = conn.prepareStatement(SELECT_ALL);
-                 ResultSet rs = ps.executeQuery()) {
 
-                while (rs.next()) {
-                    GenerateRecord record = new GenerateRecord();
-                    record.setRequestId(rs.getInt("request_id"));
-                    record.setLeaveType(rs.getString("leave_type"));
-                    record.setStatus(rs.getString("status"));
-                    record.setStartDate(rs.getDate("start_date"));
-                    record.setEndDate(rs.getDate("end_date"));
-                    record.setBalance(rs.getInt("leave_balance"));
-                    records.add(record);
-                    // Debug
-                    System.out.println("Fetched: " + record.getRequestId() + " | " + record.getLeaveType());
-                }
+        List<GenerateRecord> list = new ArrayList<>();
+
+        String sql =
+            "SELECT lr.request_id, lt.name AS leave_type, lr.status, " +
+            "       lr.start_date, lr.end_date, elb.balance " +
+            "FROM leave_request lr " +
+            "JOIN leave_type lt ON lr.type_id = lt.type_id " +
+            "LEFT JOIN employee_leave_balance elb " +
+            "     ON elb.employee_id = lr.submitted_by " +
+            "    AND elb.type_id = lr.type_id " +
+            "ORDER BY lr.request_id DESC";
+
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                GenerateRecord r = new GenerateRecord();
+                r.setRequestId(rs.getInt("request_id"));
+                r.setLeaveType(rs.getString("leave_type"));
+                r.setStatus(rs.getString("status"));
+                r.setStartDate(rs.getDate("start_date"));
+                r.setEndDate(rs.getDate("end_date"));
+                r.setBalance(rs.getInt("balance"));
+
+                list.add(r);
             }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            System.out.println("Derby Driver not found!");
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return records;
+        return list;
     }
 }
