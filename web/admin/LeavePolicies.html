@@ -303,10 +303,6 @@ textarea { min-height: 90px; resize: vertical; }
         <div class="form-grid">
           <div class="label">Leave Type</div>
           <input class="input" id="addLeaveType" placeholder="e.g. Annual Leave">
-
-          <div class="label">Type ID</div>
-          <input class="input" id="addTypeId" placeholder="e.g. P001">
-
           <div class="label">Max Day Allowed</div>
           <input class="input" id="addMaxDays" type="number" min="0" placeholder="e.g. 14">
 
@@ -420,6 +416,16 @@ let policies = [
   { typeId: "P003", leaveType: "Emergency Leave", maxDays: 5, status: "Active", desc: "Emergency situations (family matters, etc.)." },
   { typeId: "P004", leaveType: "Replacement Leave", maxDays: 5, status: "Active", desc: "Replacement leave based on approved arrangement." }
 ];
+/* Auto-generate Type ID (matches sample format P001, P002, ...) */
+function generateNextTypeId() {
+  const nums = policies.map(p => {
+    const m = String(p.typeId).match(/(\d+)/g);
+    return m ? parseInt(m[m.length - 1], 10) : 0;
+  });
+  const next = (nums.length ? Math.max(...nums) : 0) + 1;
+  return "P" + String(next).padStart(3, "0");
+}
+
 
 const tbody = document.getElementById("policyTbody");
 
@@ -460,8 +466,7 @@ document.getElementById("searchInput").addEventListener("keyup", function() {
 document.getElementById("btnAddNew").addEventListener("click", () => {
   // clear add form
   document.getElementById("addLeaveType").value = "";
-  document.getElementById("addTypeId").value = "";
-  document.getElementById("addMaxDays").value = "";
+document.getElementById("addMaxDays").value = "";
   document.getElementById("addDesc").value = "";
   document.querySelectorAll('input[name="addStatus"]').forEach(r => r.checked = (r.value === "Active"));
   showSection("add");
@@ -473,20 +478,15 @@ document.getElementById("btnAddBack").addEventListener("click", () => showSectio
 /* Save Add */
 document.getElementById("btnAddSave").addEventListener("click", () => {
   const leaveType = document.getElementById("addLeaveType").value.trim();
-  const typeId = document.getElementById("addTypeId").value.trim();
+  const typeId = generateNextTypeId();
   const maxDays = Number(document.getElementById("addMaxDays").value);
   const status = document.querySelector('input[name="addStatus"]:checked').value;
   const desc = document.getElementById("addDesc").value.trim();
 
-  if (!leaveType || !typeId || Number.isNaN(maxDays)) {
-    alert("Please fill in Leave Type, Type ID and Max Day Allowed.");
-    return;
-  }
-  // basic uniqueness check
-  if (policies.some(p => p.typeId.toLowerCase() === typeId.toLowerCase())) {
-    alert("Type ID already exists. Please use another Type ID.");
-    return;
-  }
+  if (!leaveType || Number.isNaN(maxDays)) {
+  alert("Please fill in Leave Type and Max Day Allowed.");
+  return;
+}
 
   policies.push({ typeId, leaveType, maxDays, status, desc });
   renderTable(document.getElementById("searchInput").value);
