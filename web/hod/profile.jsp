@@ -304,7 +304,7 @@ body {
       </div>
 
       <!-- CHANGE PASSWORD -->
-      <form action="<%= request.getContextPath() %>/UpdateProfileServlet" method="post">
+      <form action="<%= request.getContextPath() %>/UpdateProfileHODServlet" method="post">
         <div class="profile-field">
           <label>New Password</label>
           <input type="password" name="newPassword" required>
@@ -320,7 +320,7 @@ body {
       </form>
 
       <!-- CHANGE IMAGE -->
-      <form action="<%= request.getContextPath() %>/UpdateProfileServlet"
+      <form action="<%= request.getContextPath() %>/UpdateProfileHODServlet"
             method="post"
             enctype="multipart/form-data">
 

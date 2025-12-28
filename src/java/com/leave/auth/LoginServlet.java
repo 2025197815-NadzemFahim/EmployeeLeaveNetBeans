@@ -79,7 +79,7 @@ public class LoginServlet extends HttpServlet {
                         break;
 
                     case "CEO":
-                        response.sendRedirect("CeoDashboardServlet");
+                        response.sendRedirect("ViewProfileCEOServlet");
                         break;
 
                     default:

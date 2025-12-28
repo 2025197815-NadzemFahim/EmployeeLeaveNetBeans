@@ -248,6 +248,129 @@ tbody tr:nth-child(odd) {
   background: #f2f2f2;
 }
 
+
+/*button view and delete*/
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #ffffff;
+  width: 85%;
+  max-width: 1100px;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 6px 25px rgba(0,0,0,0.25);
+  font-family: 'Poppins', sans-serif;
+  animation: popupFade 0.25s ease-out;
+  font-size: 18px;
+}
+
+.modal-content h2 {
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 25px;
+}
+
+.close {
+  position: absolute;
+  right: 25px;
+  top: 15px;
+  font-size: 38px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #444;
+}
+
+.close:hover {
+  color: black;
+}
+
+@keyframes popupFade {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.btn-view {
+  padding: 8px 14px;
+  border: none;
+  background: #2962ff;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.btn-delete {
+  padding: 8px 14px;
+  border: none;
+  background: #d50000;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-view:hover { background: #0039cb; }
+.btn-delete:hover { background: #9b0000; }
+
+/*===View Popup Modal====*/
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  width: 80%;
+  max-width: 900px;
+  padding: 30px;
+  border-radius: 12px;
+  position: relative;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.modal-content h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.close {
+  position: absolute;
+  right: 20px;
+  top: 10px;
+  font-size: 38px;
+  cursor: pointer;
+  color: #555;
+  font-weight: bold;
+}
+
+.close:hover { color: black; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
 .status-approved { color: #00c853; font-weight: bold; }
 .status-rejected { color: #ff1744; font-weight: bold; }
 .status-pending { color: #ffab00; font-weight: bold; }
@@ -306,61 +429,199 @@ tbody tr:nth-child(odd) {
     </div>
   </div>
 
-   <!-- Main Content -->
-  <div class="main">
-    <div class="header">Leave History Record</div>
+<!-- Main Content -->
+<div class="main">
+  <div class="header" style="color: #ffffff;">Leave History Record</div>
 
-    <div class="top-bar">
-      <input type="text" class="search" placeholder="Search leave..." onkeyup="searchTable()" id="searchInput">
-    </div>
-
-    <div class="card">
-      <table id="leaveTable">
-        <thead>
-          <tr>
-            <th>Request ID</th>
-            <th>Leave Type</th>
-            <th>Status</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Balance</th>
-          </tr>
-        </thead>
-        <tbody>
-
-<%
-    List<LeaveHistory> leaveHistory = (List<LeaveHistory>) request.getAttribute("leaveHistory");
-    if (leaveHistory != null && !leaveHistory.isEmpty()) {
-        for (LeaveHistory lh : leaveHistory) {
-            String statusClass = "";
-            if ("APPROVED".equalsIgnoreCase(lh.getStatus())) statusClass = "status-approved";
-            else if ("REJECTED".equalsIgnoreCase(lh.getStatus())) statusClass = "status-rejected";
-            else statusClass = "status-pending";
-%>
-          <tr>
-            <td><%= lh.getRequestId() %></td>
-            <td><%= lh.getLeaveType() %></td>
-            <td class="<%= statusClass %>"><%= lh.getStatus() %></td>
-            <td><%= lh.getStartDate() %></td>
-            <td><%= lh.getEndDate() %></td>
-            <td><%= lh.getLeaveBalance() %></td>
-          </tr>
-<%
-        }
-    } else {
-%>
-          <tr><td colspan="6">No leave history found.</td></tr>
-<%
-    }
-%>
-
-        </tbody>
-      </table>
-    </div>
-
+  <!-- Search Bar -->
+  <div class="top-bar">
+    <input type="text" class="search" placeholder="Search leave..." id="searchInput">
   </div>
 
+  <!-- Card + Table -->
+  <div class="card">
+    <table id="leaveTable">
+      <thead>
+        <tr>
+          <th>Request ID</th>
+          <th>Leave Type</th>
+          <th>Status</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Balance</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="leaveTableBody">
+
+      <%
+        List<com.leave.model.LeaveHistory> leaveHistory =
+            (List<com.leave.model.LeaveHistory>) request.getAttribute("leaveHistory");
+
+        if (leaveHistory != null && !leaveHistory.isEmpty()) {
+            for (com.leave.model.LeaveHistory lh : leaveHistory) {
+                String statusClass = "";
+                if ("APPROVED".equalsIgnoreCase(lh.getStatus())) statusClass = "status-approved";
+                else if ("REJECTED".equalsIgnoreCase(lh.getStatus())) statusClass = "status-rejected";
+                else statusClass = "status-pending";
+      %>
+        <tr>
+          <td><%= lh.getRequestId() %></td>
+          <td><%= lh.getLeaveType() %></td>
+          <td class="<%= statusClass %>"><%= lh.getStatus() %></td>
+          <td><%= lh.getStartDate() %></td>
+          <td><%= lh.getEndDate() %></td>
+          <td><%= lh.getLeaveBalance() %></td>
+          <td>
+            <button class="btn-view" onclick="openViewPopup(<%= lh.getRequestId() %>)">
+              View
+            </button>
+            <button class="btn-delete" onclick="deleteLeave(<%= lh.getRequestId() %>)">
+              Delete
+            </button>
+          </td>
+        </tr>
+      <%
+            }
+        } else {
+      %>
+        <tr><td colspan="7">No leave history found.</td></tr>
+      <% } %>
+
+      </tbody>
+    </table>
+  </div>
 </div>
+
+<!-- Close wrapper -->
+</div>
+</div>
+
+<!-- Popup Modal (Corporate Big UI) -->
+<div id="viewModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeViewPopup()">×</span>
+    <h2>Leave Application Details</h2>
+    <div id="modalBody">Loading...</div>
+  </div>
+</div>
+
+<!-- Modal CSS -->
+<style>
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #ffffff;
+  width: 85%;
+  max-width: 1100px;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 6px 25px rgba(0,0,0,0.25);
+  font-family: 'Poppins', sans-serif;
+  animation: popupFade 0.25s ease-out;
+  font-size: 18px;
+}
+
+.modal-content h2 {
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 25px;
+}
+
+.close {
+  position: absolute;
+  right: 25px;
+  top: 15px;
+  font-size: 38px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #444;
+}
+
+.close:hover {
+  color: black;
+}
+
+@keyframes popupFade {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.btn-view {
+  padding: 8px 14px;
+  border: none;
+  background: #2962ff;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.btn-delete {
+  padding: 8px 14px;
+  border: none;
+  background: #d50000;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-view:hover { background: #0039cb; }
+.btn-delete:hover { background: #9b0000; }
+</style>
+
+<!-- JavaScript -->
+<script>
+// Realtime table search
+document.getElementById("searchInput").addEventListener("keyup", function() {
+  let filter = this.value.toLowerCase();
+  let rows = document.querySelectorAll("#leaveTableBody tr");
+
+  rows.forEach(row => {
+    row.style.display = row.innerText.toLowerCase().includes(filter) ? "" : "none";
+  });
+});
+
+// Open popup + fetch DB data
+function openViewPopup(requestId) {
+  document.getElementById("viewModal").style.display = "flex";
+  fetch("<%= request.getContextPath() %>/ViewLeavePopupServlet?requestId=" + requestId)
+    .then(res => res.text())
+    .then(data => document.getElementById("modalBody").innerHTML = data)
+    .catch(() => document.getElementById("modalBody").innerHTML = "Failed to load data");
+}
+
+// Close popup
+function closeViewPopup() {
+  document.getElementById("viewModal").style.display = "none";
+  document.getElementById("modalBody").innerHTML = "Loading...";
+}
+
+// Delete leave from DB
+function deleteLeave(requestId) {
+  if (confirm("Delete this leave application?")) {
+    fetch("<%= request.getContextPath() %>/DeleteLeaveServlet?requestId=" + requestId)
+      .then(res => res.text())
+      .then(msg => { alert(msg); location.reload(); })
+      .catch(() => alert("Delete failed"));
+  }
+}
+</script>
+
+
 
 <script>
 /* Sidebar open/close */

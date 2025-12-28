@@ -12,7 +12,7 @@ import javax.servlet.http.*;
 @WebServlet("/LeaveHistoryStaffServlet")
 public class LeaveHistoryStaffServlet extends HttpServlet {
 
-    private static final String DB_URL = "jdbc:derby://localhost:1527/LeaveDB";
+    private static final String DB_URL  = "jdbc:derby://localhost:1527/LeaveDB";
     private static final String DB_USER = "app";
     private static final String DB_PASS = "app";
 
