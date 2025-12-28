@@ -239,7 +239,7 @@ tbody tr:nth-child(odd) {
       <a  href="<%= request.getContextPath()%>/ViewProfileHODServlet"><i class="fas fa-user"></i>Profile</a>
       <a  href="<%= request.getContextPath()%>/hod/apply_leave.jsp"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
       <a href="notifications_hod.jsp"><i class="fas fa-bell"></i>Requests</a>
-      <a  href="<%= request.getContextPath()%>/LeaveHistoryHodServlet" class="active"><i class="fas fa-history"></i>Leave History</a>
+      <a  href="<%= request.getContextPath()%>/LeaveHistoryServlet" class="active"><i class="fas fa-history"></i>Leave History</a>
       <a href="notifications_hod.jsp"><i class="fas fa-bell"></i>Notifications</a>
       <a href="login.jsp"><i class="fas fa-sign-out-alt"></i>Logout</a>
     </div>

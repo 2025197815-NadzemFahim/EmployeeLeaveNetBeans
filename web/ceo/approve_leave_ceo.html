@@ -10,12 +10,12 @@
 /* ===== Use your provided CSS ===== */
 * {
   box-sizing: border-box;
-  font-family: "Segoe UI", sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 body {
   margin: 0;
-  background: #f2f2f2;
+  background: #f5f7fb;
 }
 
 .wrapper {
@@ -124,11 +124,10 @@ body {
 }
 
 .header {
-  background: linear-gradient(to right, #bdbdbd, #eeeeee);
-  padding: 18px;
-  font-size: 32px;
-  font-weight: bold;
+  font-size: 26px;
+  font-weight: 600;
   margin-bottom: 20px;
+  color: #333 !important;
 }
 
 /* Search */
@@ -139,76 +138,92 @@ body {
 }
 
 .search {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
   width: 220px;
   font-size: 13px;
 }
 
-/* Card */
-.card {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
+/* ===== TABLE WRAPPER (notification style) ===== */
+.table-wrapper {
   overflow-x: auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.05);
 }
 
 /* Table */
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 650px; /* forces horizontal scroll on small screens */
+  min-width: 650px;
+}
+
+thead {
+  background: #f1f3f9;
 }
 
 th, td {
   padding: 14px;
-  text-align: center;
+  text-align: left;
+  font-size: 14px;
 }
 
 th {
-  color: black;
   font-weight: 600;
+  color: #000000;
 }
 
-td{
-    color : #555;
-    font-weight: 600;
+td {
+  color: #000000;
+  font-weight: 400;
 }
 
-tbody tr:nth-child(odd) {
-  background: #f2f2f2;
+/* Row divider */
+tr:not(:last-child) {
+  border-bottom: 1px solid #eee;
 }
 
-.status-approved {
-  color: #00c853;
-  font-weight: bold;
-}
-
-.status-rejected {
-  color: #ff1744;
-  font-weight: bold;
-}
-
-.status-pending {
-  color: #ffab00;
-  font-weight: bold;
-}
-
-/* View Button */
-.btn-view {
-  padding: 8px 16px;
-  border-radius: 6px;
-  background: #bdbdbd;
-  color: black;
+/* ===== STATUS BADGES ===== */
+.badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
   font-weight: 600;
-  text-decoration: none;
   display: inline-block;
 }
 
-.btn-view:hover {
-  background: #9e9e9e;
+.badge.approved {
+  background: #eafaf1;
+  color: #27ae60;
 }
+
+.badge.rejected {
+  background: #fdecea;
+  color: #c0392b;
+}
+
+.badge.pending {
+  background: #ebf5ff;
+  color: #2980b9;
+}
+
+/* ===== VIEW BUTTON ===== */
+.btn-view {
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: #f1f3f9;
+  color: #333;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.btn-view:hover {
+  background: #e0e4f5;
+}
+
 </style>
 </head>
 <body>
@@ -235,75 +250,79 @@ tbody tr:nth-child(odd) {
     </div>
   </div>
 
-  <!-- Main Content -->
   <div class="main">
 
-    <div class="header" style="color: #ffffff;">Approve/Reject Leave</div>
+  <div class="header" style="color:#fff;">Approve / Reject Leave</div>
 
-    <div class="top-bar">
-      <input type="text" class="search" placeholder="Search" id="searchInput" onkeyup="searchTable()">
-    </div>
+  <div class="top-bar">
+    <input type="text" class="search" placeholder="Search" id="searchInput">
+  </div>
 
-    <div class="card">
-      <table id="leaveTable">
-        <thead>
-          <tr>
-            <th>Request ID</th>
-            <th>Leave Type</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>L010</td>
-            <td>Annual Leave</td>
-            <td>17-04-2025</td>
-            <td>20-04-2025</td>
-            <td class="status-pending">Pending</td>
-            <td><a href="approve_leave_details_ceo.html" class="btn-view">View</a></td>
-          </tr>
-          <tr>
-            <td>L011</td>
-            <td>Medical Leave</td>
-            <td>18-04-2025</td>
-            <td>21-04-2025</td>
-            <td class="status-approved">Approved</td>
-            <td><a href="approve_leave_details_ceo.html" class="btn-view">View</a></td>
-          </tr>
-          <tr>
-            <td>L012</td>
-            <td>Emergency Leave</td>
-            <td>19-04-2025</td>
-            <td>22-04-2025</td>
-            <td class="status-rejected">Rejected</td>
-            <td><a href="approve_leave_details_ceo.html" class="btn-view">View</a></td>
-          </tr>
-          <tr>
-            <td>L013</td>
-            <td>Unpaid Leave</td>
-            <td>25-04-2025</td>
-            <td>26-04-2025</td>
-            <td class="status-pending">Pending</td>
-            <td><a href="approve_leave_details_ceo.html" class="btn-view">View</a></td>
-          </tr>
-          <tr>
-            <td>L014</td>
-            <td>Annual Leave</td>
-            <td>28-04-2025</td>
-            <td>30-04-2025</td>
-            <td class="status-approved">Approved</td>
-            <td><a href="approve_leave_details_ceo.html" class="btn-view">View</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <!-- 👇 changed from .card to .table-wrapper -->
+  <div class="table-wrapper">
+    <table id="leaveTable">
+      <thead>
+        <tr>
+          <th>Request ID</th>
+          <th>Leave Type</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
 
+      <tbody>
+        <tr>
+          <td>L010</td>
+          <td>Annual Leave</td>
+          <td>17-04-2025</td>
+          <td>20-04-2025</td>
+          <td><span class="badge pending">Pending</span></td>
+          <td><a href="approve_leave_details_ceo.html" class="btn-view">View</a></td>
+        </tr>
+
+        <tr>
+          <td>L011</td>
+          <td>Medical Leave</td>
+          <td>18-04-2025</td>
+          <td>21-04-2025</td>
+          <td><span class="badge approved">Approved</span></td>
+          <td><a href="approve_leave_details_ceo.html" class="btn-view">View</a></td>
+        </tr>
+
+        <tr>
+          <td>L012</td>
+          <td>Emergency Leave</td>
+          <td>19-04-2025</td>
+          <td>22-04-2025</td>
+          <td><span class="badge rejected">Rejected</span></td>
+          <td><a href="approve_leave_details_ceo.html" class="btn-view">View</a></td>
+        </tr>
+
+        <tr>
+          <td>L013</td>
+          <td>Unpaid Leave</td>
+          <td>25-04-2025</td>
+          <td>26-04-2025</td>
+          <td><span class="badge pending">Pending</span></td>
+          <td><a href="approve_leave_details_ceo.html" class="btn-view">View</a></td>
+        </tr>
+
+        <tr>
+          <td>L014</td>
+          <td>Annual Leave</td>
+          <td>28-04-2025</td>
+          <td>30-04-2025</td>
+          <td><span class="badge approved">Approved</span></td>
+          <td><a href="approve_leave_details_ceo.html" class="btn-view">View</a></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
 </div>
+
 
 <script>
 function toggleSidebar() {
