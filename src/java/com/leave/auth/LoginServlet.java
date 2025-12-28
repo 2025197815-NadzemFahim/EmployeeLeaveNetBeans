@@ -9,7 +9,6 @@ package com.leave.auth;
  *
  * @author suweg
  */
-
 import java.io.IOException;
 import java.sql.*;
 import javax.servlet.*;
@@ -38,13 +37,13 @@ public class LoginServlet extends HttpServlet {
         try {
             // 1. Connect to DB
             Connection conn = DriverManager.getConnection(
-                "jdbc:derby://localhost:1527/LeaveDB",
-                "app",
-                "app"
+                    "jdbc:derby://localhost:1527/LeaveDB",
+                    "app",
+                    "app"
             );
 
             // 2. SQL check
-            String sql = "SELECT employee_id, name, role FROM employee WHERE email=? AND password=?";
+            String sql = "SELECT employee_id, name, role, position, profile_image FROM employee WHERE email=? AND password=?";
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, email);
             ps.setString(2, password);
@@ -56,11 +55,18 @@ public class LoginServlet extends HttpServlet {
                 int employeeId = rs.getInt("employee_id");
                 String name = rs.getString("name");
                 String role = rs.getString("role");
+                String position = rs.getString("position");
+                String profileImage = rs.getString("profile_image");
 
                 HttpSession session = request.getSession();
                 session.setAttribute("employeeId", employeeId);
                 session.setAttribute("name", name);
                 session.setAttribute("role", role);
+
+                // ✅ ADD THESE
+                session.setAttribute("profileName", name);
+                session.setAttribute("profilePosition", position);
+                session.setAttribute("profileImage", profileImage);
 
                 conn.close();
 
@@ -75,11 +81,11 @@ public class LoginServlet extends HttpServlet {
                         break;
 
                     case "HOD":
-                        response.sendRedirect("LeaveHistoryHodServlet");
+                        response.sendRedirect("HODDashboardServlet");
                         break;
 
                     case "CEO":
-                        response.sendRedirect("CeoDashboardServlet");
+                        response.sendRedirect("CEODashboardServlet");
                         break;
 
                     default:
@@ -98,4 +104,3 @@ public class LoginServlet extends HttpServlet {
         }
     }
 }
-
