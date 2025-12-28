@@ -16,8 +16,14 @@
     
     Map<String, String> leave = (Map<String, String>) request.getAttribute("leave");
     String userName = (String) request.getAttribute("userName");
-    String name = (String) userSession.getAttribute("name");
     Integer employeeId = (Integer) userSession.getAttribute("employeeId");
+    String name = (String) request.getAttribute("name");
+String position = (String) request.getAttribute("position");
+String profileImage = (String) request.getAttribute("profileImage");
+
+if (profileImage == null || profileImage.trim().isEmpty()) {
+    profileImage = "default.png";
+}
     
     if (leave == null) {
         response.sendRedirect("LeaveListServlet");
@@ -44,8 +50,7 @@
     String error = (String) request.getAttribute("error");
     boolean hasError = error != null && !error.isEmpty();
     
-    // Get profile image
-    String profileImage = "uploads/default.png";
+  
 %>
 <%!
     // Helper method to get current leave balance
@@ -554,11 +559,13 @@
     </div>
 
     <div class="profile">
-      <img src="<%= request.getContextPath() %>/profile-image?path=<%= profileImage %>"
-           onerror="this.src='<%= request.getContextPath() %>/images/default_profile.png'">
-      <h4><%= name != null ? name : userName %></h4>
-      <p><%= userTitle %></p>
-    </div>
+    <img src="<%= request.getContextPath() %>/profile-image?path=<%= profileImage %>"
+         onerror="this.src='<%= request.getContextPath() %>/images/default_profile.png'">
+
+    <h4><%= name != null ? name : "User" %></h4>
+    <p><%= position != null ? position : "-" %></p>
+</div>
+
 
     <div class="menu">
       <% if ("CEO".equals(role)) { %>

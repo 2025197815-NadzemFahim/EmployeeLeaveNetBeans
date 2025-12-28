@@ -17,7 +17,7 @@
             /* ===== Use your provided CSS ===== */
             * {
                 box-sizing: border-box;
-                font-family: "Segoe UI", sans-serif;
+                font-family: "Poppins", sans-serif;
             }
 
             body {
