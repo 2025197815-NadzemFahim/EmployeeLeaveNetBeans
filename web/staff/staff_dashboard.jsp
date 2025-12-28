@@ -50,6 +50,7 @@
 <title>Staff Dashboard</title>
 <link rel="stylesheet"
  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 
 <style>
@@ -60,7 +61,7 @@ body { margin: 0; background: #f2f2f2; overflow: auto; }
 
 * {
   box-sizing: border-box;
-  font-family: "Segoe UI", sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 .sidebar {
@@ -323,7 +324,7 @@ body { margin: 0; background: #f2f2f2; overflow: auto; }
         <a  href="<%= request.getContextPath()%>/ViewProfileServlet"><i class="fas fa-user"></i>Profile</a>
         <a href="<%= request.getContextPath()%>/staff/apply_leave.jsp"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
         <a href="<%= request.getContextPath()%>/LeaveHistoryStaffServlet"><i class="fas fa-history"></i>Leave History</a>
-        <a href="notifications.jsp"><i class="fas fa-bell"></i>Notifications</a>
+        <a href="<%= request.getContextPath()%>/NotificationServlet"><i class="fas fa-bell"></i>Notifications</a>
         <a href="<%= request.getContextPath() %>/LogoutServlet">
             <i class="fas fa-sign-out-alt"></i>Logout
         </a>

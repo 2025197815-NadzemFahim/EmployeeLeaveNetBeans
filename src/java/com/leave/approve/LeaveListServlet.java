@@ -114,10 +114,32 @@ public class LeaveListServlet extends HttpServlet {
                 leaveRequests.add(leave);
             }
             
-            // Store results in request
+            
+            // ================= USER PROFILE =================
+PreparedStatement psProfile = conn.prepareStatement(
+    "SELECT name, position, profile_image FROM employee WHERE employee_id = ?"
+);
+psProfile.setInt(1, userId);
+
+ResultSet rsProfile = psProfile.executeQuery();
+
+String position = null;
+String profileImage = null;
+
+if (rsProfile.next()) {
+    position = rsProfile.getString("position");
+    profileImage = rsProfile.getString("profile_image");
+}
+
+// cleanup
+rsProfile.close();
+psProfile.close();
+
             request.setAttribute("leaveRequests", leaveRequests);
-            request.setAttribute("role", role);
-            request.setAttribute("userName", name);
+request.setAttribute("name", name);
+request.setAttribute("position", position);
+request.setAttribute("profileImage", profileImage);
+
             
             // Forward to unified JSP
             RequestDispatcher dispatcher = request.getRequestDispatcher("approve_leave_list.jsp");

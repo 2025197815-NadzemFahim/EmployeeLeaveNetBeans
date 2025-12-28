@@ -21,17 +21,21 @@
     if (message != null) userSession.removeAttribute("message");
     if (error != null) userSession.removeAttribute("error");
     
-    List<Map<String, String>> leaveRequests = (List<Map<String, String>>) request.getAttribute("leaveRequests");
-    String userName = (String) request.getAttribute("userName");
-    String name = (String) userSession.getAttribute("name");
     
-    // Set page title based on role
-    String pageTitle = "CEO".equals(role) ? "CEO" : "HOD";
-    String userTitle = "CEO".equals(role) ? "CEO" : "HOD";
+List<Map<String, String>> leaveRequests =
+        (List<Map<String, String>>) request.getAttribute("leaveRequests");
+
+String name = (String) request.getAttribute("name");
+String position = (String) request.getAttribute("position");
+String profileImage = (String) request.getAttribute("profileImage");
+
+if (profileImage == null || profileImage.trim().isEmpty()) {
+    profileImage = "default.png";
+}
+
     
-    // Get profile image
-    String profileImage = "uploads/default.png";
 %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -337,12 +341,14 @@ tbody tr:hover {
       <span class="toggle-btn" onclick="toggleSidebar()">☰</span>
     </div>
 
-    <div class="profile">
-      <img src="<%= request.getContextPath() %>/profile-image?path=<%= profileImage %>"
-           onerror="this.src='<%= request.getContextPath() %>/images/default_profile.png'">
-      <h4><%= name != null ? name : userName %></h4>
-      <p><%= userTitle %></p>
-    </div>
+   <div class="profile">
+    <img src="<%= request.getContextPath() %>/profile-image?path=<%= profileImage %>"
+         onerror="this.src='<%= request.getContextPath() %>/images/default_profile.png'">
+
+    <h4><%= name != null ? name : "User" %></h4>
+    <p><%= position != null ? position : "-" %></p>
+</div>
+
 
     <div class="menu">
       <% if ("CEO".equals(role)) { %>

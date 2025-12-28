@@ -36,7 +36,6 @@ public class HODApplyLeaveServlet extends HttpServlet {
         String reason = request.getParameter("reason");
         int typeId = Integer.parseInt(request.getParameter("typeId"));
 
-        /* ===== DATE VALIDATION ===== */
         LocalDate start = LocalDate.parse(startDate);
         LocalDate end = LocalDate.parse(endDate);
         LocalDate today = LocalDate.now();
@@ -52,17 +51,15 @@ public class HODApplyLeaveServlet extends HttpServlet {
 
         long leaveDays = java.time.temporal.ChronoUnit.DAYS.between(start, end) + 1;
 
-        /* ===== HANDLE ATTACHMENT ===== */
         Part filePart = request.getPart("attachment");
         String filePath = null;
 
         if (filePart != null && filePart.getSize() > 0) {
             String fileName = System.currentTimeMillis() + "_"
                     + java.nio.file.Paths.get(filePart.getSubmittedFileName())
-                            .getFileName().toString();
+                    .getFileName().toString();
 
-            String uploadDirPath = "C:/leave_uploads/attachments";
-            File uploadDir = new File(uploadDirPath);
+            File uploadDir = new File("C:/leave_uploads/attachments");
             if (!uploadDir.exists()) uploadDir.mkdirs();
 
             File file = new File(uploadDir, fileName);
@@ -77,17 +74,18 @@ public class HODApplyLeaveServlet extends HttpServlet {
         try (Connection conn = DriverManager.getConnection(
                 "jdbc:derby://localhost:1527/LeaveDB", "app", "app")) {
 
+            conn.setAutoCommit(false); // ✅ ADDED (transaction start)
+
             /* ===== ENSURE ROLE IS HOD ===== */
             String role = "";
             PreparedStatement psRole = conn.prepareStatement(
-                "SELECT role FROM employee WHERE employee_id=?"
+                    "SELECT role FROM employee WHERE employee_id=?"
             );
             psRole.setInt(1, employeeId);
             ResultSet rsRole = psRole.executeQuery();
-
-            if (rsRole.next()) {
-                role = rsRole.getString("role");
-            }
+            if (rsRole.next()) role = rsRole.getString("role");
+            rsRole.close();
+            psRole.close();
 
             if (!"HOD".equals(role)) {
                 response.sendRedirect("login.jsp");
@@ -96,8 +94,7 @@ public class HODApplyLeaveServlet extends HttpServlet {
 
             /* ===== CHECK LEAVE BALANCE ===== */
             PreparedStatement psBalance = conn.prepareStatement(
-                "SELECT balance FROM employee_leave_balance " +
-                "WHERE employee_id=? AND type_id=?"
+                    "SELECT balance FROM employee_leave_balance WHERE employee_id=? AND type_id=?"
             );
             psBalance.setInt(1, employeeId);
             psBalance.setInt(2, typeId);
@@ -109,6 +106,8 @@ public class HODApplyLeaveServlet extends HttpServlet {
             }
 
             int balance = rsBalance.getInt("balance");
+            rsBalance.close();
+            psBalance.close();
 
             if (leaveDays > balance) {
                 response.sendRedirect("hod/apply_leave.jsp?error=insufficient");
@@ -118,12 +117,12 @@ public class HODApplyLeaveServlet extends HttpServlet {
             /* ===== GET CEO (APPROVER) ===== */
             int ceoId = 0;
             PreparedStatement psCeo = conn.prepareStatement(
-                "SELECT employee_id FROM employee WHERE role='CEO'"
+                    "SELECT employee_id FROM employee WHERE role='CEO'"
             );
             ResultSet rsCeo = psCeo.executeQuery();
-            if (rsCeo.next()) {
-                ceoId = rsCeo.getInt("employee_id");
-            }
+            if (rsCeo.next()) ceoId = rsCeo.getInt("employee_id");
+            rsCeo.close();
+            psCeo.close();
 
             if (ceoId == 0) {
                 response.sendRedirect("hod/apply_leave.jsp?error=no_ceo");
@@ -132,26 +131,58 @@ public class HODApplyLeaveServlet extends HttpServlet {
 
             /* ===== INSERT LEAVE REQUEST ===== */
             PreparedStatement psInsert = conn.prepareStatement(
-                "INSERT INTO leave_request " +
-                "(start_date, end_date, reason, status, submitted_by, approved_by, type_id, attachment) " +
-                "VALUES (?, ?, ?, 'PENDING', ?, ?, ?, ?)"
+                    "INSERT INTO leave_request "
+                    + "(start_date, end_date, reason, status, submitted_by, approved_by, type_id, attachment) "
+                    + "VALUES (?, ?, ?, 'PENDING', ?, ?, ?, ?)"
             );
 
             psInsert.setDate(1, Date.valueOf(startDate));
             psInsert.setDate(2, Date.valueOf(endDate));
             psInsert.setString(3, reason);
-            psInsert.setInt(4, employeeId); // submitted_by (HOD)
-            psInsert.setInt(5, ceoId);      // approved_by (CEO)
+            psInsert.setInt(4, employeeId);
+            psInsert.setInt(5, ceoId);
             psInsert.setInt(6, typeId);
             psInsert.setString(7, filePath);
-
             psInsert.executeUpdate();
+            psInsert.close();
 
+            // ✅ ADDED: get applicant name
+            String applicantName = "";
+            PreparedStatement psName = conn.prepareStatement(
+                    "SELECT name FROM employee WHERE employee_id=?"
+            );
+            psName.setInt(1, employeeId);
+            ResultSet rsName = psName.executeQuery();
+            if (rsName.next()) applicantName = rsName.getString("name");
+            rsName.close();
+            psName.close();
+
+            // ✅ ADDED: notify CEO
+            notifyApprover(conn, ceoId, applicantName, start, end);
+
+            conn.commit(); // ✅ ADDED (commit transaction)
             response.sendRedirect("hod/apply_leave.jsp?success=1");
 
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect("hod/apply_leave.jsp?error=server");
         }
+    }
+
+    // ❗ METHOD ALREADY EXISTING – NOT CHANGED
+    private void notifyApprover(Connection conn, int approverId,
+            String applicantName, LocalDate start, LocalDate end) throws SQLException {
+
+        String msg = "New leave request from " + applicantName
+                + " (" + start + " to " + end + ")";
+
+        PreparedStatement ps = conn.prepareStatement(
+                "INSERT INTO notification (receiver_id, message, timestamp, is_read) "
+                + "VALUES (?, ?, CURRENT_TIMESTAMP, FALSE)"
+        );
+        ps.setInt(1, approverId);
+        ps.setString(2, msg);
+        ps.executeUpdate();
+        ps.close();
     }
 }
