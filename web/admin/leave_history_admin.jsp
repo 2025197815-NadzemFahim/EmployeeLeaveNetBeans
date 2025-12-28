@@ -425,7 +425,7 @@ tbody tr:nth-child(odd) {
       </div>
 
       <a href="notifications_admin.jsp"><i class="fas fa-bell"></i><span>Notifications</span></a>
-      <a href="login.jsp"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
+      <a href="<%= request.getContextPath()%>/LogoutServlet"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
     </div>
   </div>
 

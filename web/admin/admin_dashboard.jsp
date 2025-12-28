@@ -393,7 +393,7 @@ body {
       </div>
 
       <a href="<%= request.getContextPath()%>/NotificationAdminServlet"><i class="fas fa-bell"></i><span>Notifications</span></a>
-      <a href="login.jsp"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
+      <a href="<%= request.getContextPath()%>/LogoutServlet"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
     </div>
   </div>
 
