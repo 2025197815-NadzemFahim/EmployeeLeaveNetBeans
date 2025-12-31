@@ -117,15 +117,17 @@
         </div>
 
         <nav class="menu">
-            <a href="admin_dashboard.html"><i class="fa-solid fa-house"></i><span>Dashboard</span></a>
-            <a class="active" href="../LeavePolicyAdminServlet?action=list"><i class="fa-solid fa-file-lines"></i><span>Policies</span></a>
+            <a href="<%= request.getContextPath()%>/AdminDashboardServlet"><i class="fas fa-th-large"></i><span>Dashboard</span></a>    
+            <a href="employeeInformation.html"><i class="fas fa-users"></i><span>Employees</span></a>
+            <a href="<%= request.getContextPath()%>/admin/LeavePolicies.jsp" class="active"><i class="fas fa-file-lines"></i><span>Policies</span></a>
+            <a href="<%= request.getContextPath()%>/GenerateRecord"><i class="fas fa-th-large"></i>Reports</a>
 
             <div class="menu-group">
                 <div class="menu-parent" onclick="toggleSubmenu()"><i class="fa-solid fa-user"></i><span>Personal</span></div>
                 <div class="submenu" id="submenu">
-                    <a href="../staff/profile.jsp"><i class="fa-solid fa-id-card"></i><span>Profile</span></a>
-                    <a href="../staff/apply_leave.jsp"><i class="fa-solid fa-calendar-plus"></i><span>Apply Leave</span></a>
-                    <a href="leave_history_admin.html"><i class="fa-solid fa-clock-rotate-left"></i><span>Leave History</span></a>
+                    <a href="<%= request.getContextPath()%>/ViewProfileAdminServlet"><i class="fas fa-id-badge"></i><span>Profile</span></a>
+          <a href="<%= request.getContextPath()%>/admin/apply_leave.jsp"><i class="fas fa-calendar-plus"></i><span>Apply Leave</span></a>
+          <a href="<%= request.getContextPath()%>/LeaveHistoryAdminServlet"><i class="fas fa-history"></i><span>Leave History</span></a>
                 </div>
             </div>
 

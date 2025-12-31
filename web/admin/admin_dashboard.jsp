@@ -11,6 +11,7 @@
 <title>Admin Dashboard</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
 * {
@@ -378,10 +379,10 @@ body {
     </div>
 
     <div class="menu">
-      <a href="<%= request.getContextPath()%>/AdminDashboardServlet" class="active"><i class="fas fa-th-large"></i><span>Dashboard</span></a>    
-      <a href="employees.jsp"><i class="fas fa-users"></i><span>Employees</span></a>
-      <a href="policies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
-      <a href="<%= request.getContextPath()%>/GenerateRecord"><i class="fas fa-th-large"></i>Reports</a>
+      <a href="<%= request.getContextPath()%>/AdminDashboardServlet" class="active"><i class="fas fa-th-large"></i><span>Dashboard</span></a>        
+      <a href="<%= request.getContextPath()%>/admin/employeeInformation.html"><i class="fas fa-users"></i><span>Employees</span></a>
+      <a href="<%= request.getContextPath()%>/admin/LeavePolicies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
+      <a href="<%= request.getContextPath()%>/admin/GenerateRecord.jsp"><i class="fas fa-th-large"></i>Reports</a>
 
       <div class="menu-group">
         <div class="menu-parent"><i class="fas fa-user"></i><span>Personal</span></div>

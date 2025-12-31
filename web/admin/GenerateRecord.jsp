@@ -117,9 +117,9 @@
 
         /* Submenus */
         .menu-group .menu-parent {
-            background: #d0d0d0;
-            font-weight: 600;
-        }
+  background: #e0e0e0;
+  font-weight: 600;
+}
         .menu-group .menu-parent::after {
             content: "▼";
             font-size: 10px;
@@ -266,22 +266,22 @@
     </div>
 
     <div class="menu">
-      <a href="<%= request.getContextPath()%>/admin/admin_dashboard.jsp"><i class="fas fa-th-large"></i>Dashboard</a>
-      <a href="<%= request.getContextPath()%>employees.jsp"><i class="fas fa-users"></i>Employees</a>
-      <a href="<%= request.getContextPath()%>LeavePolicies.jsp"><i class="fas fa-file-lines"></i>Policies</a>
-      <a href="<%= request.getContextPath() %>/GenerateRecord" class="active"><i class="fas fa-clipboard"></i><span>Reports</span></a>
+      <a href="<%= request.getContextPath()%>/AdminDashboardServlet"><i class="fas fa-th-large"></i><span>Dashboard</span></a>    
+      <a href="employees.jsp"><i class="fas fa-users"></i><span>Employees</span></a>
+      <a href="<%= request.getContextPath()%>/admin/LeavePolicies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
+      <a href="<%= request.getContextPath()%>/admin/GenerateRecord.jsp" class="active"><i class="fas fa-th-large"></i>Reports</a>
 
       <div class="menu-group">
         <div class="menu-parent"><i class="fas fa-user"></i><span>Personal</span></div>
         <div class="submenu">
-            <a href="<%= request.getContextPath()%>/ViewProfileAdminServlet"><i class="fas fa-id-badge"></i>Profile</a>
-            <a href="<%= request.getContextPath()%>/admin/apply_leave.jsp"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
-            <a href="<%= request.getContextPath()%>/LeaveHistoryAdminServlet"><i class="fas fa-history"></i>Leave History</a>
+          <a href="<%= request.getContextPath()%>/ViewProfileAdminServlet"><i class="fas fa-id-badge"></i><span>Profile</span></a>
+          <a href="<%= request.getContextPath()%>/admin/apply_leave.jsp"><i class="fas fa-calendar-plus"></i><span>Apply Leave</span></a>
+          <a href="<%= request.getContextPath()%>/LeaveHistoryAdminServlet"><i class="fas fa-history"></i><span>Leave History</span></a>
         </div>
       </div>
 
-      <a href="notifications.jsp"><i class="fas fa-bell"></i><span>Notifications</span></a>
-      <a href="LogoutServlet"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
+      <a href="<%= request.getContextPath()%>/NotificationAdminServlet"><i class="fas fa-bell"></i><span>Notifications</span></a>
+      <a href="<%= request.getContextPath()%>/LogoutServlet"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
     </div>
   </div>
 

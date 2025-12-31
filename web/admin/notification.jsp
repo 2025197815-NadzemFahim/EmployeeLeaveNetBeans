@@ -114,10 +114,10 @@
                 font-weight: bold;
             }
 
-            /* Dropdown parent */
+            
             .menu-group .menu-parent {
-                background: #d0d0d0;
-                font-weight: 600;
+              background: #e0e0e0;
+              font-weight: 600;
             }
 
             /* Arrow indicator (fix, kekal di kanan & tak duplicate) */
@@ -362,13 +362,13 @@
                     <div class="menu-group">
                         <div class="menu-parent"><i class="fas fa-user"></i><span>Personal</span></div>
                         <div class="submenu">
-                            <a href="<%= request.getContextPath()%>/ViewProfileAdminServlet" class="active"><i class="fas fa-id-badge"></i><span>Profile</span></a>
+                            <a href="<%= request.getContextPath()%>/ViewProfileAdminServlet"><i class="fas fa-id-badge"></i><span>Profile</span></a>
                             <a href="<%= request.getContextPath()%>/admin/apply_leave.jsp"><i class="fas fa-calendar-plus"></i><span>Apply Leave</span></a>
                             <a href="<%= request.getContextPath()%>/LeaveHistoryAdminServlet"><i class="fas fa-history"></i><span>Leave History</span></a>
                         </div>
                     </div>
 
-                    <a href="<%= request.getContextPath()%>/NotificationAdminServlet"><i class="fas fa-bell"></i><span>Notifications</span></a>
+                    <a href="<%= request.getContextPath()%>/NotificationAdminServlet"  class="active"><i class="fas fa-bell"></i><span>Notifications</span></a>
                     <a href="login.jsp"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
                 </div>
             </div>
@@ -518,6 +518,26 @@ function filterStatus() {
       filter === "all" || row.dataset.status === filter ? "" : "none";
   });
 }
+            </script>
+            
+            <script>
+            /* Sidebar open/close */
+            document.querySelector(".toggle-btn").addEventListener("click", function() {
+              document.getElementById("sidebar").classList.toggle("closed");
+            });
+
+            /* Dropdown Personal open/close */
+            document.querySelectorAll(".menu-group").forEach(group => {
+              const parent = group.querySelector(".menu-parent");
+              const submenu = group.querySelector(".submenu");
+
+              parent.addEventListener("click", () => {
+                parent.classList.toggle("open");
+                submenu.classList.toggle("open");
+              });
+            });
+
+            
             </script>
 
 
