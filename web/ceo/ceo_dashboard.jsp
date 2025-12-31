@@ -375,7 +375,7 @@
 
                 <div class="menu">
                     <a href="<%= request.getContextPath()%>/CEODashboardServlet" class="active"><i class="fas fa-th-large"></i>Dashboard</a>
-                    <a><i class="fas fa-user"></i>Profile</a>
+                    <a href="<%= request.getContextPath()%>/ViewProfileCEOServlet"><i class="fas fa-user"></i>Profile</a>
                     <a href="<%= request.getContextPath()%>/LeaveListServlet"><i class="fas fa-bell"></i>Requests</a>
                     <a href="<%= request.getContextPath()%>/NotificationCeoServlet"><i class="fas fa-bell"></i>Notifications</a>
                     <a><i class="fas fa-sign-out-alt"></i>Logout</a>
