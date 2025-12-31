@@ -70,13 +70,13 @@ public class LeavePolicyAdminServlet extends HttpServlet {
                     int typeId = parseInt(request.getParameter("typeId"), -1);
                     if (typeId <= 0) {
                         flash(request, "flashError", "Invalid Type ID.");
-                        response.sendRedirect("LeavePolicyAdminServlet?action=list");
+                        response.sendRedirect(request.getContextPath() + "/LeavePolicyAdminServlet?action=list");
                         return;
                     }
                     LeavePolicyView item = fetchByTypeId(typeId);
                     if (item == null) {
                         flash(request, "flashError", "Record not found for Type ID " + typeId + ".");
-                        response.sendRedirect("LeavePolicyAdminServlet?action=list");
+                        response.sendRedirect(request.getContextPath() + "/LeavePolicyAdminServlet?action=list");
                         return;
                     }
                     request.setAttribute("view", "edit");
@@ -138,12 +138,15 @@ public class LeavePolicyAdminServlet extends HttpServlet {
             flash(request, "flashError", "Database error: " + ex.getMessage());
         }
 
-        response.sendRedirect("LeavePolicyAdminServlet?action=list");
+        // Use absolute (context-aware) redirects to avoid path issues
+        response.sendRedirect(request.getContextPath() + "/LeavePolicyAdminServlet?action=list");
     }
 
     private void forward(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        RequestDispatcher rd = request.getRequestDispatcher("/admin/leave_policies.jsp");
+        // Keep in sync with existing project file naming
+        // (the JSP file in this project is "LeavePolicies.jsp")
+        RequestDispatcher rd = request.getRequestDispatcher("/admin/LeavePolicies.jsp");
         rd.forward(request, response);
     }
 
