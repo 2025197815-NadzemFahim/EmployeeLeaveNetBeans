@@ -27,12 +27,18 @@ import javax.servlet.http.HttpSession;
 public class LeavePolicyAdminServlet extends HttpServlet {
 
     // Match existing project DB settings
-    private static final String DB_URL  = "jdbc:derby://localhost:1527/LeaveDB";
+    private static final String DB_URL_PRIMARY  = "jdbc:derby://localhost:1527/EmployeeLeave;create=true";
+    private static final String DB_URL_FALLBACK = "jdbc:derby://localhost:1527/LeaveDB;create=true";
     private static final String DB_USER = "app";
     private static final String DB_PASS = "app";
 
     private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+        try {
+            return DriverManager.getConnection(DB_URL_PRIMARY, DB_USER, DB_PASS);
+        } catch (SQLException primaryEx) {
+            // Fallback for older local setups
+            return DriverManager.getConnection(DB_URL_FALLBACK, DB_USER, DB_PASS);
+        }
     }
 
     private void flash(HttpServletRequest req, String key, String value) {
