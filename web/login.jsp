@@ -238,7 +238,7 @@ input:focus {
             <button class="login-btn" type="submit">Log in</button>
 
             <div class="footer">
-                Employee Leave Management System
+                For Employees & Administrators
             </div>
 
         </div>
