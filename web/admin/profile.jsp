@@ -14,7 +14,7 @@
         <style>
             * {
                 box-sizing: border-box;
-                font-family: "Segoe UI", sans-serif;
+                font-family: "Poppins", sans-serif;
             }
 
             body {
@@ -349,8 +349,8 @@
                         </div>
                     </div>
 
-                    <a href="notifications_admin.jsp"><i class="fas fa-bell"></i><span>Notifications</span></a>
-                    <a href="login.jsp"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
+                    <a href="<%= request.getContextPath()%>/NotificationAdminServlet"><i class="fas fa-bell"></i><span>Notifications</span></a>
+                    <a href="<%= request.getContextPath()%>/LogoutServlet"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
                 </div>
             </div>
 
@@ -510,22 +510,22 @@
                                 }
                             }
                         </script>
-                         <script>
+                        <script>
 // Sidebar Toggle
-                    document.querySelector(".toggle-btn").addEventListener("click", () => {
-                        document.getElementById("sidebar").classList.toggle("closed");
-                    });
+                            document.querySelector(".toggle-btn").addEventListener("click", () => {
+                                document.getElementById("sidebar").classList.toggle("closed");
+                            });
 
 // Personal Dropdown
-                    document.querySelectorAll(".menu-group").forEach(group => {
-                        const parent = group.querySelector(".menu-parent");
-                        const submenu = group.querySelector(".submenu");
-                        parent.addEventListener("click", () => {
-                            parent.classList.toggle("open");
-                            submenu.classList.toggle("open");
-                        });
-                    });
-                </script>
+                            document.querySelectorAll(".menu-group").forEach(group => {
+                                const parent = group.querySelector(".menu-parent");
+                                const submenu = group.querySelector(".submenu");
+                                parent.addEventListener("click", () => {
+                                    parent.classList.toggle("open");
+                                    submenu.classList.toggle("open");
+                                });
+                            });
+                        </script>
 
                         </body>
                         </html>

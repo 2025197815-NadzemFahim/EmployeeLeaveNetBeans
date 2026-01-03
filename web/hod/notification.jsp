@@ -288,22 +288,22 @@
                 </div>
 
                 <div class="profile">
-    <img src="${pageContext.request.contextPath}/profile-image?path=${profileImage}"
-         onerror="this.src='${pageContext.request.contextPath}/images/default_profile.png'">
+                    <img src="${pageContext.request.contextPath}/profile-image?path=${profileImage}"
+                         onerror="this.src='${pageContext.request.contextPath}/images/default_profile.png'">
 
-    <h4>${profileName}</h4>
-    <p>${profilePosition}</p>
-</div>
+                    <h4>${profileName}</h4>
+                    <p>${profilePosition}</p>
+                </div>
 
 
                 <div class="menu">
                     <a href="<%= request.getContextPath()%>/HODDashboardServlet"><i class="fas fa-th-large"></i>Dashboard</a>
                     <a  href="<%= request.getContextPath()%>/ViewProfileHODServlet"><i class="fas fa-user"></i>Profile</a>
                     <a href="<%= request.getContextPath()%>/hod/apply_leave.jsp"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
-                    <a href="<%= request.getContextPath()%>/LeaveListServlet" ><i class="fas fa-bell"></i>Requests</a>
+                    <a href="<%= request.getContextPath()%>/LeaveListServlet"><i class="fas fa-bell"></i>Requests</a>
                     <a href="<%= request.getContextPath()%>/LeaveHistoryHodServlet"><i class="fas fa-history"></i>Leave History</a>
-                    <a  href="<%= request.getContextPath()%>/NotificationHodServlet" class="active"><i class="fas fa-bell"></i>Notifications</a>
-                    <a><i class="fas fa-sign-out-alt"></i>Logout</a>
+                    <a href="<%= request.getContextPath()%>/NotificationHodServlet" class="active"><i class="fas fa-bell"></i>Notifications</a>
+                    <a href="<%= request.getContextPath()%>/LogoutServlet"><i class="fas fa-sign-out-alt"></i>Logout</a>
                 </div>
             </div>
 
@@ -442,16 +442,16 @@
                     });
 
                 });
-                
-                
-/* FILTER STATUS */
-function filterStatus() {
-  const filter = document.getElementById("statusFilter").value;
-  document.querySelectorAll("#notificationTable tbody tr").forEach(row => {
-    row.style.display =
-      filter === "all" || row.dataset.status === filter ? "" : "none";
-  });
-}
+
+
+                /* FILTER STATUS */
+                function filterStatus() {
+                    const filter = document.getElementById("statusFilter").value;
+                    document.querySelectorAll("#notificationTable tbody tr").forEach(row => {
+                        row.style.display =
+                                filter === "all" || row.dataset.status === filter ? "" : "none";
+                    });
+                }
             </script>
 
 

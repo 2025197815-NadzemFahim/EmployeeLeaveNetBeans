@@ -12,7 +12,7 @@
         <style>
             * {
                 box-sizing: border-box;
-                font-family: "Segoe UI", sans-serif;
+                font-family: "Poppins", sans-serif;
             }
 
             body {
@@ -386,15 +386,14 @@
                     <div class="menu-group">
                         <div class="menu-parent"><i class="fas fa-user"></i><span>Personal</span></div>
                         <div class="submenu">
-                            <a href="<%= request.getContextPath()%>/ViewProfileAdminServlet"><i class="fas fa-user"></i>Profile</a>
-                            <a  href="<%= request.getContextPath()%>/admin/apply_leave.jsp" class="active"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
-                            <a href="<%= request.getContextPath()%>/LeaveHistoryAdminServlet"><i class="fas fa-history"></i>Leave History</a>
-
+                            <a href="<%= request.getContextPath()%>/ViewProfileAdminServlet"><i class="fas fa-id-badge"></i><span>Profile</span></a>
+                            <a href="<%= request.getContextPath()%>/admin/apply_leave.jsp" class="active"><i class="fas fa-calendar-plus"></i><span>Apply Leave</span></a>
+                            <a href="<%= request.getContextPath()%>/LeaveHistoryAdminServlet"><i class="fas fa-history"></i><span>Leave History</span></a>
                         </div>
                     </div>
 
-                    <a href="notifications_admin.jsp"><i class="fas fa-bell"></i><span>Notifications</span></a>
-                    <a href="../LogoutServlet"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
+                    <a href="<%= request.getContextPath()%>/NotificationAdminServlet"><i class="fas fa-bell"></i><span>Notifications</span></a>
+                    <a href="<%= request.getContextPath()%>/LogoutServlet"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
                 </div>
             </div>
 

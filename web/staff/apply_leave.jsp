@@ -214,7 +214,7 @@
         </style>
     </head>
     <body>
-    
+
 
         <%
             // ===== SESSION CHECK =====
@@ -258,15 +258,15 @@
 
             // ===== LEAVE TYPES =====
             PreparedStatement psType = conn.prepareStatement(
-    "SELECT lt.type_id, lt.name, elb.balance " +
-    "FROM employee_leave_balance elb " +
-    "JOIN leave_type lt ON elb.type_id = lt.type_id " +
-    "WHERE elb.employee_id = ?"
-);
-psType.setInt(1, employeeId);
-ResultSet rsType = psType.executeQuery();
+                    "SELECT lt.type_id, lt.name, elb.balance "
+                    + "FROM employee_leave_balance elb "
+                    + "JOIN leave_type lt ON elb.type_id = lt.type_id "
+                    + "WHERE elb.employee_id = ?"
+            );
+            psType.setInt(1, employeeId);
+            ResultSet rsType = psType.executeQuery();
 
-            
+
         %>
 
         <%-- SUCCESS POPUP --%>
@@ -276,29 +276,29 @@ ResultSet rsType = psType.executeQuery();
         </script>
         <% }%>
 
-       <%
-String dateError = request.getParameter("dateError");
-if ("past".equals(dateError)) {
-%>
-<script>alert("Start date must be today or a future date.");</script>
-<%
-} else if ("range".equals(dateError)) {
-%>
-<script>alert("End date cannot be before start date.");</script>
-<%
-}
+        <%
+            String dateError = request.getParameter("dateError");
+            if ("past".equals(dateError)) {
+        %>
+        <script>alert("Start date must be today or a future date.");</script>
+        <%
+        } else if ("range".equals(dateError)) {
+        %>
+        <script>alert("End date cannot be before start date.");</script>
+        <%
+            }
 
-String error = request.getParameter("error");
-if ("insufficient".equals(error)) {
-%>
-<script>alert("Insufficient leave balance for selected leave type.");</script>
-<%
-} else if ("nobalance".equals(error)) {
-%>
-<script>alert("No leave balance found for this leave type.");</script>
-<%
-}
-%>
+            String error = request.getParameter("error");
+            if ("insufficient".equals(error)) {
+        %>
+        <script>alert("Insufficient leave balance for selected leave type.");</script>
+        <%
+        } else if ("nobalance".equals(error)) {
+        %>
+        <script>alert("No leave balance found for this leave type.");</script>
+        <%
+            }
+        %>
 
 
 
@@ -324,8 +324,8 @@ if ("insufficient".equals(error)) {
                     <a href="<%= request.getContextPath()%>/ViewProfileServlet"><i class="fas fa-user"></i>Profile</a>
                     <a  href="<%= request.getContextPath()%>/staff/apply_leave.jsp" class="active"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
                     <a href="<%= request.getContextPath()%>/LeaveHistoryStaffServlet"><i class="fas fa-history"></i>Leave History</a>
-                    <a><i class="fas fa-bell"></i>Notifications</a>
-                    <a><i class="fas fa-sign-out-alt"></i>Logout</a>
+                    <a href="<%= request.getContextPath()%>/NotificationServlet"><i class="fas fa-bell"></i>Notifications</a>
+                    <a href="<%= request.getContextPath()%>/LogoutServlet"><i class="fas fa-sign-out-alt"></i>Logout</a>
                 </div>
             </div>
 

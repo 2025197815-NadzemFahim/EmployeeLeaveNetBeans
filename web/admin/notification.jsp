@@ -18,9 +18,9 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
         <style>
-             * {
+            * {
                 box-sizing: border-box;
-                font-family: "Segoe UI", sans-serif;
+                font-family: "Poppins", sans-serif;
             }
 
             body {
@@ -114,10 +114,10 @@
                 font-weight: bold;
             }
 
-            
+
             .menu-group .menu-parent {
-              background: #e0e0e0;
-              font-weight: 600;
+                background: #e0e0e0;
+                font-weight: 600;
             }
 
             /* Arrow indicator (fix, kekal di kanan & tak duplicate) */
@@ -344,19 +344,19 @@
 
                 <!-- ================= SIDEBAR PROFILE ================= -->
                 <div class="profile">
-    <img src="${pageContext.request.contextPath}/profile-image?path=${profileImage}"
-         onerror="this.src='${pageContext.request.contextPath}/images/default_profile.png'">
+                    <img src="${pageContext.request.contextPath}/profile-image?path=${profileImage}"
+                         onerror="this.src='${pageContext.request.contextPath}/images/default_profile.png'">
 
-    <h4>${profileName}</h4>
-    <p>${profilePosition}</p>
-</div>
+                    <h4>${profileName}</h4>
+                    <p>${profilePosition}</p>
+                </div>
 
 
                 <div class="menu">
                     <a href="<%= request.getContextPath()%>/AdminDashboardServlet"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
                     <a href="employees.jsp"><i class="fas fa-users"></i><span>Employees</span></a>
-                    <a href="policies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
-                    <a href="reports.jsp"><i class="fas fa-clipboard"></i><span>Reports</span></a>
+                    <a href="<%= request.getContextPath()%>/admin/LeavePolicies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
+                    <a href="<%= request.getContextPath()%>/admin/GenerateRecord.jsp"><i class="fas fa-th-large"></i>Reports</a>
 
 
                     <div class="menu-group">
@@ -368,8 +368,8 @@
                         </div>
                     </div>
 
-                    <a href="<%= request.getContextPath()%>/NotificationAdminServlet"  class="active"><i class="fas fa-bell"></i><span>Notifications</span></a>
-                    <a href="login.jsp"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
+                    <a href="<%= request.getContextPath()%>/NotificationAdminServlet" class="active"><i class="fas fa-bell"></i><span>Notifications</span></a>
+                    <a href="<%= request.getContextPath()%>/LogoutServlet"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
                 </div>
             </div>
 
@@ -508,36 +508,36 @@
                     });
 
                 });
-                
-                
-/* FILTER STATUS */
-function filterStatus() {
-  const filter = document.getElementById("statusFilter").value;
-  document.querySelectorAll("#notificationTable tbody tr").forEach(row => {
-    row.style.display =
-      filter === "all" || row.dataset.status === filter ? "" : "none";
-  });
-}
+
+
+                /* FILTER STATUS */
+                function filterStatus() {
+                    const filter = document.getElementById("statusFilter").value;
+                    document.querySelectorAll("#notificationTable tbody tr").forEach(row => {
+                        row.style.display =
+                                filter === "all" || row.dataset.status === filter ? "" : "none";
+                    });
+                }
             </script>
-            
+
             <script>
-            /* Sidebar open/close */
-            document.querySelector(".toggle-btn").addEventListener("click", function() {
-              document.getElementById("sidebar").classList.toggle("closed");
-            });
+                /* Sidebar open/close */
+                document.querySelector(".toggle-btn").addEventListener("click", function () {
+                    document.getElementById("sidebar").classList.toggle("closed");
+                });
 
-            /* Dropdown Personal open/close */
-            document.querySelectorAll(".menu-group").forEach(group => {
-              const parent = group.querySelector(".menu-parent");
-              const submenu = group.querySelector(".submenu");
+                /* Dropdown Personal open/close */
+                document.querySelectorAll(".menu-group").forEach(group => {
+                    const parent = group.querySelector(".menu-parent");
+                    const submenu = group.querySelector(".submenu");
 
-              parent.addEventListener("click", () => {
-                parent.classList.toggle("open");
-                submenu.classList.toggle("open");
-              });
-            });
+                    parent.addEventListener("click", () => {
+                        parent.classList.toggle("open");
+                        submenu.classList.toggle("open");
+                    });
+                });
 
-            
+
             </script>
 
 
