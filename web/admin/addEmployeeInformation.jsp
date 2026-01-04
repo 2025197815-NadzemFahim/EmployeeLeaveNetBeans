@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.sql.*" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -221,7 +222,6 @@
 
     <body>
         <div class="wrapper">
-
             <!-- ================= SIDEBAR ================= -->
             <div class="sidebar" id="sidebar">
                 <div class="brand">
@@ -230,10 +230,13 @@
                 </div>
 
                 <div class="profile">
-                    <img src="https://i.imgur.com/7k12EPD.png">
-                    <h4>AMIRUL AIMAN BIN LEO</h4>
-                    <p>Admin</p>
+                    <img src="${pageContext.request.contextPath}/profile-image?path=${profileImage}"
+                         onerror="this.src='${pageContext.request.contextPath}/images/default_profile.png'">
+
+                    <h4>${profileName}</h4>
+                    <p>${profilePosition}</p>
                 </div>
+
 
                 <div class="menu">
                     <a href="<%= request.getContextPath()%>/AdminDashboardServlet"><i class="fas fa-th-large"></i><span>Dashboard</span></a>        
@@ -263,7 +266,7 @@
                     <div class="card">
 
                         <!-- ✅ FIXED FORM ACTION -->
-                        <form action="/EmployeeLeave/AdminAddEmployee" method="post">
+                        <form id="employeeForm" action="/EmployeeLeave/AdminAddEmployee" method="post">
                             
                             <div class="form-grid">
                                 

@@ -17,7 +17,7 @@ public class UpdateEmployeeServlet extends HttpServlet {
         int empId = Integer.parseInt(req.getParameter("employeeId"));
 
         try (Connection conn = DriverManager.getConnection(
-                "jdbc:derby://localhost:1527/LeaveDB","nadzem","oracle")) {
+                "jdbc:derby://localhost:1527/LeaveDB","app","app")) {
 
             conn.setAutoCommit(false);
 

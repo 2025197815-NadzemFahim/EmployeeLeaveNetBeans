@@ -44,7 +44,7 @@ public class AdminAddEmployee extends HttpServlet {
             Class.forName("org.apache.derby.jdbc.ClientDriver");
 
             try (Connection conn = DriverManager.getConnection(
-                    "jdbc:derby://localhost:1527/LeaveDB","nadzem","oracle");
+                    "jdbc:derby://localhost:1527/LeaveDB","app","app");
                  PreparedStatement ps = conn.prepareStatement(sql)) {
 
                 ps.setString(1, name);

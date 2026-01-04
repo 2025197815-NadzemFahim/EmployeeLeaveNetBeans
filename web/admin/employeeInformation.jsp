@@ -16,20 +16,20 @@
 
     <body>
         <div class="wrapper">
-
             <!-- ================= SIDEBAR ================= -->
-            <!-- 🔴 UNCHANGED -->
             <div class="sidebar" id="sidebar">
-                <!-- Brand / Toggle -->
                 <div class="brand">
                     <span>TERLAJAK LARIS</span>
                     <span class="toggle-btn">☰</span>
                 </div>
 
+                <!-- ================= SIDEBAR PROFILE ================= -->
                 <div class="profile">
-                    <img src="https://i.imgur.com/7k12EPD.png">
-                    <h4>AMIRUL AIMAN BIN LEO</h4>
-                    <p>Admin</p>
+                    <img src="${pageContext.request.contextPath}/profile-image?path=${profileImage}"
+                         onerror="this.src='${pageContext.request.contextPath}/images/default_profile.png'">
+
+                    <h4>${profileName}</h4>
+                    <p>${profilePosition}</p>
                 </div>
 
                 <!-- Navigation Menu -->
@@ -112,8 +112,8 @@
                 <label>Status</label>
                 <select id="filterStatus">
                     <option value="">Any</option>
-                    <option>Available</option>
-                    <option>Unavailable</option>
+                    <option value="Available">Available</option>
+                    <option value="On Leave">On Leave</option>
                 </select>
 
                 <div class="filter-actions">
@@ -139,7 +139,13 @@
                     submenu.classList.toggle("open");
                 });
             });
+            
+            const filterModal = document.getElementById("filterModal");
+            const openFilterBtn = document.getElementById("openFilter");
 
+            openFilterBtn.onclick = () => {
+                filterModal.style.display = "flex";
+            };
             /* ===== DOM ELEMENTS (MUST COME FIRST) ===== */
             const list = document.getElementById("employeeList");
             const searchInput = document.getElementById("searchInput");
@@ -175,9 +181,10 @@
                         '<div class="emp-position">' + emp.position + '</div>' +
                         '<div class="emp-department">' + emp.department + '</div>' +
 
-                        '<div class="status ' + (emp.status === "Unavailable" ? "leave" : "available") + '">' +
-                            (emp.status === "Unavailable" ? "On Leave" : "Available") +
-                        '</div>' +
+                        '<div class="status ' + (emp.status === "On Leave" ? "leave" : "available") + '">' +
+                            emp.status +
+                        '</div>'
+                         +
 
                         '<div class="emp-action">' +
                             '<i class="fas fa-pen edit-btn" ' +
@@ -188,6 +195,12 @@
                     list.appendChild(row);
                 });
             }
+            
+            filterModal.onclick = (e) => {
+                if (e.target === filterModal) {
+                    filterModal.style.display = "none";
+                }
+            };
 
             /* ===== FETCH DATA FROM SERVLET ===== */
             let employees = [];
@@ -250,7 +263,11 @@
             searchInput.oninput = applyAll;
             sortField.onchange = applyAll;
             sortOrder.onchange = applyAll;
-            document.getElementById("applyFilter").onclick = applyAll;
+            document.getElementById("applyFilter").onclick = () => {
+                applyAll();
+                filterModal.style.display = "none";
+            };
+
             document.getElementById("resetFilter").onclick = () => {
                 filterDept.value = "";
                 filterPosition.value = "";
@@ -259,7 +276,9 @@
                 sortOrder.value = "";
                 searchInput.value = "";
                 render(employees);
+                filterModal.style.display = "none";
             };
+
 
             
             function populateFilters(data) {
@@ -306,10 +325,6 @@
                 updatePositionFilter();
                 applyAll(); // re-filter list immediately
             };
-
-
-
-
         </script>
     </body>
 </html>

@@ -30,8 +30,8 @@ public class EmployeeInformationServlet extends HttpServlet {
             Class.forName("org.apache.derby.jdbc.ClientDriver");
             Connection conn = DriverManager.getConnection(
                 "jdbc:derby://localhost:1527/LeaveDB",
-                "nadzem",
-                "oracle"
+                "app",
+                "app"
             );
 
             Statement stmt = conn.createStatement();
@@ -44,7 +44,7 @@ public class EmployeeInformationServlet extends HttpServlet {
                 "   WHERE lr.submitted_by = e.employee_id " +
                 "     AND lr.status = 'APPROVED' " +
                 "     AND CURRENT_DATE BETWEEN lr.start_date AND lr.end_date " +
-                " ) THEN 'Unavailable' " +
+                " ) THEN 'On Leave' " +
                 " ELSE 'Available' " +
                 "END AS status " +
                 "FROM employee e " +

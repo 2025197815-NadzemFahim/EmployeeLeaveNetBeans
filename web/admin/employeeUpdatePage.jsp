@@ -18,7 +18,7 @@
     try {
         Class.forName("org.apache.derby.jdbc.ClientDriver");
         conn = DriverManager.getConnection(
-            "jdbc:derby://localhost:1527/LeaveDB","nadzem","oracle"
+            "jdbc:derby://localhost:1527/LeaveDB","app","app"
         );
 
         /* ================= EMPLOYEE INFO ================= */
@@ -57,7 +57,6 @@
 
 <!DOCTYPE html>
 <html lang="en">
-    
     <head>
         <meta charset="UTF-8">
         <title>Employee Information</title>
@@ -81,9 +80,11 @@
                 </div>
 
                 <div class="profile">
-                    <img src="https://i.imgur.com/7k12EPD.png">
-                    <h4>AMIRUL AIMAN BIN LEO</h4>
-                    <p>Admin</p>
+                    <img src="${pageContext.request.contextPath}/profile-image?path=${profileImage}"
+                         onerror="this.src='${pageContext.request.contextPath}/images/default_profile.png'">
+
+                    <h4>${profileName}</h4>
+                    <p>${profilePosition}</p>
                 </div>
 
                 <!-- Navigation Menu -->
@@ -281,10 +282,12 @@
 </html>
 
 <%
+    
 /* ================= CLEAN UP ================= */
 if (rsEmp != null) rsEmp.close();
 if (psEmp != null) psEmp.close();
 if (rsLeave != null) rsLeave.close();
 if (psLeave != null) psLeave.close();
 if (conn != null) conn.close();
+
 %>
