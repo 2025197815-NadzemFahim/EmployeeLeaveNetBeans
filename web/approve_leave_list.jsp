@@ -6,470 +6,435 @@
         response.sendRedirect("login.jsp");
         return;
     }
-    
+
     String role = (String) userSession.getAttribute("role");
     if (!"CEO".equals(role) && !"HOD".equals(role)) {
         response.sendRedirect("login.jsp");
         return;
     }
-    
+
     // Get message from session
     String message = (String) userSession.getAttribute("message");
     String error = (String) userSession.getAttribute("error");
-    
+
     // Clear messages after displaying
-    if (message != null) userSession.removeAttribute("message");
-    if (error != null) userSession.removeAttribute("error");
-    
-    
-List<Map<String, String>> leaveRequests =
-        (List<Map<String, String>>) request.getAttribute("leaveRequests");
+    if (message != null) {
+        userSession.removeAttribute("message");
+    }
+    if (error != null) {
+        userSession.removeAttribute("error");
+    }
 
-String name = (String) request.getAttribute("name");
-String position = (String) request.getAttribute("position");
-String profileImage = (String) request.getAttribute("profileImage");
+    List<Map<String, String>> leaveRequests
+            = (List<Map<String, String>>) request.getAttribute("leaveRequests");
 
-if (profileImage == null || profileImage.trim().isEmpty()) {
-    profileImage = "default.png";
-}
+    String name = (String) request.getAttribute("name");
+    String position = (String) request.getAttribute("position");
+    String profileImage = (String) request.getAttribute("profileImage");
+
+    if (profileImage == null || profileImage.trim().isEmpty()) {
+        profileImage = "default.png";
+    }
 
 
 %>
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Approve Leave</title> <!-- Removed - CEO/HOD -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <head>
+        <meta charset="UTF-8">
+        <title>Approve Leave</title> <!-- Removed - CEO/HOD -->
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<style>
-/* ===== Use your provided CSS ===== */
-* {
-  box-sizing: border-box;
-  font-family: "Segoe UI", sans-serif;
-}
+        <style>
+            /* ===== Use your provided CSS ===== */
+            * {
+                box-sizing: border-box;
+                font-family: "Poppins", sans-serif;
+            }
 
-body {
-  margin: 0;
-  background: #f2f2f2;
-}
+            body {
+                margin: 0;
+                background: #f5f7fb;
+            }
 
-.wrapper {
-  display: flex;
-  min-height: 100vh;
-}
+            .wrapper {
+                display: flex;
+                min-height: 100vh;
+            }
+            /* ===== SIDEBAR ===== */
+            .sidebar {
+                width: 260px;
+                background: #0f172a; /* UPDATED */
+                padding: 15px;
+                transition: width 0.3s ease;
+            }
 
-.sidebar {
-  width: 260px;
-  background: #e0e0e0;
-  padding: 15px;
-  transition: width 0.3s ease;
-}
+            .sidebar.closed {
+                width: 60px;
+            }
 
-.sidebar.closed {
-  width: 60px;
-}
+            /* ===== BRAND ===== */
+            .brand {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-weight: bold;
+                margin-bottom: 20px;
+                color: #ffffff; /* UPDATED */
+            }
 
-.brand {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
+            .sidebar.closed .brand span:first-child {
+                display: none;
+            }
 
-.sidebar.closed .brand span:first-child {
-  display: none;
-}
+            /* ===== PROFILE ===== */
+            .profile {
+                text-align: center;
+                margin-bottom: 25px;
+                transition: opacity 0.3s ease;
+            }
 
-.profile {
-  text-align: center;
-  margin-bottom: 25px;
-  transition: opacity 0.3s ease;
-}
+            .sidebar.closed .profile {
+                opacity: 0;
+                pointer-events: none;
+            }
 
-.sidebar.closed .profile {
-  opacity: 0;
-  pointer-events: none;
-}
+            .profile img {
+                width: 70px;
+                height: 70px;
+                border-radius: 50%;
+                object-fit: cover;
+                background: #333;
+                margin-bottom: 10px;
+            }
 
-.profile img {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  object-fit: cover;
-  background: #ccc;
-  margin-bottom: 10px;
-}
+            .profile h4 {
+                margin: 5px 0 0;
+                font-size: 14px;
+                color: #ffffff; /* UPDATED */
+            }
 
-.profile h4 {
-  margin: 5px 0 0;
-  font-size: 14px;
-}
+            .profile p {
+                margin: 0;
+                font-size: 12px;
+                color: #aaaaaa; /* UPDATED */
+            }
 
-.profile p {
-  margin: 0;
-  font-size: 12px;
-  color: #555;
-}
+            /* ===== MENU ===== */
+            .menu a {
+                display: flex;
+                align-items: center;
+                padding: 12px;
+                margin-bottom: 6px;
+                text-decoration: none;
+                color: #dcdcdc; /* UPDATED */
+                border-radius: 6px;
+                font-size: 14px;
+                gap: 12px;
+                transition: background 0.2s ease, color 0.2s ease; /* BONUS */
+            }
 
-.menu a {
-  display: flex;
-  align-items: center;
-  padding: 12px;
-  margin-bottom: 6px;
-  text-decoration: none;
-  color: #000;
-  border-radius: 6px;
-  font-size: 14px;
-  gap: 12px;
-}
+            .menu a i {
+                width: 20px;
+                text-align: center;
+                font-size: 16px;
+            }
 
-.menu a i {
-  width: 20px;
-  text-align: center;
-  font-size: 16px;
-}
+            /* ===== HOVER ===== */
+            .menu a:hover {
+                background: #2c2c2c; /* UPDATED */
+            }
 
-.menu a:hover {
-  background: #cfcfcf;
-}
+            /* ===== ACTIVE ===== */
+            .menu a.active {
+                background: #ffffff;
+                color: #0f172a;   /* dark navy text */
+                font-weight: bold;
+            }
 
-.menu a.active {
-  background: #bdbdbd;
-  font-weight: bold;
-}
+            /* ===== COLLAPSED MODE ===== */
+            .sidebar.closed .menu a {
+                justify-content: center;
+                padding-left: 0;
+                padding-right: 0;
+                font-size: 0;
+                gap: 0;
+            }
 
-.sidebar.closed .menu a {
-  justify-content: center;
-  padding-left: 0;
-  padding-right: 0;
-  font-size: 0;
-  gap: 0;
-}
-
-.sidebar.closed .menu a i {
-  font-size: 18px;
-  width: auto;
-}
-
-/* Menu group for HOD */
-.menu-group .menu-parent {
-    background: #d0d0d0;
-    font-weight: 600;
-}
-
-.menu-group .menu-parent::after {
-    content: "▼";
-    font-size: 10px;
-    margin-left: auto;
-    margin-right: 10px;
-    transition: transform 0.2s ease;
-}
-
-.menu-group .menu-parent.open::after {
-    transform: rotate(180deg);
-}
-
-.menu-group .submenu {
-    margin-left: 32px;
-    display: none;
-    flex-direction: column;
-}
-
-.menu-group .submenu.open {
-    display: flex;
-}
-
-.sidebar.closed .menu-group .menu-parent {
-    justify-content: center;
-    padding: 12px 0;
-    font-size: 0;
-    gap: 0;
-}
-
-.sidebar.closed .menu-group .menu-parent::after {
-    display: none;
-}
-
-.sidebar.closed .menu-group .submenu {
-    margin-left: 0;
-    align-items: center;
-}
-
-.sidebar.closed .menu-group .submenu a {
-    justify-content: center;
-    padding: 10px 0;
-    gap: 0;
-}
-
-/* ===== Main Content ===== */
-.main {
-  flex: 1;
-  padding: 20px;
-}
-
-/* Header */
-.header {
-  background: linear-gradient(to right, #bdbdbd, #eeeeee);
-  padding: 18px;
-  font-size: 32px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  color: #ffffff;
-}
-
-/* Search */
-.top-bar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 15px;
-}
-
-.search {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  width: 220px;
-  font-size: 13px;
-}
-
-/* Card */
-.card {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  overflow-x: auto;
-}
-
-/* Table */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 600px;
-}
-
-th, td {
-  padding: 14px;
-  text-align: center;
-}
-
-th {
-  color: black;
-  font-weight: 600;
-  background: #f5f5f5;
-}
-
-td {
-    color : #555;
-    font-weight: 600;
-}
-
-tbody tr:nth-child(odd) {
-  background: #f9f9f9;
-}
-
-tbody tr:hover {
-  background: #f0f0f0;
-}
-
-.status-approved {
-  color: #00c853;
-  font-weight: bold;
-}
-
-.status-rejected {
-  color: #ff1744;
-  font-weight: bold;
-}
-
-.status-pending {
-  color: #ffab00;
-  font-weight: bold;
-}
-
-/* View Button */
-.btn-view {
-  padding: 8px 16px;
-  border-radius: 6px;
-  background: #bdbdbd;
-  color: black;
-  font-weight: 600;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.btn-view:hover {
-  background: #9e9e9e;
-}
-
-/* Messages */
-.message {
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 4px;
-}
-
-.success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-.no-data {
-    text-align: center;
-    padding: 30px;
-    color: #666;
-    font-style: italic;
-}
-</style>
-</head>
-<body>
-
-<div class="wrapper">
-  <div class="sidebar" id="sidebar">
-    <div class="brand">
-      <span>TERLAJAK LARIS</span>
-      <span class="toggle-btn" onclick="toggleSidebar()">☰</span>
-    </div>
-
-   <div class="profile">
-    <img src="<%= request.getContextPath() %>/profile-image?path=<%= profileImage %>"
-         onerror="this.src='<%= request.getContextPath() %>/images/default_profile.png'">
-
-    <h4><%= name != null ? name : "User" %></h4>
-    <p><%= position != null ? position : "-" %></p>
-</div>
+            .sidebar.closed .menu a i {
+                font-size: 18px;
+                width: auto;
+            }
 
 
-    <div class="menu">
-      <% if ("CEO".equals(role)) { %>
-        <!-- CEO Sidebar Menu -->
-        <a href="<%= request.getContextPath() %>/CEODashboardServlet"><i class="fas fa-th-large"></i>Dashboard</a>
-        <a href="<%= request.getContextPath() %>/ViewProfileCEOServlet"><i class="fas fa-user"></i>Profile</a>
-        <a class="active" href="<%= request.getContextPath() %>/LeaveListServlet"><i class="fas fa-clipboard-list"></i>Requests</a>
-        <a href="<%= request.getContextPath() %>/NotificationCeoServlet"><i class="fas fa-bell"></i>Notifications</a>
-        <a href="login.jsp" onclick="logout()"><i class="fas fa-sign-out-alt"></i>Logout</a>
-        
-        <% } else if ("HOD".equals(role)) { %>
-        <!-- HOD Sidebar Menu -->
-        <a href="<%= request.getContextPath() %>/HODDashboardServlet"><i class="fas fa-th-large"></i>Dashboard</a>
-        <a href="<%= request.getContextPath() %>/ViewProfileHODServlet"><i class="fas fa-user"></i>Profile</a>
-        <a href="<%= request.getContextPath() %>/HODApplyLeaveServlet"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
-        <a class="active" href="<%= request.getContextPath() %>/LeaveListServlet"><i class="fas fa-clipboard-list"></i>Requests</a>
-        <a href="<%= request.getContextPath() %>/LeaveHistoryHodServlet"><i class="fas fa-history"></i>Leave History</a>
-        <a href="<%= request.getContextPath() %>/NotificationHodServlet"><i class="fas fa-bell"></i>Notifications</a>
-        <a href="login.jsp" onclick="logout()"><i class="fas fa-sign-out-alt"></i>Logout</a>
+            /* ===== Main Content ===== */
+            .main {
+                flex: 1;
+                padding: 20px;
+            }
 
-      <% } %>
-    </div>
-  </div>
+            /* Header */
+            .header {
+                background: linear-gradient(to right, #0f172a, #94a3b8);
+                padding: 18px;
+                font-size: 32px;
+                font-weight: bold;
+                margin-bottom: 20px;
+                color: #ffffff;
+            }
 
-  <!-- Main Content -->
-  <div class="main">
+            /* Search */
+            .top-bar {
+                display: flex;
+                justify-content: flex-end;
+                margin-bottom: 15px;
+            }
 
-    <div class="header">Approve/Reject Leave</div> <!-- Removed - CEO/HOD -->
+            .search {
+                padding: 8px 12px;
+                border-radius: 6px;
+                border: 1px solid #ccc;
+                width: 220px;
+                font-size: 13px;
+            }
 
-    <% if (message != null) { %>
-        <div class="message success"><%= message %></div>
-    <% } %>
-    
-    <% if (error != null) { %>
-        <div class="message error"><%= error %></div>
-    <% } %>
+            /* Card */
+            .card {
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                overflow-x: auto;
+            }
 
-    <div class="top-bar">
-      <input type="text" class="search" placeholder="Search by ID or Leave Type..." id="searchInput" onkeyup="searchTable()">
-    </div>
+            /* Table */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                min-width: 600px;
+            }
 
-    <div class="card">
-      <% if (leaveRequests == null || leaveRequests.isEmpty()) { %>
-        <div class="no-data">
-          <i class="fas fa-clipboard-check" style="font-size: 48px; margin-bottom: 15px; color: #bdbdbd;"></i>
-          <h3>No Leave Requests Found</h3>
-          <p>There are no pending leave requests to review.</p>
+            th, td {
+                padding: 14px;
+                text-align: center;
+            }
+
+            th {
+                color: black;
+                font-weight: 600;
+                background: #f5f5f5;
+            }
+
+            td {
+                color : #555;
+                font-weight: 600;
+            }
+
+            tbody tr:nth-child(odd) {
+                background: #f9f9f9;
+            }
+
+            tbody tr:hover {
+                background: #f0f0f0;
+            }
+
+            .status-approved {
+                color: #00c853;
+                font-weight: bold;
+            }
+
+            .status-rejected {
+                color: #ff1744;
+                font-weight: bold;
+            }
+
+            .status-pending {
+                color: #ffab00;
+                font-weight: bold;
+            }
+
+            /* View Button */
+            .btn-view {
+                padding: 8px 16px;
+                border-radius: 6px;
+                background: #bdbdbd;
+                color: black;
+                font-weight: 600;
+                text-decoration: none;
+                display: inline-block;
+            }
+
+            .btn-view:hover {
+                background: #9e9e9e;
+            }
+
+            /* Messages */
+            .message {
+                padding: 10px;
+                margin-bottom: 15px;
+                border-radius: 4px;
+            }
+
+            .success {
+                background-color: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+
+            .error {
+                background-color: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+
+            .no-data {
+                text-align: center;
+                padding: 30px;
+                color: #666;
+                font-style: italic;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="wrapper">
+            <div class="sidebar" id="sidebar">
+                <div class="brand">
+                    <span>TERLAJAK LARIS</span>
+                    <span class="toggle-btn" onclick="toggleSidebar()">☰</span>
+                </div>
+
+                <div class="profile">
+                    <img src="<%= request.getContextPath()%>/profile-image?path=<%= profileImage%>"
+                         onerror="this.src='<%= request.getContextPath()%>/images/default_profile.png'">
+
+                    <h4><%= name != null ? name : "User"%></h4>
+                    <p><%= position != null ? position : "-"%></p>
+                </div>
+
+
+                <div class="menu">
+                    <% if ("CEO".equals(role)) {%>
+                    <!-- CEO Sidebar Menu -->
+                    <a href="<%= request.getContextPath()%>/CEODashboardServlet"><i class="fas fa-th-large"></i>Dashboard</a>
+                    <a href="<%= request.getContextPath()%>/ViewProfileCEOServlet"><i class="fas fa-user"></i>Profile</a>
+                    <a class="active" href="<%= request.getContextPath()%>/LeaveListServlet"><i class="fas fa-clipboard-list"></i>Requests</a>
+                    <a href="<%= request.getContextPath()%>/NotificationCeoServlet"><i class="fas fa-bell"></i>Notifications</a>
+                    <a href="login.jsp" onclick="logout()"><i class="fas fa-sign-out-alt"></i>Logout</a>
+
+                    <% } else if ("HOD".equals(role)) {%>
+                    <!-- HOD Sidebar Menu -->
+                    <a href="<%= request.getContextPath()%>/HODDashboardServlet"><i class="fas fa-th-large"></i>Dashboard</a>
+                    <a  href="<%= request.getContextPath()%>/ViewProfileHODServlet"><i class="fas fa-user"></i>Profile</a>
+                    <a href="<%= request.getContextPath()%>/hod/apply_leave.jsp"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
+                    <a href="<%= request.getContextPath()%>/LeaveListServlet" class="active"><i class="fas fa-bell"></i>Requests</a>
+                    <a href="<%= request.getContextPath()%>/LeaveHistoryHodServlet"><i class="fas fa-history"></i>Leave History</a>
+                    <a href="<%= request.getContextPath()%>/NotificationHodServlet"><i class="fas fa-bell"></i>Notifications</a>
+                    <a href="<%= request.getContextPath()%>/LogoutServlet"><i class="fas fa-sign-out-alt"></i>Logout</a>
+
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main">
+
+                <div class="header">Approve/Reject Leave</div> <!-- Removed - CEO/HOD -->
+
+                <% if (message != null) {%>
+                <div class="message success"><%= message%></div>
+                <% } %>
+
+                <% if (error != null) {%>
+                <div class="message error"><%= error%></div>
+                <% } %>
+
+                <div class="top-bar">
+                    <input type="text" class="search" placeholder="Search by ID or Leave Type..." id="searchInput" onkeyup="searchTable()">
+                </div>
+
+                <div class="card">
+                    <% if (leaveRequests == null || leaveRequests.isEmpty()) { %>
+                    <div class="no-data">
+                        <i class="fas fa-clipboard-check" style="font-size: 48px; margin-bottom: 15px; color: #bdbdbd;"></i>
+                        <h3>No Leave Requests Found</h3>
+                        <p>There are no pending leave requests to review.</p>
+                    </div>
+                    <% } else { %>
+                    <table id="leaveTable">
+                        <thead>
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Leave Type</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for (Map<String, String> leave : leaveRequests) {
+                                    String status = leave.get("status");
+                                    String statusClass = "status-" + status.toLowerCase();
+                            %>
+                            <tr>
+                                <td>L<%= String.format("%03d", Integer.parseInt(leave.get("requestId")))%></td>
+                                <td><%= leave.get("leaveType")%></td>
+                                <td><%= leave.get("startDate")%></td>
+                                <td><%= leave.get("endDate")%></td>
+                                <td class="<%= statusClass%>">
+                                    <%= status%>
+                                </td>
+                                <td>
+                                    <a href="LeaveDetailsServlet?id=<%= leave.get("requestId")%>" class="btn-view">View</a>
+                                </td>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                    <% }%>
+                </div>
+
+            </div>
+
         </div>
-      <% } else { %>
-      <table id="leaveTable">
-        <thead>
-          <tr>
-            <th>Request ID</th>
-            <th>Leave Type</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% for (Map<String, String> leave : leaveRequests) { 
-              String status = leave.get("status");
-              String statusClass = "status-" + status.toLowerCase();
-          %>
-          <tr>
-            <td>L<%= String.format("%03d", Integer.parseInt(leave.get("requestId"))) %></td>
-            <td><%= leave.get("leaveType") %></td>
-            <td><%= leave.get("startDate") %></td>
-            <td><%= leave.get("endDate") %></td>
-            <td class="<%= statusClass %>">
-              <%= status %>
-            </td>
-            <td>
-              <a href="LeaveDetailsServlet?id=<%= leave.get("requestId") %>" class="btn-view">View</a>
-            </td>
-          </tr>
-          <% } %>
-        </tbody>
-      </table>
-      <% } %>
-    </div>
 
-  </div>
+        <script>
+            function toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('closed');
+            }
 
-</div>
+            /* Search table */
+            function searchTable() {
+                const input = document.getElementById("searchInput").value.toLowerCase();
+                const table = document.getElementById("leaveTable");
+                if (!table)
+                    return;
 
-<script>
-function toggleSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  sidebar.classList.toggle('closed');
-}
+                const trs = table.tBodies[0].getElementsByTagName("tr");
 
-/* Search table */
-function searchTable() {
-  const input = document.getElementById("searchInput").value.toLowerCase();
-  const table = document.getElementById("leaveTable");
-  if (!table) return;
-  
-  const trs = table.tBodies[0].getElementsByTagName("tr");
+                for (let i = 0; i < trs.length; i++) {
+                    let found = false;
+                    const tds = trs[i].getElementsByTagName("td");
+                    for (let j = 0; j < tds.length - 1; j++) { // Exclude Action column
+                        if (tds[j].textContent.toLowerCase().includes(input)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    trs[i].style.display = found ? "" : "none";
+                }
+            }
 
-  for (let i = 0; i < trs.length; i++) {
-    let found = false;
-    const tds = trs[i].getElementsByTagName("td");
-    for (let j = 0; j < tds.length - 1; j++) { // Exclude Action column
-      if (tds[j].textContent.toLowerCase().includes(input)) {
-        found = true;
-        break;
-      }
-    }
-    trs[i].style.display = found ? "" : "none";
-  }
-}
+            function logout() {
+                if (confirm('Are you sure you want to logout?')) {
+                    window.location.href = '<%= request.getContextPath()%>/LogoutServlet';
+                }
+            }
 
-function logout() {
-    if (confirm('Are you sure you want to logout?')) {
-        window.location.href = '<%= request.getContextPath() %>/LogoutServlet';
-    }
-}
+        </script>
 
-</script>
-
-</body>
+    </body>
 </html> 
