@@ -1,0 +1,285 @@
+    /* ---------- GLOBAL RESET ---------- */
+    * {
+        box-sizing: border-box;
+        font-family: "Segoe UI", sans-serif;
+    }
+    body {
+        margin: 0;
+        background: #f2f2f2;
+    }
+
+    /* ---------- MAIN LAYOUT ---------- */
+    .wrapper {
+        display: flex;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    /* ---------- SIDEBAR ---------- */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;          /* ✅ exact viewport height */
+        left: 0;
+        width: 260px;
+        background: #e0e0e0;
+        padding: 15px;
+        overflow: hidden;   /* ✅ NO scrolling at all */
+        transition: width 0.3s ease;
+    }
+    
+    .sidebar.closed {
+        width: 60px;
+    }
+    
+    .sidebar.closed ~ .content {
+        max-width: calc(100vw - 60px);
+    }
+
+
+    /* ---------- BRAND ---------- */
+    .brand {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    .sidebar.closed .brand span:first-child {
+        display: none;
+    }
+
+    /* ---------- PROFILE ---------- */
+    .profile {
+        text-align: center;
+        margin-bottom: 25px;
+        transition: opacity 0.3s ease;
+    }
+    .sidebar.closed .profile {
+        opacity: 0;
+        pointer-events: none;
+    }
+    .profile img {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #ccc;
+        margin-bottom: 10px;
+    }
+    .profile h4 {
+        margin: 5px 0 0;
+        font-size: 14px;
+    }
+    .profile p {
+        margin: 0;
+        font-size: 12px;
+        color: #555;
+    }
+
+    /* ---------- MENU ---------- */
+    .menu a, .menu-parent {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        margin-bottom: 6px;
+        text-decoration: none;
+        color: #000;
+        border-radius: 6px;
+        font-size: 14px;
+        gap: 12px;
+    }
+    .menu a i {
+        width: 20px;
+        text-align: center;
+        font-size: 16px;
+    }
+    .menu a:hover { background: #cfcfcf; }
+    .menu a.active { background: #bdbdbd; font-weight: bold; }
+
+    /* ---------- DROPDOWN ---------- */
+    .menu-group .menu-parent { font-weight: 600; }
+    .menu-group .menu-parent::after {
+        content: "▼";
+        font-size: 10px;
+        margin-left: auto;
+        margin-right: 10px;
+        transition: transform 0.2s ease;
+    }
+    .menu-group .menu-parent.open::after { transform: rotate(180deg); }
+    .menu-group .submenu {
+        margin-left: 32px;
+        display: none;
+        flex-direction: column;
+    }
+    .menu-group .submenu.open { display: flex; }
+
+    /* ---------- MAIN CONTENT ---------- */
+    .content {
+        flex: 1;
+        padding: 25px 30px;   /* RESTORE padding */
+        background: #fff;
+        margin-left: 260px; /* leave space for fixed sidebar */
+        overflow-x: hidden;
+        max-width: calc(100vw-260px);
+    }
+    .page-title {
+        background: linear-gradient(to right, #bdbdbd, #eeeeee);
+        padding: 18px;
+        font-size: 32px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    .toolbar {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    select, input {
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+    }
+    .search-box {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        background: #eee;
+        padding: 8px 12px;
+        border-radius: 20px;
+    }
+    .search-box input {
+        border: none;
+        outline: none;
+        background: transparent;
+        margin-left: 8px;
+    }
+    .btn {
+        padding: 10px 16px;
+        border-radius: 20px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .btn-add { background: #4a4a4a; color: white; }
+
+    /* ---------- EMPLOYEE LIST ---------- */
+    .employee-section {
+        margin-left: -30px;   /* cancel content padding */
+        margin-right: -30px;
+    }
+
+    .employee-row {
+        display: grid;
+        grid-template-columns: 100px 60px 1.5fr 1.5fr 1fr 180px 60px;
+        align-items: center;
+        padding: 15px 30px;   /* ✅ ONE consistent padding */
+        margin-bottom: 10px;
+        border-radius: 10px;
+        background: #f7f7f7;
+    }
+
+    .employee-row:nth-child(even) {
+        background: #ffffff; /* ✅ background ONLY */
+    }
+
+    .employee-row img {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+    }
+
+
+    .status {
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 13px;
+        font-weight: 600;
+        width: fit-content;
+    }
+    
+    .available {
+        border: 1px solid #4caf50; color: #4caf50; 
+    }
+    
+    .leave {
+        border: 1px solid red; color: red; 
+    }
+    
+    .edit-btn {
+        cursor: pointer; font-size: 18px;
+    }
+    
+    html, body {
+        overflow-x: hidden;
+    }
+
+    .sidebar.closed ~ .content {
+        margin-left: 60px;
+    }
+    
+    /* ---------- FILTER MODAL ---------- */
+    .btn-filter {
+        background: #fff;
+        border: 1px solid #000;
+    }
+
+    .filter-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.3);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+    }
+
+    .filter-box {
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        width: 320px;
+    }
+
+    .filter-box label {
+        display: block;
+        margin-top: 12px;
+        font-weight: 600;
+    }
+
+    .filter-box select {
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    .filter-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    /* Chrome / Edge / Safari */
+    body::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+
+    /* If scrolling happens inside .content */
+    .content::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar,
+    .content::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+
+    .sidebar::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }

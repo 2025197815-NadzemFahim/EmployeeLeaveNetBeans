@@ -315,7 +315,7 @@ and open the template in the editor.
                     <div class="card">
                         
                         <!-- FORM START -->
-                        <form class="form" action="AddEmployeeServlet" method="post" enctype="multipart/form-data">
+                        <form action="/EmployeeLeave/AdminAddEmployee" method="post">
                             
                             <div class="form-grid">
                                 
@@ -326,7 +326,7 @@ and open the template in the editor.
                                 
                                 <div class="form-group">
                                     <label>Date Of Birth</label>
-                                    <input type="date" name="DoB" id="DoB" required>
+                                    <input type="date" name="DoB" id="DoB">
                                 </div>
 
                                 <div class="form-group">
@@ -341,10 +341,10 @@ and open the template in the editor.
 
                                 <div class="form-group">
                                     <label>Role</label>
-                                    <select name="role" id="role" class="role-dropdown">
+                                    <select name="role" id="role" class="role-dropdown" required>
                                         <option value="">Select Role</option>
-                                        <option value="admin">ADMIN</option>
-                                        <option value="manager">STAFF</option>
+                                        <option value="ADMIN">ADMIN</option>
+                                        <option value="STAFF">STAFF</option>
                                         <option value="HOD">HEAD OF DIRECTOR</option>
                                         <option value="CEO">CHIEF EXECUTIVE OFFICER</option>
                                     </select>

@@ -19,7 +19,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
         <style>
-            * {
+           * {
                 box-sizing: border-box;
                 font-family: "Poppins", sans-serif;
             }
@@ -33,10 +33,10 @@
                 display: flex;
                 min-height: 100vh;
             }
-
+            /* ===== SIDEBAR ===== */
             .sidebar {
                 width: 260px;
-                background: #e0e0e0;
+                background: #0f172a; /* UPDATED */
                 padding: 15px;
                 transition: width 0.3s ease;
             }
@@ -45,18 +45,21 @@
                 width: 60px;
             }
 
+            /* ===== BRAND ===== */
             .brand {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
                 font-weight: bold;
                 margin-bottom: 20px;
+                color: #ffffff; /* UPDATED */
             }
 
             .sidebar.closed .brand span:first-child {
                 display: none;
             }
 
+            /* ===== PROFILE ===== */
             .profile {
                 text-align: center;
                 margin-bottom: 25px;
@@ -73,31 +76,34 @@
                 height: 70px;
                 border-radius: 50%;
                 object-fit: cover;
-                background: #ccc;
+                background: #333;
                 margin-bottom: 10px;
             }
 
             .profile h4 {
                 margin: 5px 0 0;
                 font-size: 14px;
+                color: #ffffff; /* UPDATED */
             }
 
             .profile p {
                 margin: 0;
                 font-size: 12px;
-                color: #555;
+                color: #aaaaaa; /* UPDATED */
             }
 
+            /* ===== MENU ===== */
             .menu a {
                 display: flex;
                 align-items: center;
                 padding: 12px;
                 margin-bottom: 6px;
                 text-decoration: none;
-                color: #000;
+                color: #dcdcdc; /* UPDATED */
                 border-radius: 6px;
                 font-size: 14px;
                 gap: 12px;
+                transition: background 0.2s ease, color 0.2s ease; /* BONUS */
             }
 
             .menu a i {
@@ -106,15 +112,19 @@
                 font-size: 16px;
             }
 
+            /* ===== HOVER ===== */
             .menu a:hover {
-                background: #cfcfcf;
+                background: #2c2c2c; /* UPDATED */
             }
 
+            /* ===== ACTIVE ===== */
             .menu a.active {
-                background: #bdbdbd;
+                background: #ffffff;
+                color: #0f172a;   /* dark navy text */
                 font-weight: bold;
             }
 
+            /* ===== COLLAPSED MODE ===== */
             .sidebar.closed .menu a {
                 justify-content: center;
                 padding-left: 0;
@@ -127,7 +137,6 @@
                 font-size: 18px;
                 width: auto;
             }
-            /* ===== MAIN CONTENT ===== */
             /* ===== MAIN CONTENT ===== */
             .main {
                 flex: 1;
