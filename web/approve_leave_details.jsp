@@ -98,117 +98,124 @@ if (profileImage == null || profileImage.trim().isEmpty()) {
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-          box-sizing: border-box;
-          font-family: 'Poppins', sans-serif;
-        }
+         * {
+                box-sizing: border-box;
+                font-family: "Poppins", sans-serif;
+            }
 
-        body {
-          margin: 0;
-          display: flex;
-          min-height: 100vh;
-          background: #f2f2f2;
-        }
+            body {
+                margin: 0;
+                background: #f5f7fb;
+            }
 
-        .wrapper {
-          display: flex;
-          min-height: 100vh;
-          width: 100%;
-        }
+            .wrapper {
+                display: flex;
+                min-height: 100vh;
+            }
+            /* ===== SIDEBAR ===== */
+            .sidebar {
+                width: 260px;
+                background: #0f172a; /* UPDATED */
+                padding: 15px;
+                transition: width 0.3s ease;
+            }
 
-        .sidebar {
-          width: 260px;
-          background: #e0e0e0;
-          padding: 15px;
-          transition: width 0.3s ease;
-        }
+            .sidebar.closed {
+                width: 60px;
+            }
 
-        .sidebar.closed {
-          width: 60px;
-        }
+            /* ===== BRAND ===== */
+            .brand {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-weight: bold;
+                margin-bottom: 20px;
+                color: #ffffff; /* UPDATED */
+            }
 
-        .brand {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-weight: bold;
-          margin-bottom: 20px;
-        }
+            .sidebar.closed .brand span:first-child {
+                display: none;
+            }
 
-        .sidebar.closed .brand span:first-child {
-          display: none;
-        }
+            /* ===== PROFILE ===== */
+            .profile {
+                text-align: center;
+                margin-bottom: 25px;
+                transition: opacity 0.3s ease;
+            }
 
-        .profile {
-          text-align: center;
-          margin-bottom: 25px;
-          transition: opacity 0.3s ease;
-        }
+            .sidebar.closed .profile {
+                opacity: 0;
+                pointer-events: none;
+            }
 
-        .sidebar.closed .profile {
-          opacity: 0;
-          pointer-events: none;
-        }
+            .profile img {
+                width: 70px;
+                height: 70px;
+                border-radius: 50%;
+                object-fit: cover;
+                background: #333;
+                margin-bottom: 10px;
+            }
 
-        .profile img {
-          width: 70px;
-          height: 70px;
-          border-radius: 50%;
-          object-fit: cover;
-          background: #ccc;
-          margin-bottom: 10px;
-        }
+            .profile h4 {
+                margin: 5px 0 0;
+                font-size: 14px;
+                color: #ffffff; /* UPDATED */
+            }
 
-        .profile h4 {
-          margin: 5px 0 0;
-          font-size: 14px;
-        }
+            .profile p {
+                margin: 0;
+                font-size: 12px;
+                color: #aaaaaa; /* UPDATED */
+            }
 
-        .profile p {
-          margin: 0;
-          font-size: 12px;
-          color: #555;
-        }
+            /* ===== MENU ===== */
+            .menu a {
+                display: flex;
+                align-items: center;
+                padding: 12px;
+                margin-bottom: 6px;
+                text-decoration: none;
+                color: #dcdcdc; /* UPDATED */
+                border-radius: 6px;
+                font-size: 14px;
+                gap: 12px;
+                transition: background 0.2s ease, color 0.2s ease; /* BONUS */
+            }
 
-        .menu a {
-          display: flex;
-          align-items: center;
-          padding: 12px;
-          margin-bottom: 6px;
-          text-decoration: none;
-          color: #000;
-          border-radius: 6px;
-          font-size: 14px;
-          gap: 12px;
-        }
+            .menu a i {
+                width: 20px;
+                text-align: center;
+                font-size: 16px;
+            }
 
-        .menu a i {
-          width: 20px;
-          text-align: center;
-          font-size: 16px;
-        }
+            /* ===== HOVER ===== */
+            .menu a:hover {
+                background: #2c2c2c; /* UPDATED */
+            }
 
-        .menu a:hover {
-          background: #cfcfcf;
-        }
+            /* ===== ACTIVE ===== */
+            .menu a.active {
+                background: #ffffff;
+                color: #0f172a;   /* dark navy text */
+                font-weight: bold;
+            }
 
-        .menu a.active {
-          background: #bdbdbd;
-          font-weight: bold;
-        }
+            /* ===== COLLAPSED MODE ===== */
+            .sidebar.closed .menu a {
+                justify-content: center;
+                padding-left: 0;
+                padding-right: 0;
+                font-size: 0;
+                gap: 0;
+            }
 
-        .sidebar.closed .menu a {
-          justify-content: center;
-          padding-left: 0;
-          padding-right: 0;
-          font-size: 0;
-          gap: 0;
-        }
-
-        .sidebar.closed .menu a i {
-          font-size: 18px;
-          width: auto;
-        }
+            .sidebar.closed .menu a i {
+                font-size: 18px;
+                width: auto;
+            }
 
         .main {
           flex: 1;
@@ -216,7 +223,7 @@ if (profileImage == null || profileImage.trim().isEmpty()) {
         }
 
         .header {
-          background: linear-gradient(to right, #bdbdbd, #eeeeee);
+          background: linear-gradient(to right, #0f172a, #94a3b8);
           padding: 18px;
           font-size: 32px;
           font-weight: bold;

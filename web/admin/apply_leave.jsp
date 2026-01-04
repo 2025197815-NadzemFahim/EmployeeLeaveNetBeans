@@ -17,7 +17,7 @@
 
             body {
                 margin: 0;
-                background: #f2f2f2;
+                background: #f5f7fb; /* match others */
             }
 
             .wrapper {
@@ -25,9 +25,10 @@
                 min-height: 100vh;
             }
 
+            /* ===== SIDEBAR ===== */
             .sidebar {
                 width: 260px;
-                background: #e0e0e0;
+                background: #0f172a; /* UPDATED */
                 padding: 15px;
                 transition: width 0.3s ease;
             }
@@ -36,18 +37,21 @@
                 width: 60px;
             }
 
+            /* ===== BRAND ===== */
             .brand {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
                 font-weight: bold;
                 margin-bottom: 20px;
+                color: #ffffff; /* UPDATED */
             }
 
             .sidebar.closed .brand span:first-child {
                 display: none;
             }
 
+            /* ===== PROFILE ===== */
             .profile {
                 text-align: center;
                 margin-bottom: 25px;
@@ -64,69 +68,78 @@
                 height: 70px;
                 border-radius: 50%;
                 object-fit: cover;
-                background: #ccc;
+                background: #1e293b; /* UPDATED */
                 margin-bottom: 10px;
             }
 
             .profile h4 {
                 margin: 5px 0 0;
                 font-size: 14px;
+                color: #ffffff; /* UPDATED */
             }
 
             .profile p {
                 margin: 0;
                 font-size: 12px;
-                color: #555;
+                color: #94a3b8; /* UPDATED */
             }
 
-            .menu a, .menu-parent {
+            /* ===== MENU ===== */
+            .menu a,
+            .menu-parent {
                 display: flex;
                 align-items: center;
                 padding: 12px;
                 margin-bottom: 6px;
                 text-decoration: none;
-                color: #000;
+                color: #dcdcdc; /* UPDATED */
                 border-radius: 6px;
                 font-size: 14px;
                 gap: 12px;
+                transition: background 0.2s ease, color 0.2s ease;
             }
 
-            .menu a i {
+            .menu a i,
+            .menu-parent i {
                 width: 20px;
                 text-align: center;
                 font-size: 16px;
             }
 
-            .menu a:hover {
-                background: #cfcfcf;
+            /* ===== HOVER ===== */
+            .menu a:hover,
+            .menu-parent:hover {
+                background: #1e293b; /* UPDATED */
             }
 
+            /* ===== ACTIVE ===== */
             .menu a.active {
-                background: #bdbdbd;
+                background: #ffffff;
+                color: #0f172a; /* UPDATED */
                 font-weight: bold;
             }
 
-            /* Dropdown parent */
+            /* ===== DROPDOWN PARENT ===== */
             .menu-group .menu-parent {
-                background: #d0d0d0;
+                background: #111827; /* UPDATED */
                 font-weight: 600;
             }
 
-            /* Arrow indicator (fix, kekal di kanan & tak duplicate) */
+            /* Arrow indicator */
             .menu-group .menu-parent::after {
                 content: "▼";
                 font-size: 10px;
                 margin-left: auto;
                 margin-right: 10px;
+                color: #cbd5f5; /* UPDATED */
                 transition: transform 0.2s ease;
             }
 
-            /* Rotate arrow bila buka */
             .menu-group .menu-parent.open::after {
                 transform: rotate(180deg);
             }
 
-            /* Submenu */
+            /* ===== SUBMENU ===== */
             .menu-group .submenu {
                 margin-left: 32px;
                 display: none;
@@ -137,16 +150,11 @@
                 display: flex;
             }
 
-            .menu a:hover, .menu-parent:hover {
-                background: #cfcfcf;
+            .menu-group .submenu a {
+                color: #cbd5f5; /* UPDATED */
             }
 
-            .menu a.active {
-                background: #bdbdbd;
-                font-weight: bold;
-            }
-
-            /* Collapse mode → icon center */
+            /* ===== COLLAPSED MODE ===== */
             .sidebar.closed .menu a,
             .sidebar.closed .menu-parent {
                 justify-content: center;
@@ -178,12 +186,12 @@
             .sidebar.closed .submenu a {
                 justify-content: center;
                 padding: 10px 0;
-                gap: 0;
             }
 
             .sidebar.closed .submenu a i {
                 font-size: 16px;
             }
+
             /* ===== Main Content ===== */
             .main {
                 flex: 1;
@@ -192,7 +200,7 @@
 
             /* Header */
             .header {
-                background: linear-gradient(to right, #bdbdbd, #eeeeee);
+                background: linear-gradient(to right, #0f172a, #94a3b8);
                 padding: 18px;
                 font-size: 32px;
                 font-weight: bold;
@@ -378,7 +386,7 @@
 
                 <div class="menu">
                     <a href="<%= request.getContextPath()%>/AdminDashboardServlet"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
-                    <a href="employees.jsp"><i class="fas fa-users"></i><span>Employees</span></a>
+                    <a href="<%= request.getContextPath()%>/admin/employeeInformation.jsp"><i class="fas fa-users"></i><span>Employees</span></a>
                     <a href="<%= request.getContextPath()%>/admin/LeavePolicies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
                     <a href="<%= request.getContextPath()%>/admin/GenerateRecord.jsp"><i class="fas fa-th-large"></i>Reports</a>
 
