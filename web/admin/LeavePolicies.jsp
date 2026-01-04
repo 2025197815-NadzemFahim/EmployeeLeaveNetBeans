@@ -12,6 +12,9 @@
 
     String flashSuccess = (String) request.getAttribute("flashSuccess");
     String flashError = (String) request.getAttribute("flashError");
+
+    String cp = request.getContextPath();
+    if (policies == null) policies = Collections.emptyList();
 %>
 
 <!DOCTYPE html>
@@ -118,22 +121,22 @@
         </div>
 
         <nav class="menu">
-            <a href="<%= request.getContextPath()%>/AdminDashboardServlet"><i class="fas fa-th-large"></i><span>Dashboard</span></a>    
-            <a href="employeeInformation.html"><i class="fas fa-users"></i><span>Employees</span></a>
-            <a href="<%= request.getContextPath()%>/admin/LeavePolicies.jsp" class="active"><i class="fas fa-file-lines"></i><span>Policies</span></a>
-            <a href="<%= request.getContextPath()%>/GenerateRecord"><i class="fas fa-th-large"></i>Reports</a>
+            <a href="<%= cp %>/AdminDashboardServlet"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+            <a href="<%= cp %>/admin/employeeInformation.html"><i class="fas fa-users"></i><span>Employees</span></a>
+            <a href="<%= cp %>/LeavePolicyAdminServlet?action=list" class="active"><i class="fas fa-file-lines"></i><span>Policies</span></a>
+            <a href="<%= cp %>/admin/generate_record_admin.html"><i class="fas fa-file-alt"></i><span>Reports</span></a>
 
             <div class="menu-group">
                 <div class="menu-parent" onclick="toggleSubmenu()"><i class="fa-solid fa-user"></i><span>Personal</span></div>
                 <div class="submenu" id="submenu">
-                    <a href="<%= request.getContextPath()%>/ViewProfileAdminServlet"><i class="fas fa-id-badge"></i><span>Profile</span></a>
-          <a href="<%= request.getContextPath()%>/admin/apply_leave.jsp"><i class="fas fa-calendar-plus"></i><span>Apply Leave</span></a>
-          <a href="<%= request.getContextPath()%>/LeaveHistoryAdminServlet"><i class="fas fa-history"></i><span>Leave History</span></a>
+                    <a href="<%= cp %>/ViewProfileAdminServlet"><i class="fas fa-id-badge"></i><span>Profile</span></a>
+                    <a href="<%= cp %>/admin/apply_leave.jsp"><i class="fas fa-calendar-plus"></i><span>Apply Leave</span></a>
+                    <a href="<%= cp %>/LeaveHistoryAdminServlet"><i class="fas fa-history"></i><span>Leave History</span></a>
                 </div>
             </div>
 
-            <a href="../staff/notification.html"><i class="fa-solid fa-bell"></i><span>Notifications</span></a>
-            <a href="../login.jsp"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+            <a href="<%= cp %>/admin/notification.jsp"><i class="fa-solid fa-bell"></i><span>Notifications</span></a>
+            <a href="<%= cp %>/login.jsp"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
         </nav>
     </aside>
 
@@ -154,7 +157,7 @@
                     <div class="search">
                         <input id="searchInput" type="text" placeholder="Search by type name / status / description..." onkeyup="filterTable()">
                     </div>
-                    <a class="btn btn-primary" href="../LeavePolicyAdminServlet?action=new"><i class="fa-solid fa-plus"></i> Add New</a>
+                    <a class="btn btn-primary" href="<%= cp %>/LeavePolicyAdminServlet?action=new"><i class="fa-solid fa-plus"></i> Add New</a>
                 </div>
 
                 <table id="policyTable">
@@ -180,10 +183,10 @@
                             <td><%= row.getDescription() == null ? "" : row.getDescription() %></td>
                             <td>
                                 <div class="actions">
-                                    <a class="btn btn-secondary" href="../LeavePolicyAdminServlet?action=edit&typeId=<%= row.getTypeId() %>">
+                                    <a class="btn btn-secondary" href="<%= cp %>/LeavePolicyAdminServlet?action=edit&typeId=<%= row.getTypeId() %>">
                                         <i class="fa-solid fa-pen-to-square"></i> Edit
                                     </a>
-                                    <form method="post" action="../LeavePolicyAdminServlet" style="margin:0" onsubmit="return confirm('Delete this leave type & policy?');">
+                                    <form method="post" action="<%= cp %>/LeavePolicyAdminServlet" style="margin:0" onsubmit="return confirm('Delete this leave type & policy?');">
                                         <input type="hidden" name="action" value="delete" />
                                         <input type="hidden" name="typeId" value="<%= row.getTypeId() %>" />
                                         <button class="btn btn-danger" type="submit"><i class="fa-solid fa-trash"></i> Delete</button>
@@ -205,7 +208,7 @@
                 %>
                 <h3 style="margin-top:0"><%= title %></h3>
 
-                <form method="post" action="../LeavePolicyAdminServlet">
+                <form method="post" action="<%= cp %>/LeavePolicyAdminServlet">
                     <input type="hidden" name="action" value="<%= formAction %>" />
 
                     <div class="form-grid">
@@ -254,7 +257,7 @@
 
                     <div class="form-actions">
                         <button class="btn btn-primary" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save</button>
-                        <a class="btn btn-secondary" href="../LeavePolicyAdminServlet?action=list"><i class="fa-solid fa-arrow-left"></i> Back</a>
+                        <a class="btn btn-secondary" href="<%= cp %>/LeavePolicyAdminServlet?action=list"><i class="fa-solid fa-arrow-left"></i> Back</a>
                     </div>
                 </form>
 

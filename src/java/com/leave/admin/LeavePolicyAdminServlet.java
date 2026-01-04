@@ -106,6 +106,12 @@ public class LeavePolicyAdminServlet extends HttpServlet {
                 request.setAttribute("policies", fetchAll());
             } catch (SQLException ignored) {}
             forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("flashError", "Unexpected error: " + e.getMessage());
+            request.setAttribute("view", "list");
+            try { request.setAttribute("policies", fetchAll()); } catch (SQLException ignored) {}
+            forward(request, response);
         }
     }
 
@@ -142,6 +148,9 @@ public class LeavePolicyAdminServlet extends HttpServlet {
         } catch (SQLException ex) {
             ex.printStackTrace();
             flash(request, "flashError", "Database error: " + ex.getMessage());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            flash(request, "flashError", "Unexpected error: " + ex.getMessage());
         }
 
         // Use absolute (context-aware) redirects to avoid path issues
@@ -276,6 +285,23 @@ public class LeavePolicyAdminServlet extends HttpServlet {
                 ps.executeUpdate();
             }
 
+            // Also initialize employee leave balance for this new type (one row per employee)
+            String sqlEmp = "SELECT employee_id FROM employee";
+            String sqlBal = "INSERT INTO employee_leave_balance (employee_id, type_id, balance) VALUES (?, ?, ?)";
+            try (Statement st = c.createStatement();
+                 ResultSet rs = st.executeQuery(sqlEmp);
+                 PreparedStatement psBal = c.prepareStatement(sqlBal)) {
+
+                while (rs.next()) {
+                    int empId = rs.getInt(1);
+                    psBal.setInt(1, empId);
+                    psBal.setInt(2, newTypeId);
+                    psBal.setInt(3, maxDays);
+                    psBal.addBatch();
+                }
+                psBal.executeBatch();
+            }
+
             c.commit();
         }
     }
@@ -364,7 +390,15 @@ public class LeavePolicyAdminServlet extends HttpServlet {
                 ps.executeUpdate();
             }
 
-            try (PreparedStatement ps = c.prepareStatement(sqlDelType)) {
+
+            // Delete balances first to satisfy FK constraints
+            try (PreparedStatement ps = c.prepareStatement("DELETE FROM employee_leave_balance WHERE type_id=?")) {
+                ps.setInt(1, typeId);
+                ps.executeUpdate();
+            }
+
+
+            try (PreparedStatement ps = c.prepareStatement(sqlDelType) ) {
                 ps.setInt(1, typeId);
                 ps.executeUpdate();
             }
