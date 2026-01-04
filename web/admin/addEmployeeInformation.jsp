@@ -34,7 +34,7 @@
                 bottom: 0;
                 left: 0;
                 width: 260px;
-                background: #e0e0e0;
+                background: #0f172a; /* UPDATED */
                 padding: 15px;
                 overflow: hidden;
                 transition: width 0.3s ease;
@@ -240,7 +240,7 @@
 
                 <div class="menu">
                     <a href="<%= request.getContextPath()%>/AdminDashboardServlet"><i class="fas fa-th-large"></i><span>Dashboard</span></a>        
-                    <a href="<%= request.getContextPath()%>/employeeInformation.jsp" class="active"><i class="fas fa-users"></i><span>Employees</span></a>
+                    <a href="<%= request.getContextPath()%>/admin/employeeInformation.jsp" class="active"><i class="fas fa-users"></i><span>Employees</span></a>
                     <a href="<%= request.getContextPath()%>/admin/LeavePolicies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
                     <a href="<%= request.getContextPath()%>/admin/GenerateRecord.jsp"><i class="fas fa-th-large"></i>Reports</a>
 

@@ -14,7 +14,9 @@
     /* employee fields */
     String name="", email="", department="", role="", position="", address="";
     Date dob = null, admissionDate = null;
-
+    
+    String profileImage = "uploads/default.png";
+    String empStatus = "Available";
     try {
         Class.forName("org.apache.derby.jdbc.ClientDriver");
         conn = DriverManager.getConnection(
@@ -37,6 +39,10 @@
             address = rsEmp.getString("address");
             dob = rsEmp.getDate("date_of_birth");
             admissionDate = rsEmp.getDate("admission_date");
+            
+            if (rsEmp.getString("profile_image") != null) {
+                profileImage = rsEmp.getString("profile_image");
+            }
         }
 
         /* ================= LEAVE INFO (DYNAMIC) ================= */
@@ -49,6 +55,23 @@
         );
         psLeave.setInt(1, empId);
         rsLeave = psLeave.executeQuery();
+        
+        PreparedStatement psStatus = conn.prepareStatement(
+            "SELECT 1 FROM leave_request " +
+            "WHERE submitted_by=? " +
+            "AND status='APPROVED' " +
+            "AND CURRENT_DATE BETWEEN start_date AND end_date"
+        );
+        psStatus.setInt(1, empId);
+
+        ResultSet rsStatus = psStatus.executeQuery();
+        if (rsStatus.next()) {
+            empStatus = "On Leave";
+        }
+
+        rsStatus.close();
+        psStatus.close();
+
 
     } catch(Exception e){
         e.printStackTrace();
@@ -80,17 +103,17 @@
                 </div>
 
                 <div class="profile">
-                    <img src="${pageContext.request.contextPath}/profile-image?path=${profileImage}"
-                         onerror="this.src='${pageContext.request.contextPath}/images/default_profile.png'">
+                    <img src="<%= request.getContextPath() %>/profile-image?path=<%= profileImage %>"
+                        onerror="this.src='<%= request.getContextPath() %>/images/default_profile.png'">
 
-                    <h4>${profileName}</h4>
-                    <p>${profilePosition}</p>
+                    <h4><%= name %></h4>
+                    <p><%= position %></p>
                 </div>
 
                 <!-- Navigation Menu -->
                 <div class="menu">
                     <a href="<%= request.getContextPath()%>/AdminDashboardServlet"><i class="fas fa-th-large"></i><span>Dashboard</span></a>        
-                    <a href="<%= request.getContextPath()%>/employeeInformation.jsp" class="active"><i class="fas fa-users"></i><span>Employees</span></a>
+                    <a href="<%= request.getContextPath()%>/admin/employeeInformation.jsp" class="active"><i class="fas fa-users"></i><span>Employees</span></a>
                     <a href="<%= request.getContextPath()%>/admin/LeavePolicies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
                     <a href="<%= request.getContextPath()%>/admin/GenerateRecord.jsp"><i class="fas fa-th-large"></i>Reports</a>
 
@@ -122,15 +145,20 @@
                     <!-- HEADER -->
                     <div class="card profile-header">
                         <div class="profile-left">
-                            <img src="https://i.imgur.com/7k12EPD.png">
-                            <div>
-                                <h2><%= name %></h2>
-                                <p><%= email %></p>
+                            <div class="profile">
+                                <img src="<%= request.getContextPath() %>/profile-image?path=<%= profileImage %>" onerror="this.src='<%= request.getContextPath() %>/images/default_profile.png'">
+                                <div>
+                                    <h2><%= name %></h2>
+                                    <p><%= email %></p>
+                                </div>
                             </div>
+                        </div>    
+                                
+                        <div class="status <%= "On Leave".equals(empStatus) ? "leave" : "available" %>">
+                            <%= empStatus %>
                         </div>
-                        <div class="status">Available</div>
+                        </div>
                     </div>
-
                     <!-- PERSONAL INFO -->
                     <div class="card">
                         <h3>Personal Information</h3>
@@ -263,7 +291,7 @@
             // BACK → just go back
             function confirmBack() {
                 if (confirm("Go back without saving changes?")) {
-                    window.location.href = "employeeInformation.jsp";
+                    window.location.href = "<%= request.getContextPath() %>/admin/employeeInformation.jsp";
                 }
             }
 
