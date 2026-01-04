@@ -16,29 +16,33 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- * Admin CRUD for Leave Type + Leave Policy.
+ * Admin CRUD for Leave Type + Leave Policy (Derby).
  *
- * UI rules (based on your requirement):
- * - List shows Type ID, Leave Type, Max Day Allowed, Status, Description, Action (Edit/Delete).
- * - Edit: Type ID + Leave Type are readonly.
- * - Add New: NO Type ID input (auto-increment in DB).
+ * FIX:
+ * - Fully qualify tables with schema (APP.) and set schema on connection,
+ *   to avoid "Table/View 'LEAVE_TYPE' does not exist" when default schema is not APP.
+ *
+ * On CREATE (Add New):
+ * - Insert into LEAVE_TYPE
+ * - Insert into LEAVE_POLICY
+ * - Insert into EMPLOYEE_LEAVE_BALANCE for ALL employees (balance = max_days)
  */
 @WebServlet(name = "LeavePolicyAdminServlet", urlPatterns = {"/LeavePolicyAdminServlet"})
 public class LeavePolicyAdminServlet extends HttpServlet {
 
-    // Match existing project DB settings
-    private static final String DB_URL_PRIMARY  = "jdbc:derby://localhost:1527/EmployeeLeave;create=true";
-    private static final String DB_URL_FALLBACK = "jdbc:derby://localhost:1527/LeaveDB;create=true";
+    private static final String DB_URL  = "jdbc:derby://localhost:1527/LeaveDB";
     private static final String DB_USER = "app";
     private static final String DB_PASS = "app";
+    private static final String DB_SCHEMA = "APP";
 
     private Connection getConnection() throws SQLException {
-        try {
-            return DriverManager.getConnection(DB_URL_PRIMARY, DB_USER, DB_PASS);
-        } catch (SQLException primaryEx) {
-            // Fallback for older local setups
-            return DriverManager.getConnection(DB_URL_FALLBACK, DB_USER, DB_PASS);
+        Connection c = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+        try (Statement st = c.createStatement()) {
+            st.execute("SET SCHEMA " + DB_SCHEMA);
+        } catch (SQLException ignore) {
+            // Still OK because we also schema-qualify tables.
         }
+        return c;
     }
 
     private void flash(HttpServletRequest req, String key, String value) {
@@ -61,7 +65,6 @@ public class LeavePolicyAdminServlet extends HttpServlet {
         String action = request.getParameter("action");
         if (action == null || action.trim().isEmpty()) action = "list";
 
-        // Flash messages (POST-Redirect-GET)
         request.setAttribute("flashSuccess", consumeFlash(request, "flashSuccess"));
         request.setAttribute("flashError", consumeFlash(request, "flashError"));
 
@@ -76,13 +79,13 @@ public class LeavePolicyAdminServlet extends HttpServlet {
                     int typeId = parseInt(request.getParameter("typeId"), -1);
                     if (typeId <= 0) {
                         flash(request, "flashError", "Invalid Type ID.");
-                        response.sendRedirect(request.getContextPath() + "/LeavePolicyAdminServlet?action=list");
+                        response.sendRedirect("LeavePolicyAdminServlet?action=list");
                         return;
                     }
                     LeavePolicyView item = fetchByTypeId(typeId);
                     if (item == null) {
                         flash(request, "flashError", "Record not found for Type ID " + typeId + ".");
-                        response.sendRedirect(request.getContextPath() + "/LeavePolicyAdminServlet?action=list");
+                        response.sendRedirect("LeavePolicyAdminServlet?action=list");
                         return;
                     }
                     request.setAttribute("view", "edit");
@@ -102,15 +105,13 @@ public class LeavePolicyAdminServlet extends HttpServlet {
             e.printStackTrace();
             request.setAttribute("flashError", "Database error: " + e.getMessage());
             request.setAttribute("view", "list");
-            try {
-                request.setAttribute("policies", fetchAll());
-            } catch (SQLException ignored) {}
+            request.setAttribute("policies", new ArrayList<LeavePolicyView>());
             forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("flashError", "Unexpected error: " + e.getMessage());
             request.setAttribute("view", "list");
-            try { request.setAttribute("policies", fetchAll()); } catch (SQLException ignored) {}
+            request.setAttribute("policies", new ArrayList<LeavePolicyView>());
             forward(request, response);
         }
     }
@@ -153,33 +154,28 @@ public class LeavePolicyAdminServlet extends HttpServlet {
             flash(request, "flashError", "Unexpected error: " + ex.getMessage());
         }
 
-        // Use absolute (context-aware) redirects to avoid path issues
-        response.sendRedirect(request.getContextPath() + "/LeavePolicyAdminServlet?action=list");
+        response.sendRedirect("LeavePolicyAdminServlet?action=list");
     }
 
     private void forward(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Keep in sync with existing project file naming
-        // (the JSP file in this project is "LeavePolicies.jsp")
+        // Make sure your JSP is named exactly LeavePolicies.jsp in /web/admin/
         RequestDispatcher rd = request.getRequestDispatcher("/admin/LeavePolicies.jsp");
         rd.forward(request, response);
     }
 
     private int parseInt(String s, int fallback) {
-        try {
-            return Integer.parseInt(s);
-        } catch (Exception e) {
-            return fallback;
-        }
+        try { return Integer.parseInt(s); } catch (Exception e) { return fallback; }
     }
 
     private List<LeavePolicyView> fetchAll() throws SQLException {
         List<LeavePolicyView> out = new ArrayList<>();
-        String sql = "SELECT lt.type_id, lt.name, lt.description, "
-                   + "lp.policy_id, lp.max_days, lp.status "
-                   + "FROM leave_type lt "
-                   + "LEFT JOIN leave_policy lp ON lt.type_id = lp.type_id "
-                   + "ORDER BY lt.type_id";
+        String sql =
+            "SELECT lt.type_id, lt.name, lt.description, " +
+            "       lp.policy_id, lp.max_days, lp.status " +
+            "FROM " + DB_SCHEMA + ".LEAVE_TYPE lt " +
+            "LEFT JOIN " + DB_SCHEMA + ".LEAVE_POLICY lp ON lt.type_id = lp.type_id " +
+            "ORDER BY lt.type_id";
 
         try (Connection c = getConnection();
              PreparedStatement ps = c.prepareStatement(sql);
@@ -205,11 +201,12 @@ public class LeavePolicyAdminServlet extends HttpServlet {
     }
 
     private LeavePolicyView fetchByTypeId(int typeId) throws SQLException {
-        String sql = "SELECT lt.type_id, lt.name, lt.description, "
-                   + "lp.policy_id, lp.max_days, lp.status "
-                   + "FROM leave_type lt "
-                   + "LEFT JOIN leave_policy lp ON lt.type_id = lp.type_id "
-                   + "WHERE lt.type_id = ?";
+        String sql =
+            "SELECT lt.type_id, lt.name, lt.description, " +
+            "       lp.policy_id, lp.max_days, lp.status " +
+            "FROM " + DB_SCHEMA + ".LEAVE_TYPE lt " +
+            "LEFT JOIN " + DB_SCHEMA + ".LEAVE_POLICY lp ON lt.type_id = lp.type_id " +
+            "WHERE lt.type_id = ?";
 
         try (Connection c = getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
@@ -241,34 +238,29 @@ public class LeavePolicyAdminServlet extends HttpServlet {
         Integer maxDays = parseIntObj(request.getParameter("maxDays"));
         String status = trimOrNull(request.getParameter("status"));
 
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Leave Type is required.");
-        }
-        if (maxDays == null || maxDays <= 0) {
-            throw new IllegalArgumentException("Max Day Allowed must be a positive number.");
-        }
-        if (status == null || status.isEmpty()) {
-            throw new IllegalArgumentException("Status is required.");
-        }
+        if (name == null || name.isEmpty()) throw new IllegalArgumentException("Leave Type is required.");
+        if (maxDays == null || maxDays <= 0) throw new IllegalArgumentException("Max Day Allowed must be a positive number.");
+        if (status == null || status.isEmpty()) throw new IllegalArgumentException("Status is required.");
 
-        // Create leave_type (type_id auto-generated)
-        String sqlType = "INSERT INTO leave_type (name, description) VALUES (?, ?)";
-        String sqlPolicy = "INSERT INTO leave_policy (max_days, type_id, status) VALUES (?, ?, ?)";
+        String sqlType   = "INSERT INTO " + DB_SCHEMA + ".LEAVE_TYPE (name, description) VALUES (?, ?)";
+        String sqlPolicy = "INSERT INTO " + DB_SCHEMA + ".LEAVE_POLICY (max_days, type_id, status) VALUES (?, ?, ?)";
+        String sqlEmpIds = "SELECT employee_id FROM " + DB_SCHEMA + ".EMPLOYEE";
+        String sqlBal    = "INSERT INTO " + DB_SCHEMA + ".EMPLOYEE_LEAVE_BALANCE (employee_id, type_id, balance) VALUES (?, ?, ?)";
 
         try (Connection c = getConnection()) {
             c.setAutoCommit(false);
             int newTypeId;
 
+            // 1) leave_type
             try (PreparedStatement ps = c.prepareStatement(sqlType, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setString(1, name);
                 ps.setString(2, desc);
                 ps.executeUpdate();
 
                 try (ResultSet keys = ps.getGeneratedKeys()) {
-                    if (keys.next()) {
+                    if (keys != null && keys.next()) {
                         newTypeId = keys.getInt(1);
                     } else {
-                        // Derby fallback: fetch last identity in this connection
                         try (Statement st = c.createStatement();
                              ResultSet rs = st.executeQuery("VALUES IDENTITY_VAL_LOCAL()")) {
                             rs.next();
@@ -278,6 +270,7 @@ public class LeavePolicyAdminServlet extends HttpServlet {
                 }
             }
 
+            // 2) leave_policy
             try (PreparedStatement ps = c.prepareStatement(sqlPolicy)) {
                 ps.setInt(1, maxDays);
                 ps.setInt(2, newTypeId);
@@ -285,15 +278,13 @@ public class LeavePolicyAdminServlet extends HttpServlet {
                 ps.executeUpdate();
             }
 
-            // Also initialize employee leave balance for this new type (one row per employee)
-            String sqlEmp = "SELECT employee_id FROM employee";
-            String sqlBal = "INSERT INTO employee_leave_balance (employee_id, type_id, balance) VALUES (?, ?, ?)";
-            try (Statement st = c.createStatement();
-                 ResultSet rs = st.executeQuery(sqlEmp);
+            // 3) employee_leave_balance for all employees
+            try (PreparedStatement psEmp = c.prepareStatement(sqlEmpIds);
+                 ResultSet rsEmp = psEmp.executeQuery();
                  PreparedStatement psBal = c.prepareStatement(sqlBal)) {
 
-                while (rs.next()) {
-                    int empId = rs.getInt(1);
+                while (rsEmp.next()) {
+                    int empId = rsEmp.getInt(1);
                     psBal.setInt(1, empId);
                     psBal.setInt(2, newTypeId);
                     psBal.setInt(3, maxDays);
@@ -308,24 +299,18 @@ public class LeavePolicyAdminServlet extends HttpServlet {
 
     private void handleUpdate(HttpServletRequest request) throws SQLException {
         int typeId = parseInt(request.getParameter("typeId"), -1);
-        if (typeId <= 0) {
-            throw new IllegalArgumentException("Invalid Type ID.");
-        }
+        if (typeId <= 0) throw new IllegalArgumentException("Invalid Type ID.");
 
         String desc = trimOrNull(request.getParameter("description"));
         Integer maxDays = parseIntObj(request.getParameter("maxDays"));
         String status = trimOrNull(request.getParameter("status"));
 
-        if (maxDays == null || maxDays <= 0) {
-            throw new IllegalArgumentException("Max Day Allowed must be a positive number.");
-        }
-        if (status == null || status.isEmpty()) {
-            throw new IllegalArgumentException("Status is required.");
-        }
+        if (maxDays == null || maxDays <= 0) throw new IllegalArgumentException("Max Day Allowed must be a positive number.");
+        if (status == null || status.isEmpty()) throw new IllegalArgumentException("Status is required.");
 
-        String sqlUpdateType = "UPDATE leave_type SET description=? WHERE type_id=?";
-        String sqlUpdatePolicy = "UPDATE leave_policy SET max_days=?, status=? WHERE type_id=?";
-        String sqlInsertPolicy = "INSERT INTO leave_policy (max_days, type_id, status) VALUES (?, ?, ?)";
+        String sqlUpdateType   = "UPDATE " + DB_SCHEMA + ".LEAVE_TYPE SET description=? WHERE type_id=?";
+        String sqlUpdatePolicy = "UPDATE " + DB_SCHEMA + ".LEAVE_POLICY SET max_days=?, status=? WHERE type_id=?";
+        String sqlInsertPolicy = "INSERT INTO " + DB_SCHEMA + ".LEAVE_POLICY (max_days, type_id, status) VALUES (?, ?, ?)";
 
         try (Connection c = getConnection()) {
             c.setAutoCommit(false);
@@ -359,14 +344,12 @@ public class LeavePolicyAdminServlet extends HttpServlet {
 
     private void handleDelete(HttpServletRequest request) throws SQLException {
         int typeId = parseInt(request.getParameter("typeId"), -1);
-        if (typeId <= 0) {
-            throw new IllegalArgumentException("Invalid Type ID.");
-        }
+        if (typeId <= 0) throw new IllegalArgumentException("Invalid Type ID.");
 
-        // Prevent delete if there are leave requests using this type
-        String sqlCountReq = "SELECT COUNT(*) FROM leave_request WHERE type_id=?";
-        String sqlDelPolicy = "DELETE FROM leave_policy WHERE type_id=?";
-        String sqlDelType = "DELETE FROM leave_type WHERE type_id=?";
+        String sqlCountReq  = "SELECT COUNT(*) FROM " + DB_SCHEMA + ".LEAVE_REQUEST WHERE type_id=?";
+        String sqlDelBal    = "DELETE FROM " + DB_SCHEMA + ".EMPLOYEE_LEAVE_BALANCE WHERE type_id=?";
+        String sqlDelPolicy = "DELETE FROM " + DB_SCHEMA + ".LEAVE_POLICY WHERE type_id=?";
+        String sqlDelType   = "DELETE FROM " + DB_SCHEMA + ".LEAVE_TYPE WHERE type_id=?";
 
         try (Connection c = getConnection()) {
             c.setAutoCommit(false);
@@ -385,20 +368,15 @@ public class LeavePolicyAdminServlet extends HttpServlet {
                 throw new IllegalArgumentException("Cannot delete: there are " + count + " leave request(s) using this type.");
             }
 
+            try (PreparedStatement ps = c.prepareStatement(sqlDelBal)) {
+                ps.setInt(1, typeId);
+                ps.executeUpdate();
+            }
             try (PreparedStatement ps = c.prepareStatement(sqlDelPolicy)) {
                 ps.setInt(1, typeId);
                 ps.executeUpdate();
             }
-
-
-            // Delete balances first to satisfy FK constraints
-            try (PreparedStatement ps = c.prepareStatement("DELETE FROM employee_leave_balance WHERE type_id=?")) {
-                ps.setInt(1, typeId);
-                ps.executeUpdate();
-            }
-
-
-            try (PreparedStatement ps = c.prepareStatement(sqlDelType) ) {
+            try (PreparedStatement ps = c.prepareStatement(sqlDelType)) {
                 ps.setInt(1, typeId);
                 ps.executeUpdate();
             }
