@@ -344,12 +344,12 @@ tbody tr:nth-child(odd) {
     </div>
 
     <div class="menu">
-      <a  href="<%= request.getContextPath()%>/DashboardStaffServlet"><i class="fas fa-user"></i>Dashboard</a>
-      <a  href="<%= request.getContextPath()%>/ViewProfileServlet"><i class="fas fa-user"></i>Profile</a>
-      <a href="<%= request.getContextPath()%>/staff/apply_leave.jsp"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
-      <a href="<%= request.getContextPath()%>/LeaveHistoryStaffServlet" class="active"><i class="fas fa-history"></i>Leave History</a>
-      <a href="notifications.jsp"><i class="fas fa-bell"></i>Notifications</a>
-      <a href="<%= request.getContextPath()%>/LogoutServlet"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
+      <a href="<%= request.getContextPath()%>/DashboardStaffServlet"><i class="fas fa-th-large"></i>Dashboard</a>
+                    <a href="<%= request.getContextPath()%>/ViewProfileServlet"><i class="fas fa-user"></i>Profile</a>
+                    <a  href="<%= request.getContextPath()%>/staff/apply_leave.jsp"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
+                    <a href="<%= request.getContextPath()%>/LeaveHistoryStaffServlet" class="active"><i class="fas fa-history"></i>Leave History</a>
+                    <a href="<%= request.getContextPath()%>/NotificationServlet"><i class="fas fa-bell"></i>Notifications</a>
+                    <a href="<%= request.getContextPath()%>/LogoutServlet"><i class="fas fa-sign-out-alt"></i>Logout</a>
     </div>
   </div>
 
