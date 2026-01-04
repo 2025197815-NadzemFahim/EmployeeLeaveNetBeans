@@ -37,7 +37,7 @@ public class EmployeeInformationServlet extends HttpServlet {
             Statement stmt = conn.createStatement();
 
             String sql =
-                "SELECT e.employee_id, e.name, e.position, e.department, " +
+                "SELECT e.employee_id, e.name, e.position, e.department, e.profile_image, " +
                 "CASE " +
                 " WHEN EXISTS ( " +
                 "   SELECT 1 FROM leave_request lr " +
@@ -56,12 +56,18 @@ public class EmployeeInformationServlet extends HttpServlet {
             while (rs.next()) {
                 if (!first) json.append(",");
                 first = false;
+                
+                String profileImage = rs.getString("profile_image");
+                if (profileImage == null || profileImage.isEmpty()) {
+                    profileImage = "uploads/default.png";
+                }
 
                 json.append("{")
                     .append("\"id\":").append(rs.getInt("employee_id")).append(",")
                     .append("\"name\":\"").append(rs.getString("name").replace("\"", "\\\"")).append("\",")
                     .append("\"position\":\"").append(rs.getString("position")).append("\",")
                     .append("\"department\":\"").append(rs.getString("department")).append("\",")
+                    .append("\"profileImage\":\"").append(profileImage.replace("\"", "\\\"")).append("\",")
                     .append("\"status\":\"").append(rs.getString("status")).append("\"")
                     .append("}");
             }

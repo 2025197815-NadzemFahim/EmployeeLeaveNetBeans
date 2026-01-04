@@ -140,6 +140,7 @@
                 });
             });
             
+            const contextPath = "${pageContext.request.contextPath}";
             const filterModal = document.getElementById("filterModal");
             const openFilterBtn = document.getElementById("openFilter");
 
@@ -168,13 +169,16 @@
                     const row = document.createElement("div");
                     row.className = "employee-row";
 
-                    const statusClass = (emp.status === "Unavailable") ? "on-leave" : "available";
-
                     row.innerHTML =
                         '<div class="emp-id">' + emp.id + '</div>' +
 
                         '<div class="emp-avatar">' +
-                            '<img src="https://i.imgur.com/7k12EPD.png" alt="Employee">' +
+                            '<img src="' +
+                                (emp.profileImage
+                                    ? contextPath + '/profile-image?path=' + encodeURIComponent(emp.profileImage)
+                                    : contextPath + '/images/default_profile.png'
+                                ) +
+                            '" onerror="this.src=\'' + contextPath + '/images/default_profile.png\'">' +
                         '</div>' +
 
                         '<div class="emp-name">' + emp.name + '</div>' +
@@ -283,21 +287,34 @@
             
             function populateFilters(data) {
                 const deptSet = new Set();
+                const posSet = new Set();
 
                 data.forEach(e => {
-                    deptSet.add(e.department);
+                    if (e.department) deptSet.add(e.department);
+                    if (e.position) posSet.add(e.position);
                 });
 
+                // CLEAR FIRST
                 filterDept.innerHTML = '<option value="">Any</option>';
                 filterPosition.innerHTML = '<option value="">Any</option>';
 
+                // POPULATE DEPARTMENTS
                 deptSet.forEach(d => {
                     const opt = document.createElement("option");
                     opt.value = d;
                     opt.textContent = d;
                     filterDept.appendChild(opt);
                 });
+
+                // POPULATE POSITIONS
+                posSet.forEach(p => {
+                    const opt = document.createElement("option");
+                    opt.value = p;
+                    opt.textContent = p;
+                    filterPosition.appendChild(opt);
+                });
             }
+
 
             function updatePositionFilter() {
                 const selectedDept = filterDept.value;
