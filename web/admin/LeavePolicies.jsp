@@ -111,9 +111,10 @@
         </div>
 
         <div class="profile">
-            <img src="../images/default_profile.png" alt="Profile">
-            <h4>ADMIN</h4>
-            <p>Administrator</p>
+            <img src="<%= request.getContextPath() %>/profile-image?path=<%= request.getAttribute("profileImg") %>"
+            onerror="this.src='<%= request.getContextPath()%>/images/default_profile.png'">
+            <h4><%= session.getAttribute("name") != null ? session.getAttribute("name") : "Staff User" %></h4>
+            <p><%= session.getAttribute("position") != null ? session.getAttribute("position") : session.getAttribute("role") %></p>
         </div>
 
         <nav class="menu">
