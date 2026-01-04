@@ -9,12 +9,13 @@
         
         <!-- Icons -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
         
         <style>
             /* ---------- GLOBAL RESET ---------- */
             * {
                 box-sizing: border-box;
-                font-family: "Segoe UI", sans-serif;
+                font-family: 'Poppins', sans-serif;
             }
             body {
                 margin: 0;
@@ -34,7 +35,7 @@
                 bottom: 0;
                 left: 0;
                 width: 260px;
-                background: #e0e0e0;
+                background: #0f172a; /* UPDATED */
                 padding: 15px;
                 overflow: hidden;
                 transition: width 0.3s ease;
@@ -46,6 +47,7 @@
 
             /* ---------- BRAND ---------- */
             .brand {
+                color: #ffffff;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
@@ -71,17 +73,18 @@
                 height: 70px;
                 border-radius: 50%;
                 object-fit: cover;
-                background: #ccc;
+                background: #1e293b;   /* ✅ SAFE */
                 margin-bottom: 10px;
             }
             .profile h4 {
                 margin: 5px 0 0;
                 font-size: 14px;
+                color: #ffffff;        /* ✅ SAFE */
             }
             .profile p {
                 margin: 0;
                 font-size: 12px;
-                color: #555;
+                color: #94a3b8;        /* ✅ SAFE */
             }
 
             /* ---------- MENU ---------- */
@@ -91,35 +94,95 @@
                 padding: 12px;
                 margin-bottom: 6px;
                 text-decoration: none;
-                color: #000;
+                color: #dcdcdc;        /* ✅ SAFE */
                 border-radius: 6px;
                 font-size: 14px;
                 gap: 12px;
             }
-            .menu a i {
+            .menu a i,
+            .menu-parent i {
                 width: 20px;
                 text-align: center;
                 font-size: 16px;
             }
-            .menu a:hover { background: #cfcfcf; }
-            .menu a.active { background: #bdbdbd; font-weight: bold; }
+            
+            .menu a:hover,
+            .menu-parent:hover {
+                background: #1e293b;
+            }
+            
+            .menu a.active { 
+                background: #ffffff;
+                color: #0f172a;
+                font-weight: bold;
+            }
+
 
             /* ---------- DROPDOWN ---------- */
-            .menu-group .menu-parent { font-weight: 600; }
+            .menu-group .menu-parent { 
+                background: #111827;
+                font-weight: 600;
+            }
+            
             .menu-group .menu-parent::after {
                 content: "▼";
                 font-size: 10px;
                 margin-left: auto;
                 margin-right: 10px;
+                color: #cbd5f5;
                 transition: transform 0.2s ease;
             }
             .menu-group .menu-parent.open::after { transform: rotate(180deg); }
+            
             .menu-group .submenu {
                 margin-left: 32px;
                 display: none;
                 flex-direction: column;
             }
+            
             .menu-group .submenu.open { display: flex; }
+            
+            .menu-group .submenu a {
+                color: #cbd5f5; /* UPDATED */
+            }
+            
+            /* ===== COLLAPSED MODE ===== */
+            .sidebar.closed .menu a,
+            .sidebar.closed .menu-parent {
+                justify-content: center;
+                padding: 12px 0;
+                font-size: 0;
+                gap: 0;
+            }
+
+            .sidebar.closed .menu a i,
+            .sidebar.closed .menu-parent i {
+                font-size: 18px;
+                width: auto;
+            }
+
+            .sidebar.closed .menu a span,
+            .sidebar.closed .menu-parent span {
+                display: none;
+            }
+
+            .sidebar.closed .menu-parent::after {
+                display: none;
+            }
+
+            .sidebar.closed .submenu {
+                margin-left: 0;
+                align-items: center;
+            }
+
+            .sidebar.closed .submenu a {
+                justify-content: center;
+                padding: 10px 0;
+            }
+
+            .sidebar.closed .submenu a i {
+                font-size: 16px;
+            }
 
             /* ---------- MAIN ---------- */
             .main {
@@ -129,12 +192,13 @@
             }
 
             .page-title {
+                background: linear-gradient(to right, #0f172a, #94a3b8);
+                color:white;
                 max-width: 1100px;
                 margin: 0 auto 30px;
                 padding: 18px 24px;
                 font-size: 32px;
                 font-weight: 700;
-                background: linear-gradient(to right, #bdbdbd, #f5f5f5);
             }
 
             .page-content {
@@ -230,19 +294,18 @@
                 </div>
 
                 <div class="profile">
-                    <img src="${pageContext.request.contextPath}/profile-image?path=${profileImage}"
-                         onerror="this.src='${pageContext.request.contextPath}/images/default_profile.png'">
-
-                    <h4>${profileName}</h4>
-                    <p>${profilePosition}</p>
+                    <img src="<%= request.getContextPath()%>/profile-image?path=<%= request.getAttribute("profileImg")%>"
+                         onerror="this.src='<%= request.getContextPath()%>/images/default_profile.png'">
+                    <h4><%= session.getAttribute("name") != null ? session.getAttribute("name") : "Staff User"%></h4>
+                    <p><%= session.getAttribute("position") != null ? session.getAttribute("position") : session.getAttribute("role")%></p>
                 </div>
-
 
                 <div class="menu">
                     <a href="<%= request.getContextPath()%>/AdminDashboardServlet"><i class="fas fa-th-large"></i><span>Dashboard</span></a>        
                     <a href="<%= request.getContextPath()%>/admin/employeeInformation.jsp" class="active"><i class="fas fa-users"></i><span>Employees</span></a>
                     <a href="<%= request.getContextPath()%>/admin/LeavePolicies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
                     <a href="<%= request.getContextPath()%>/admin/GenerateRecord.jsp"><i class="fas fa-th-large"></i>Reports</a>
+
 
                     <div class="menu-group">
                         <div class="menu-parent"><i class="fas fa-user"></i><span>Personal</span></div>
@@ -266,7 +329,8 @@
                     <div class="card">
 
                         <!-- ✅ FIXED FORM ACTION -->
-                        <form id="employeeForm" action="/EmployeeLeave/AdminAddEmployee" method="post">
+                        <form id="employeeForm" action="<%= request.getContextPath() %>/AdminAddEmployee" method="post">
+
                             
                             <div class="form-grid">
                                 
@@ -335,11 +399,7 @@
             </div>
         </div>
 
-        <script>
-            document.querySelector(".toggle-btn").addEventListener("click", () => {
-                document.getElementById("sidebar").classList.toggle("closed");
-            });
-            
+        <script>  
             document.querySelector(".toggle-btn").addEventListener("click", () => {
                 document.getElementById("sidebar").classList.toggle("closed");
             });

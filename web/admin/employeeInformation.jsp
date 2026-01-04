@@ -11,6 +11,7 @@
         
         <!-- Icons -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/employeeInformation.css">
     </head>
 
@@ -23,21 +24,19 @@
                     <span class="toggle-btn">☰</span>
                 </div>
 
-                <!-- ================= SIDEBAR PROFILE ================= -->
                 <div class="profile">
-                    <img src="${pageContext.request.contextPath}/profile-image?path=${profileImage}"
-                         onerror="this.src='${pageContext.request.contextPath}/images/default_profile.png'">
-
-                    <h4>${profileName}</h4>
-                    <p>${profilePosition}</p>
+                    <img src="<%= request.getContextPath()%>/profile-image?path=<%= request.getAttribute("profileImg")%>"
+                         onerror="this.src='<%= request.getContextPath()%>/images/default_profile.png'">
+                    <h4><%= session.getAttribute("name") != null ? session.getAttribute("name") : "Staff User"%></h4>
+                    <p><%= session.getAttribute("position") != null ? session.getAttribute("position") : session.getAttribute("role")%></p>
                 </div>
 
-                <!-- Navigation Menu -->
                 <div class="menu">
                     <a href="<%= request.getContextPath()%>/AdminDashboardServlet"><i class="fas fa-th-large"></i><span>Dashboard</span></a>        
                     <a href="<%= request.getContextPath()%>/admin/employeeInformation.jsp" class="active"><i class="fas fa-users"></i><span>Employees</span></a>
                     <a href="<%= request.getContextPath()%>/admin/LeavePolicies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
                     <a href="<%= request.getContextPath()%>/admin/GenerateRecord.jsp"><i class="fas fa-th-large"></i>Reports</a>
+
 
                     <div class="menu-group">
                         <div class="menu-parent"><i class="fas fa-user"></i><span>Personal</span></div>
@@ -52,6 +51,7 @@
                     <a href="<%= request.getContextPath()%>/LogoutServlet"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
                 </div>
             </div>
+                
             <!-- ================= MAIN CONTENT ================= -->
             <div class="content">
                 

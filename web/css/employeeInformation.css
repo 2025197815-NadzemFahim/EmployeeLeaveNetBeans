@@ -1,7 +1,7 @@
     /* ---------- GLOBAL RESET ---------- */
     * {
         box-sizing: border-box;
-        font-family: "Segoe UI", sans-serif;
+        font-family: 'Poppins', sans-serif;
     }
     body {
         margin: 0;
@@ -16,103 +16,176 @@
     }
 
     /* ---------- SIDEBAR ---------- */
-    .sidebar {
-        position: fixed;
-        top: 0;
-        bottom: 0;          /* ✅ exact viewport height */
-        left: 0;
-        width: 260px;
-        background: #e0e0e0;
-        padding: 15px;
-        overflow: hidden;   /* ✅ NO scrolling at all */
-        transition: width 0.3s ease;
-    }
-    
-    .sidebar.closed {
-        width: 60px;
-    }
-    
-    .sidebar.closed ~ .content {
-        max-width: calc(100vw - 60px);
-    }
+            .sidebar {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                width: 260px;
+                background: #0f172a;
+                padding: 15px;
+                overflow: hidden;
+                transition: width 0.3s ease;
+            }
 
+            .sidebar.closed {
+                width: 60px;
+            }
 
-    /* ---------- BRAND ---------- */
-    .brand {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-weight: bold;
-        margin-bottom: 20px;
-    }
-    .sidebar.closed .brand span:first-child {
-        display: none;
-    }
+            /* ===== BRAND ===== */
+            .brand {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-weight: bold;
+                margin-bottom: 20px;
+                color: #ffffff; /* UPDATED */
+            }
 
-    /* ---------- PROFILE ---------- */
-    .profile {
-        text-align: center;
-        margin-bottom: 25px;
-        transition: opacity 0.3s ease;
-    }
-    .sidebar.closed .profile {
-        opacity: 0;
-        pointer-events: none;
-    }
-    .profile img {
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        object-fit: cover;
-        background: #ccc;
-        margin-bottom: 10px;
-    }
-    .profile h4 {
-        margin: 5px 0 0;
-        font-size: 14px;
-    }
-    .profile p {
-        margin: 0;
-        font-size: 12px;
-        color: #555;
-    }
+            .sidebar.closed .brand span:first-child {
+                display: none;
+            }
 
-    /* ---------- MENU ---------- */
-    .menu a, .menu-parent {
-        display: flex;
-        align-items: center;
-        padding: 12px;
-        margin-bottom: 6px;
-        text-decoration: none;
-        color: #000;
-        border-radius: 6px;
-        font-size: 14px;
-        gap: 12px;
-    }
-    .menu a i {
-        width: 20px;
-        text-align: center;
-        font-size: 16px;
-    }
-    .menu a:hover { background: #cfcfcf; }
-    .menu a.active { background: #bdbdbd; font-weight: bold; }
+            /* ===== PROFILE ===== */
+            .profile {
+                text-align: center;
+                margin-bottom: 25px;
+                transition: opacity 0.3s ease;
+            }
 
-    /* ---------- DROPDOWN ---------- */
-    .menu-group .menu-parent { font-weight: 600; }
-    .menu-group .menu-parent::after {
-        content: "▼";
-        font-size: 10px;
-        margin-left: auto;
-        margin-right: 10px;
-        transition: transform 0.2s ease;
-    }
-    .menu-group .menu-parent.open::after { transform: rotate(180deg); }
-    .menu-group .submenu {
-        margin-left: 32px;
-        display: none;
-        flex-direction: column;
-    }
-    .menu-group .submenu.open { display: flex; }
+            .sidebar.closed .profile {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .profile img {
+                width: 70px;
+                height: 70px;
+                border-radius: 50%;
+                object-fit: cover;
+                background: #1e293b; /* UPDATED */
+                margin-bottom: 10px;
+            }
+
+            .profile h4 {
+                margin: 5px 0 0;
+                font-size: 14px;
+                color: #ffffff; /* UPDATED */
+            }
+
+            .profile p {
+                margin: 0;
+                font-size: 12px;
+                color: #94a3b8; /* UPDATED */
+            }
+
+            /* ===== MENU ===== */
+            .menu a,
+            .menu-parent {
+                display: flex;
+                align-items: center;
+                padding: 12px;
+                margin-bottom: 6px;
+                text-decoration: none;
+                color: #dcdcdc; /* UPDATED */
+                border-radius: 6px;
+                font-size: 14px;
+                gap: 12px;
+                transition: background 0.2s ease, color 0.2s ease;
+            }
+
+            .menu a i,
+            .menu-parent i {
+                width: 20px;
+                text-align: center;
+                font-size: 16px;
+            }
+
+            /* ===== HOVER ===== */
+            .menu a:hover,
+            .menu-parent:hover {
+                background: #1e293b; /* UPDATED */
+            }
+
+            /* ===== ACTIVE ===== */
+            .menu a.active {
+                background: #ffffff;
+                color: #0f172a; /* UPDATED */
+                font-weight: bold;
+            }
+
+            /* ===== DROPDOWN PARENT ===== */
+            .menu-group .menu-parent {
+                background: #111827; /* UPDATED */
+                font-weight: 600;
+            }
+
+            /* Arrow indicator */
+            .menu-group .menu-parent::after {
+                content: "▼";
+                font-size: 10px;
+                margin-left: auto;
+                margin-right: 10px;
+                color: #cbd5f5; /* UPDATED */
+                transition: transform 0.2s ease;
+            }
+
+            .menu-group .menu-parent.open::after {
+                transform: rotate(180deg);
+            }
+
+            /* ===== SUBMENU ===== */
+            .menu-group .submenu {
+                margin-left: 32px;
+                display: none;
+                flex-direction: column;
+            }
+
+            .menu-group .submenu.open {
+                display: flex;
+            }
+
+            .menu-group .submenu a {
+                color: #cbd5f5; /* UPDATED */
+            }
+
+            /* ===== COLLAPSED MODE ===== */
+            .sidebar.closed .menu a,
+            .sidebar.closed .menu-parent {
+                justify-content: center;
+                padding: 12px 0;
+                font-size: 0;
+                gap: 0;
+            }
+
+            .sidebar.closed .menu a i,
+            .sidebar.closed .menu-parent i {
+                font-size: 18px;
+                width: auto;
+            }
+
+            .sidebar.closed .menu a span,
+            .sidebar.closed .menu-parent span {
+                display: none;
+            }
+
+            .sidebar.closed .menu-parent::after {
+                display: none;
+            }
+
+            .sidebar.closed .submenu {
+                margin-left: 0;
+                align-items: center;
+            }
+
+            .sidebar.closed .submenu a {
+                justify-content: center;
+                padding: 10px 0;
+            }
+
+            .sidebar.closed .submenu a i {
+                font-size: 16px;
+            }
 
     /* ---------- MAIN CONTENT ---------- */
     .content {
@@ -121,15 +194,16 @@
         background: #fff;
         margin-left: 260px; /* leave space for fixed sidebar */
         overflow-x: hidden;
-        max-width: calc(100vw-260px);
     }
     .page-title {
-        background: linear-gradient(to right, #bdbdbd, #eeeeee);
+        background: linear-gradient(to right, #0f172a, #94a3b8);
+        color:white;
         padding: 18px;
         font-size: 32px;
         font-weight: bold;
         margin-bottom: 20px;
     }
+    
     .toolbar {
         display: flex;
         gap: 10px;
@@ -218,6 +292,7 @@
 
     .sidebar.closed ~ .content {
         margin-left: 60px;
+        max-width: calc(100vw - 60px);
     }
     
     /* ---------- FILTER MODAL ---------- */
@@ -283,3 +358,58 @@
         width: 0;
         height: 0;
     }
+    
+    /* ===== EMPLOYEE LIST ROW ===== */
+.emp-avatar img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.emp-id,
+.emp-name,
+.emp-position,
+.emp-department {
+    font-family: 'Poppins', sans-serif;
+}
+
+.emp-name {
+    font-weight: 600;
+}
+
+.emp-position,
+.emp-department {
+    text-align: center;       /* 🔥 centered columns */
+    font-size: 14px;
+    color: #555;
+}
+
+.emp-id {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #6b7280;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;   /* 🔥 fixes the weird floating */
+
+    text-align: center;
+}
+
+.emp-action {
+    text-align: center;
+}
+
+.emp-action i {
+    cursor: pointer;
+    font-size: 16px;
+    color: #374151;
+}
+
+.emp-action i:hover {
+    color: #111827;
+}
+
+

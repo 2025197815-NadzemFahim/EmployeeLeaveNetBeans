@@ -3,7 +3,7 @@
                 box-sizing: border-box;
                 margin: 0;
                 padding: 0;
-                font-family: "Segoe UI", sans-serif;
+                font-family: 'Poppins', sans-serif;
             }
 
             body {
@@ -25,7 +25,7 @@
                 bottom: 0;              /* full viewport height */
                 left: 0;
                 width: 260px;
-                background: #e0e0e0;
+                background: #0f172a; /* UPDATED */
                 padding: 15px;
                 overflow: hidden;      /* no scrollbar */
                 transition: width 0.3s ease;
@@ -35,9 +35,10 @@
             .sidebar.closed {
                 width: 60px;
             }
-            
+
             /* ================= SIDEBAR BRAND ================= */
             .brand {
+                color: #ffffff;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
@@ -66,19 +67,20 @@
                 height: 70px;
                 border-radius: 50%;
                 object-fit: cover;
-                background: #ccc;
+                background: #1e293b;   /* ✅ SAFE */
                 margin-bottom: 10px;
             }
 
             .profile h4 {
                 margin: 5px 0 0;
                 font-size: 14px;
+                color: #ffffff;        /* ✅ SAFE */
             }
 
             .profile p {
                 margin: 0;
                 font-size: 12px;
-                color: #555;
+                color: #94a3b8;        /* ✅ SAFE */
             }
 
             /* ================= MENU ================= */
@@ -89,29 +91,33 @@
                 padding: 12px;
                 margin-bottom: 6px;
                 text-decoration: none;
-                color: #000;
+                color: #dcdcdc;        /* ✅ SAFE */
                 border-radius: 6px;
                 font-size: 14px;
                 gap: 12px;
             }
 
-            .menu a i {
+            .menu a i,
+            .menu-parent i {
                 width: 20px;
                 text-align: center;
                 font-size: 16px;
             }
 
-            .menu a:hover {
-                background: #cfcfcf;
+            .menu a:hover,
+            .menu-parent :hover {
+                background: #1e293b;
             }
 
             .menu a.active {
-                background: #bdbdbd;
+                background: #ffffff;
+                color: #0f172a;
                 font-weight: bold;
             }
 
             /* ================= DROPDOWN ================= */
             .menu-group .menu-parent {
+                background: #111827;
                 font-weight: 600;
             }
 
@@ -120,6 +126,7 @@
                 font-size: 10px;
                 margin-left: auto;
                 margin-right: 10px;
+                color: #cbd5f5;
                 transition: transform 0.2s ease;
             }
 
@@ -136,6 +143,48 @@
             .menu-group .submenu.open {
                 display: flex;
             }
+            
+            .menu-group .submenu a {
+                color: #cbd5f5; /* UPDATED */
+            }
+            
+            /* ===== COLLAPSED MODE ===== */
+            .sidebar.closed .menu a,
+            .sidebar.closed .menu-parent {
+                justify-content: center;
+                padding: 12px 0;
+                font-size: 0;
+                gap: 0;
+            }
+
+            .sidebar.closed .menu a i,
+            .sidebar.closed .menu-parent i {
+                font-size: 18px;
+                width: auto;
+            }
+
+            .sidebar.closed .menu a span,
+            .sidebar.closed .menu-parent span {
+                display: none;
+            }
+
+            .sidebar.closed .menu-parent::after {
+                display: none;
+            }
+
+            .sidebar.closed .submenu {
+                margin-left: 0;
+                align-items: center;
+            }
+
+            .sidebar.closed .submenu a {
+                justify-content: center;
+                padding: 10px 0;
+            }
+
+            .sidebar.closed .submenu a i {
+                font-size: 16px;
+            }
 
             /* ================= MAIN CONTENT ================= */
             .main {
@@ -146,12 +195,13 @@
 
             /* ================= PAGE TITLE ================= */
             .page-title {
+                background: linear-gradient(to right, #0f172a, #94a3b8);
+                color:white;
                 max-width: 1100px;
                 margin: 0 auto 30px auto;
                 padding: 18px 24px;
                 font-size: 32px;
                 font-weight: 700;
-                background: linear-gradient(to right, #bdbdbd, #f5f5f5);
             }
 
             /* ================= PAGE CONTENT ================= */
@@ -182,19 +232,26 @@
                 border-radius: 50%;
             }
             
+            .profile-text {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;   /* aligns text vertically with avatar */
+            }
+
             .profile-left h2 {
-                font-size: 26px;
+                font-size: 24px;
                 font-weight: 700;
-                margin-bottom: 6px;
+                margin: 0;
             }
 
             .profile-left p {
+                margin: 4px 0 0;
                 font-size: 15px;
                 color: #666;
             }
 
 
-
+            /* ================= STATUS PILL ================= */
             .status {
                 padding: 14px 40px;          /* 🔥 wider pill */
                 font-size: 16px;             /* bigger text */
@@ -202,14 +259,30 @@
                 border-radius: 999px;
 
                 border: 2px solid #4caf50;
-                color: #2e7d32;
                 letter-spacing: 0.3px;
 
                 min-width: 160px;            /* ensures width consistency */
                 text-align: center;
                 margin-right: 50px;
             }
+            
+            .status.available {
+                border: 2px solid #4caf50;
+                color: #2e7d32;
+            }
+            
+            .status.leave {
+                border: 2px solid #e53935;
+                color: #b71c1c;
+            }
+            
+            .status.leave:hover {
+                background: #f9d6d5;
+            }
 
+            .status.available:hover {
+                background: #e6f4ea;
+            }
 
             /* ================= CARDS ================= */
             .card {

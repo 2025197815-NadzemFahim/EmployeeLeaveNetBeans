@@ -89,6 +89,7 @@
               href="${pageContext.request.contextPath}/css/employeeUpdatePage.css">
         <link rel="stylesheet"
               href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     </head>
 
     <body>
@@ -96,26 +97,24 @@
 
             <!-- ================= SIDEBAR (UNCHANGED) ================= -->
             <div class="sidebar" id="sidebar">
-                <!-- Brand / Toggle -->
                 <div class="brand">
                     <span>TERLAJAK LARIS</span>
                     <span class="toggle-btn">☰</span>
                 </div>
 
                 <div class="profile">
-                    <img src="<%= request.getContextPath() %>/profile-image?path=<%= profileImage %>"
-                        onerror="this.src='<%= request.getContextPath() %>/images/default_profile.png'">
-
-                    <h4><%= name %></h4>
-                    <p><%= position %></p>
+                    <img src="<%= request.getContextPath()%>/profile-image?path=<%= request.getAttribute("profileImg")%>"
+                         onerror="this.src='<%= request.getContextPath()%>/images/default_profile.png'">
+                    <h4><%= session.getAttribute("name") != null ? session.getAttribute("name") : "Staff User"%></h4>
+                    <p><%= session.getAttribute("position") != null ? session.getAttribute("position") : session.getAttribute("role")%></p>
                 </div>
 
-                <!-- Navigation Menu -->
                 <div class="menu">
                     <a href="<%= request.getContextPath()%>/AdminDashboardServlet"><i class="fas fa-th-large"></i><span>Dashboard</span></a>        
                     <a href="<%= request.getContextPath()%>/admin/employeeInformation.jsp" class="active"><i class="fas fa-users"></i><span>Employees</span></a>
                     <a href="<%= request.getContextPath()%>/admin/LeavePolicies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
                     <a href="<%= request.getContextPath()%>/admin/GenerateRecord.jsp"><i class="fas fa-th-large"></i>Reports</a>
+
 
                     <div class="menu-group">
                         <div class="menu-parent"><i class="fas fa-user"></i><span>Personal</span></div>
@@ -132,31 +131,26 @@
             </div>
 
             <!-- ================= MAIN FORM ================= -->
-            <form class="main" id="employeeForm"
-                  method="post"
-                  action="${pageContext.request.contextPath}/updateEmployeeServlet">
-
+            <form class="main" id="employeeForm" method="post" action="${pageContext.request.contextPath}/updateEmployeeServlet">
+                
                 <input type="hidden" name="employeeId" value="<%= empId %>">
 
                 <div class="page-title">Employee Information</div>
 
                 <div class="page-content">
-
+                    
                     <!-- HEADER -->
                     <div class="card profile-header">
                         <div class="profile-left">
-                            <div class="profile">
-                                <img src="<%= request.getContextPath() %>/profile-image?path=<%= profileImage %>" onerror="this.src='<%= request.getContextPath() %>/images/default_profile.png'">
-                                <div>
-                                    <h2><%= name %></h2>
-                                    <p><%= email %></p>
-                                </div>
+                            <img src="<%= request.getContextPath() %>/profile-image?path=<%= profileImage %>" onerror="this.src='<%= request.getContextPath() %>/images/default_profile.png'">        
+                            <div class="profile-text">
+                                <h2><%= name %></h2>
+                                <p><%= email %></p>
                             </div>
                         </div>    
                                 
                         <div class="status <%= "On Leave".equals(empStatus) ? "leave" : "available" %>">
                             <%= empStatus %>
-                        </div>
                         </div>
                     </div>
                     <!-- PERSONAL INFO -->
@@ -252,7 +246,6 @@
                         <button type="button" class="btn-cancel" onclick="confirmCancel()">Cancel</button>
                         <button type="button" class="btn-submit" onclick="confirmSubmit()">Submit</button>
                     </div>
-
                 </div>
             </form>
         </div>
