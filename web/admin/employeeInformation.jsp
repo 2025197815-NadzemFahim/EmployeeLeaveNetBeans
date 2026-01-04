@@ -83,9 +83,10 @@
                     </div>
 
                     <button class="btn btn-add"
-                            onclick="location.href='addEmployeeInformation.jsp'">
+                            onclick="location.href='<%= request.getContextPath() %>/admin/addEmployeeInformation.jsp'">
                         Add Employee
                     </button>
+
                 </div>
 
                 <div class="employee-section">
@@ -192,10 +193,10 @@
 
                         '<div class="emp-action">' +
                             '<i class="fas fa-pen edit-btn" ' +
-                               'onclick="location.href=\'employeeUpdatePage.jsp?id=' + emp.id + '\'">' +
+                               'onclick="location.href=\'' + contextPath +
+                               '/admin/employeeUpdatePage.jsp?id=' + emp.id + '\'">' +
                             '</i>' +
                         '</div>';
-                
                     list.appendChild(row);
                 });
             }

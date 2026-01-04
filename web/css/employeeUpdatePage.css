@@ -25,7 +25,7 @@
                 bottom: 0;              /* full viewport height */
                 left: 0;
                 width: 260px;
-                background: #0f172a; /* UPDATED */
+                background: #e0e0e0;
                 padding: 15px;
                 overflow: hidden;      /* no scrollbar */
                 transition: width 0.3s ease;

@@ -34,7 +34,7 @@
                 bottom: 0;
                 left: 0;
                 width: 260px;
-                background: #0f172a; /* UPDATED */
+                background: #e0e0e0;
                 padding: 15px;
                 overflow: hidden;
                 transition: width 0.3s ease;
@@ -362,7 +362,7 @@
             // BACK → just go back
             function confirmBack() {
                 if (confirm("Go back without saving changes?")) {
-                    window.location.href = "employeeInformation.jsp";
+                    window.location.href = "<%= request.getContextPath() %>/admin/employeeInformation.jsp";
                 }
             }
         </script>
