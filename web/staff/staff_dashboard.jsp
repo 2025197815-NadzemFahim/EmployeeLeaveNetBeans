@@ -183,6 +183,7 @@
 
             .header {
                 background: linear-gradient(to right, #0f172a, #94a3b8);
+                color:white;
                 padding: 14px;
                 font-size: 26px;
                 font-weight: bold;

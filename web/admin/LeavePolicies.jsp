@@ -279,7 +279,7 @@
         <div class="menu">
             <a href="<%= cp %>/AdminDashboardServlet"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
             <a href="<%= cp %>/admin/employeeInformation.jsp"><i class="fas fa-users"></i><span>Employees</span></a>
-            <a href="<%= cp %>/LeavePolicyAdminServlet?action=list" class="active"><i class="fas fa-file-lines"></i><span>Policies</span></a>
+            <a href="<%= cp %>/LeavePolicyAdminServlet" class="active"><i class="fas fa-file-lines"></i><span>Policies</span></a>
             <a href="<%= cp %>/admin/GenerateRecord.jsp"><i class="fas fa-th-large"></i><span>Reports</span></a>
 
             <div class="menu-group">

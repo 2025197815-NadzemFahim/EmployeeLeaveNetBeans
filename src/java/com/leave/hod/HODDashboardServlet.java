@@ -58,18 +58,18 @@ public class HODDashboardServlet extends HttpServlet {
                 return;
             }
             /* ================= PROFILE INFO ================= */
-PreparedStatement psProfile = conn.prepareStatement(
-        "SELECT name, position, profile_image FROM employee WHERE employee_id=?"
-);
-psProfile.setInt(1, hodId);
+            PreparedStatement psProfile = conn.prepareStatement(
+                    "SELECT name, position, profile_image FROM employee WHERE employee_id=?"
+            );
+            psProfile.setInt(1, hodId);
 
-ResultSet rsProfile = psProfile.executeQuery();
-if (rsProfile.next()) {
-    session.setAttribute("empName", rsProfile.getString("name"));
-    session.setAttribute("empPost", rsProfile.getString("position"));
-    session.setAttribute("profileImage", rsProfile.getString("profile_image"));
-}
-            
+            ResultSet rsProfile = psProfile.executeQuery();
+            if (rsProfile.next()) {
+                session.setAttribute("empName", rsProfile.getString("name"));
+                session.setAttribute("empPost", rsProfile.getString("position"));
+                session.setAttribute("profileImage", rsProfile.getString("profile_image"));
+            }
+
 
             /* ================= MY LEAVE (AUTO) ================= */
             PreparedStatement psMyLeave = conn.prepareStatement(
@@ -78,9 +78,11 @@ if (rsProfile.next()) {
                     + "       lp.max_days "
                     + "FROM employee_leave_balance elb "
                     + "JOIN leave_type lt ON elb.type_id = lt.type_id "
-                    + "LEFT JOIN leave_policy lp ON elb.type_id = lp.type_id "
-                    + "WHERE elb.employee_id = ?"
+                    + "JOIN leave_policy lp ON elb.type_id = lp.type_id "
+                    + "WHERE elb.employee_id = ? "
+                    + "AND lp.status = 'Active'"
             );
+
             psMyLeave.setInt(1, hodId);
 
             ResultSet rsMyLeave = psMyLeave.executeQuery();
@@ -163,8 +165,6 @@ if (rsProfile.next()) {
                     simpleCount(conn,
                             "SELECT COUNT(*) FROM employee WHERE department=?",
                             department));
-            
-            
 
             request.setAttribute("currentlyOnLeave", todayLeave.size());
 

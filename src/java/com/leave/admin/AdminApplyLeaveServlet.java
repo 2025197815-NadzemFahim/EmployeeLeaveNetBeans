@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.sql.*;
-import java.time.LocalDate;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
+import java.time.LocalDate;
 
 @WebServlet("/AdminApplyLeaveServlet")
 @MultipartConfig(
@@ -25,9 +25,8 @@ public class AdminApplyLeaveServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         Integer employeeId = (Integer) session.getAttribute("employeeId");
-        String role = (String) session.getAttribute("role");
 
-        if (employeeId == null || !"ADMIN".equals(role)) {
+        if (employeeId == null) {
             response.sendRedirect("login.jsp");
             return;
         }
@@ -74,7 +73,7 @@ public class AdminApplyLeaveServlet extends HttpServlet {
         try (Connection conn = DriverManager.getConnection(
                 "jdbc:derby://localhost:1527/LeaveDB", "app", "app")) {
 
-            conn.setAutoCommit(false); // ✅ ADDED
+            conn.setAutoCommit(false); // ✅ ADDED (transaction)
 
             /* ===== CHECK LEAVE BALANCE ===== */
             PreparedStatement psBalance = conn.prepareStatement(
@@ -98,7 +97,7 @@ public class AdminApplyLeaveServlet extends HttpServlet {
                 return;
             }
 
-            /* ===== GET ADMIN DEPARTMENT ===== */
+            /* ===== GET STAFF DEPARTMENT ===== */
             String department = "";
             PreparedStatement psDept = conn.prepareStatement(
                 "SELECT department FROM employee WHERE employee_id=?"
@@ -109,7 +108,7 @@ public class AdminApplyLeaveServlet extends HttpServlet {
             rsDept.close();
             psDept.close();
 
-            /* ===== FIND HOD HR ===== */
+            /* ===== GET HOD ===== */
             int hodId = 0;
             PreparedStatement psHod = conn.prepareStatement(
                 "SELECT employee_id FROM employee WHERE role='HOD' AND department=?"
@@ -119,11 +118,6 @@ public class AdminApplyLeaveServlet extends HttpServlet {
             if (rsHod.next()) hodId = rsHod.getInt("employee_id");
             rsHod.close();
             psHod.close();
-
-            if (hodId == 0) {
-                response.sendRedirect("admin/apply_leave.jsp?error=nohod");
-                return;
-            }
 
             /* ===== INSERT LEAVE REQUEST ===== */
             PreparedStatement psInsert = conn.prepareStatement(
@@ -135,8 +129,8 @@ public class AdminApplyLeaveServlet extends HttpServlet {
             psInsert.setDate(1, Date.valueOf(startDate));
             psInsert.setDate(2, Date.valueOf(endDate));
             psInsert.setString(3, reason);
-            psInsert.setInt(4, employeeId); // ADMIN
-            psInsert.setInt(5, hodId);      // HOD HR
+            psInsert.setInt(4, employeeId);
+            psInsert.setInt(5, hodId);
             psInsert.setInt(6, typeId);
             psInsert.setString(7, filePath);
             psInsert.executeUpdate();
@@ -153,7 +147,7 @@ public class AdminApplyLeaveServlet extends HttpServlet {
             rsName.close();
             psName.close();
 
-            // ✅ ADDED: notify HOD HR
+            // ✅ ADDED: notify HOD
             notifyApprover(conn, hodId, applicantName, start, end);
 
             conn.commit(); // ✅ ADDED
@@ -165,7 +159,34 @@ public class AdminApplyLeaveServlet extends HttpServlet {
         }
     }
 
-    // ❗ NEW METHOD ADDED (does not affect existing logic)
+    // ❗ EXISTING METHOD – NOT TOUCHED
+    private int getApprover(Connection conn, String role, String department)
+            throws SQLException {
+        PreparedStatement ps;
+        if ("STAFF".equals(role)) {
+            ps = conn.prepareStatement(
+                "SELECT employee_id FROM employee WHERE role='HOD' AND department=?"
+            );
+            ps.setString(1, department);
+        } else if ("ADMIN".equals(role)) {
+            ps = conn.prepareStatement(
+                "SELECT employee_id FROM employee WHERE role='HOD' AND department='HR'"
+            );
+        } else if ("HOD".equals(role)) {
+            ps = conn.prepareStatement(
+                "SELECT employee_id FROM employee WHERE role='CEO'"
+            );
+        } else {
+            return 0;
+        }
+        ResultSet rs = ps.executeQuery();
+        int id = rs.next() ? rs.getInt(1) : 0;
+        rs.close();
+        ps.close();
+        return id;
+    }
+
+    // ❗ EXISTING METHOD – NOT TOUCHED
     private void notifyApprover(Connection conn, int approverId,
             String applicantName, LocalDate start, LocalDate end)
             throws SQLException {

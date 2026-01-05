@@ -324,12 +324,16 @@
             }
 
             // ===== LEAVE TYPES =====
+           
             PreparedStatement psType = conn.prepareStatement(
-                    "SELECT lt.type_id, lt.name, elb.balance "
-                    + "FROM employee_leave_balance elb "
-                    + "JOIN leave_type lt ON elb.type_id = lt.type_id "
-                    + "WHERE elb.employee_id = ?"
-            );
+    "SELECT lt.type_id, lt.name, elb.balance "
+  + "FROM employee_leave_balance elb "
+  + "JOIN leave_type lt ON elb.type_id = lt.type_id "
+  + "JOIN leave_policy lp ON lp.type_id = lt.type_id "
+  + "WHERE elb.employee_id = ? "
+  + "AND lp.status = 'Active'"
+);
+
             psType.setInt(1, employeeId);
             ResultSet rsType = psType.executeQuery();
 
@@ -387,7 +391,7 @@
                 <div class="menu">
                     <a href="<%= request.getContextPath()%>/AdminDashboardServlet"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
                     <a href="<%= request.getContextPath()%>/admin/employeeInformation.jsp"><i class="fas fa-users"></i><span>Employees</span></a>
-                    <a href="<%= request.getContextPath()%>/admin/LeavePolicies.jsp"><i class="fas fa-file-lines"></i><span>Policies</span></a>
+                    <a href="<%= request.getContextPath()%>/LeavePolicyAdminServlet"><i class="fas fa-file-lines"></i><span>Policies</span></a>
                     <a href="<%= request.getContextPath()%>/admin/GenerateRecord.jsp"><i class="fas fa-th-large"></i>Reports</a>
 
 

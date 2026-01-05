@@ -361,7 +361,7 @@
                                             ${l.balance}
                                             <span>/ ${l.max}</span>
                                         </h2>
-                                        <p>${l.name} Leave</p>
+                                        <p>${l.name}</p>
                                     </div>
                                 </c:forEach>
 

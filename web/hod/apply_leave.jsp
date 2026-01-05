@@ -267,12 +267,14 @@
             }
 
             // ===== LEAVE TYPES =====
-            PreparedStatement psType = conn.prepareStatement(
-                    "SELECT lt.type_id, lt.name, elb.balance "
-                    + "FROM employee_leave_balance elb "
-                    + "JOIN leave_type lt ON elb.type_id = lt.type_id "
-                    + "WHERE elb.employee_id = ?"
-            );
+             PreparedStatement psType = conn.prepareStatement(
+    "SELECT lt.type_id, lt.name, elb.balance "
+  + "FROM employee_leave_balance elb "
+  + "JOIN leave_type lt ON elb.type_id = lt.type_id "
+  + "JOIN leave_policy lp ON lp.type_id = lt.type_id "
+  + "WHERE elb.employee_id = ? "
+  + "AND lp.status = 'Active'"
+);
             psType.setInt(1, employeeId);
             ResultSet rsType = psType.executeQuery();
 
