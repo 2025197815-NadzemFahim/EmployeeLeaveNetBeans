@@ -476,7 +476,8 @@
                             <canvas id="monthlyChart"></canvas>
                         </div>
                     </div>
-
+                    
+                   
 
                     <!-- Leave Type Cards + Balance -->
 
@@ -493,14 +494,18 @@
                             ResultSet rs = null;
 
                             try {
-                                con = DriverManager.getConnection("jdbc:derby://localhost:1527/LeaveDB", "app", "app");
-                                ps = con.prepareStatement(
-                                        "SELECT LT.TYPE_ID, LT.NAME, ELB.BALANCE "
-                                        + "FROM LEAVE_TYPE LT "
-                                        + "LEFT JOIN EMPLOYEE_LEAVE_BALANCE ELB "
-                                        + "ON LT.TYPE_ID = ELB.TYPE_ID AND ELB.EMPLOYEE_ID = ? "
-                                        + "ORDER BY LT.TYPE_ID DESC"
-                                );
+                            con = DriverManager.getConnection("jdbc:derby://localhost:1527/LeaveDB", "app", "app");
+
+                            ps = con.prepareStatement(
+                                "SELECT LT.TYPE_ID, LT.NAME, COALESCE(ELB.BALANCE, 0) AS BALANCE " +
+                                "FROM LEAVE_POLICY LP " +
+                                "JOIN LEAVE_TYPE LT ON LP.TYPE_ID = LT.TYPE_ID " +
+                                "LEFT JOIN EMPLOYEE_LEAVE_BALANCE ELB " +
+                                "  ON LT.TYPE_ID = ELB.TYPE_ID AND ELB.EMPLOYEE_ID = ? " +
+                                "WHERE LP.STATUS = 'Active' " +
+                                "ORDER BY LT.TYPE_ID DESC"
+                            );
+
                                 ps.setInt(1, loggedInId);
                                 rs = ps.executeQuery();
 
