@@ -3,7 +3,7 @@ package com.leave.staff;
 import com.leave.model.GenerateRecord;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Database {
 
@@ -50,4 +50,25 @@ public class Database {
         }
         return list;
     }
+    
+    public List<String> getLeaveTypes() {
+    List<String> list = new ArrayList<>();
+    String sql = "SELECT name FROM leave_type ORDER BY name";
+
+    try (Connection con = getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        while (rs.next()) {
+            list.add(rs.getString("name"));
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+
+
+
 }

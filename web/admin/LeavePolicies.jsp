@@ -282,7 +282,7 @@
             <a href="<%= cp %>/AdminDashboardServlet"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
             <a href="<%= cp %>/admin/employeeInformation.jsp"><i class="fas fa-users"></i><span>Employees</span></a>
             <a href="<%= cp %>/LeavePolicyAdminServlet" class="active"><i class="fas fa-file-lines"></i><span>Policies</span></a>
-            <a href="<%= cp %>/admin/GenerateRecord.jsp"><i class="fas fa-th-large"></i><span>Reports</span></a>
+            <a href="<%= cp %>/GenerateRecord"><i class="fas fa-th-large"></i><span>Reports</span></a>
 
             <div class="menu-group">
                 <div class="menu-parent"><i class="fas fa-user"></i><span>Personal</span></div>

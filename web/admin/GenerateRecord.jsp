@@ -3,6 +3,11 @@
 <%
     List<GenerateRecord> records = (List<GenerateRecord>) request.getAttribute("recordList");
 %>
+
+<%
+    List<String> leaveTypes = (List<String>) request.getAttribute("leaveTypes");
+    List<String> statuses = (List<String>) request.getAttribute("statuses");
+%>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -350,13 +355,14 @@
                         </div>
                         <div>
                             <label>Leave Type</label>
-                            <select id="leaveType">
-                                <option value="">All</option>
-                                <option>Medical Leave</option>
-                                <option>Annual Leave</option>
-                                <option>Emergency Leave</option>
-                                <option>Maternity Leave</option>
-                            </select>
+                            <select id="leaveType" name="leaveType">
+                            <option value="">All</option>
+                            <% if (leaveTypes != null) {
+                                   for (String type : leaveTypes) { %>
+                                <option value="<%= type %>"><%= type %></option>
+                            <%     }
+                               } %>
+                        </select>
                         </div>
                         <div>
                             <label>Status</label>

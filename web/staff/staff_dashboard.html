@@ -4,250 +4,292 @@
 <meta charset="UTF-8">
 <title>Staff Dashboard</title>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-* { box-sizing: border-box; font-family: "Segoe UI", sans-serif; }
-body { margin: 0; background: #f2f2f2; overflow: hidden; }
-
-.wrapper { display: flex; height: 100vh; }
 
 * {
-  box-sizing: border-box;
-  font-family: "Segoe UI", sans-serif;
-}
+                box-sizing: border-box;
+                font-family: "Poppins", sans-serif;
+            }
 
-body {
-  margin: 0;
-  background: #f2f2f2;
-}
+            body {
+                margin: 0;
+                background: #f5f7fb;
+            }
 
-.wrapper {
-  display: flex;
-  min-height: 100vh;
-}
+            .wrapper {
+                display: flex;
+                min-height: 100vh;
+            }
+ /* ===== SIDEBAR ===== */
+            .sidebar {
+                width: 260px;
+                background: #0f172a; /* UPDATED */
+                padding: 15px;
+                transition: width 0.3s ease;
+            }
 
-.sidebar {
-  width: 260px;
-  background: #e0e0e0;
-  padding: 15px;
-  transition: width 0.3s ease;
-}
+            .sidebar.closed {
+                width: 60px;
+            }
 
-.sidebar.closed {
-  width: 60px;
-}
+            /* ===== BRAND ===== */
+            .brand {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-weight: bold;
+                margin-bottom: 20px;
+                color: #ffffff; /* UPDATED */
+            }
 
-.brand {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
+            .sidebar.closed .brand span:first-child {
+                display: none;
+            }
 
-.sidebar.closed .brand span:first-child {
-  display: none;
-}
+            /* ===== PROFILE ===== */
+            .profile {
+                text-align: center;
+                margin-bottom: 25px;
+                transition: opacity 0.3s ease;
+            }
 
-.profile {
-  text-align: center;
-  margin-bottom: 25px;
-  transition: opacity 0.3s ease;
-}
+            .sidebar.closed .profile {
+                opacity: 0;
+                pointer-events: none;
+            }
 
-.sidebar.closed .profile {
-  opacity: 0;
-  pointer-events: none;
-}
+            .profile img {
+                width: 70px;
+                height: 70px;
+                border-radius: 50%;
+                object-fit: cover;
+                background: #333;
+                margin-bottom: 10px;
+            }
 
-.profile img {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  object-fit: cover;
-  background: #ccc;
-  margin-bottom: 10px;
-}
+            .profile h4 {
+                margin: 5px 0 0;
+                font-size: 14px;
+                color: #ffffff; /* UPDATED */
+            }
 
-.profile h4 {
-  margin: 5px 0 0;
-  font-size: 14px;
-}
+            .profile p {
+                margin: 0;
+                font-size: 12px;
+                color: #aaaaaa; /* UPDATED */
+            }
 
-.profile p {
-  margin: 0;
-  font-size: 12px;
-  color: #555;
-}
+/* ===== MENU ===== */
+            .menu a {
+                display: flex;
+                align-items: center;
+                padding: 12px;
+                margin-bottom: 6px;
+                text-decoration: none;
+                color: #dcdcdc; /* UPDATED */
+                border-radius: 6px;
+                font-size: 14px;
+                gap: 12px;
+                transition: background 0.2s ease, color 0.2s ease; /* BONUS */
+            }
 
-.menu a {
-  display: flex;
-  align-items: center;
-  padding: 12px;
-  margin-bottom: 6px;
-  text-decoration: none;
-  color: #000;
-  border-radius: 6px;
-  font-size: 14px;
-  gap: 12px;
-}
+            .menu a i {
+                width: 20px;
+                text-align: center;
+                font-size: 16px;
+            }
 
-.menu a i {
-  width: 20px;
-  text-align: center;
-  font-size: 16px;
-}
+            /* ===== HOVER ===== */
+            .menu a:hover {
+                background: #2c2c2c; /* UPDATED */
+            }
 
-.menu a:hover {
-  background: #cfcfcf;
-}
+            /* ===== ACTIVE ===== */
+            .menu a.active {
+                background: #ffffff;
+                color: #0f172a;   /* dark navy text */
+                font-weight: bold;
+            }
 
-.menu a.active {
-  background: #bdbdbd;
-  font-weight: bold;
-}
+            /* ===== COLLAPSED MODE ===== */
+            .sidebar.closed .menu a {
+                justify-content: center;
+                padding-left: 0;
+                padding-right: 0;
+                font-size: 0;
+                gap: 0;
+            }
 
-.sidebar.closed .menu a {
-  justify-content: center;
-  padding-left: 0;
-  padding-right: 0;
-  font-size: 0;
-  gap: 0;
-}
-
-.sidebar.closed .menu a i {
-  font-size: 18px;
-  width: auto;
-}
+            .sidebar.closed .menu a i {
+                font-size: 18px;
+                width: auto;
+            }
 
 /* ===== MAIN ===== */
 .main {
   flex: 1;
   padding: 18px;
-  display: flex;
-  flex-direction: column;
 }
 
 .header {
   background: linear-gradient(to right, #bdbdbd, #eeeeee);
   padding: 14px;
-  font-size: 26px;
-  font-weight: bold;
-  margin-bottom: 12px;
-}
-
-/* ===== STATUS CARDS ===== 
-.cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 12px;
-}
-.card {
-  background: white;
-  padding: 14px;
-  border-radius: 8px;
-  text-align: center;
-  box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
-}
-.card h3 { margin: 6px 0 0; font-size: 22px; }*/
-
-/* ===== Dashboard Cards ===== */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.card-item {
-  background: white;
-  padding: 18px;
-  border-radius: 8px;
-  text-align: center;
-  font-weight: 600;
-  box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
-  color: #333;
-}
-
-.card-item h3 {
-  margin: 8px 0 0;
   font-size: 24px;
-  font-weight: 700;
-  color: #000;
+  font-weight: bold;
+  margin-bottom: 14px;
 }
 
-/* ===== INFO ROW ===== */
-.info-row {
+/* ===== CARD ===== */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid #eef0f4;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  height: auto;
+}
+
+/* ===== GRID LAYOUT (IKUT ASCII AWAK) ===== */
+.dashboard-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
+  grid-template-columns: 3fr 1.5fr;
+  grid-template-areas:
+    "myleave calendar"
+    "pending calendar"
+    "absent  upcoming";
+  column-gap: 14px;
+  row-gap: 8px;
 }
-.section {
-  background: white;
+
+/* assign area */
+.my-leave      { grid-area: myleave; }
+.pending-card { grid-area: pending; }
+.calendar-card{ grid-area: calendar; }
+.absent-card  { grid-area: absent; }
+.upcoming-card{ grid-area: upcoming; }
+
+/* ===== MY LEAVE ===== */
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.leave-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.leave-box {
   padding: 14px;
-  border-radius: 8px;
-  box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
+  border-radius: 12px;
+  text-align: center;
 }
-.section h4 { margin: 0 0 10px; font-size: 16px; }
+.leave-box h2 { margin: 0; font-size: 20px; }
+.leave-box p { margin-top: 4px; font-size: 12px; }
+
+.annual { background: #f3f7ff; }
+.medical { background: #fff4eb; }
+.casual { background: #eef9f8; }
+.unpaid { background: #eef7ef; }
+
+/* ===== INFO CARDS (ABSENT & UPCOMING) ===== */
+.info-card {
+  padding: 18px;
+}
+
+.absent-item strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.absent-item span {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #b91c1c;
+  background: #fee2e2;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.no-data {
+  font-size: 13px;
+  color: #6b7280;
+  background: #f8fafc;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+/* ===== TABLE ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th {
+  font-size: 12px;
+  color: #6b7280;
+  padding: 10px;
+  border-bottom: 1px solid #eef0f4;
+}
+td {
+  padding: 12px;
+  border-bottom: 1px solid #f1f3f7;
+  text-align: center;
+  font-size: 13px;
+}
+.status {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.pending {
+  background: #fff3cd;
+  color: #856404;
+}
 
 /* ===== CALENDAR ===== */
-.calendar {
-  background: white;
-  padding: 14px;
-  border-radius: 8px;
-  box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
-  flex: 1;
-}
-
 .calendar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
-
 .calendar-header button {
-  background: #d0d0d0;
   border: none;
-  padding: 6px 10px;
+  background: #d0d0d0;
+  padding: 4px 8px;
   border-radius: 6px;
   cursor: pointer;
 }
-
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+  gap: 4px;
 }
-
 .day-name {
   text-align: center;
-  font-weight: 700;
-  font-size: 13px;
-  color: #555;
+  font-size: 11px;
+  font-weight: 600;
 }
-
 .date {
   background: #eeeeee;
   border-radius: 6px;
-  padding: 6px;
-  height: 72px;
-  font-size: 12px;
-}
-
-.date strong { font-size: 13px; }
-
-.date.today { background: #c8e6c9; }
-
-.leave-text {
-  margin-top: 4px;
+  padding: 4px;
+  height: 52px;
   font-size: 11px;
-  font-weight: 600;
+}
+.date.today { background: #c8e6c9; }
+.leave-text {
+  font-size: 10px;
   color: #b71c1c;
+  font-weight: 600;
 }
 </style>
 </head>
@@ -256,98 +298,96 @@ body {
 
 <div class="wrapper">
 
-  <div class="sidebar" id="sidebar">
-    <div class="brand">
-      <span>TERLAJAK LARIS</span>
-      <span class="toggle-btn" onclick="toggleSidebar()">☰</span>
-    </div>
+ <div class="sidebar" id="sidebar">
+                <div class="brand">
+                    <span>TERLAJAK LARIS</span>
+                    <span class="toggle-btn" onclick="toggleSidebar()">☰</span>
+                </div>
 
-    <div class="profile">
-      <img src="https://i.imgur.com/7k12EPD.png">
-      <h4>AMIRUL AIMAN BIN LEO</h4>
-      <p>STAFF</p>
-    </div>
+                <div class="profile">
+                    <img src="https://i.imgur.com/7k12EPD.png">
+                    <h4>AMIRUL AIMAN BIN LEO</h4>
+                    <p>HOD IT</p>
+                </div>
 
-    <div class="menu">
-      <a class="active"><i class="fas fa-th-large"></i>Dashboard</a>
-      <a><i class="fas fa-user"></i>Profile</a>
-      <a><i class="fas fa-calendar-plus"></i>Apply Leave</a>
-      <a><i class="fas fa-history"></i>Leave History</a>
-      <a><i class="fas fa-bell"></i>Notifications</a>
-      <a><i class="fas fa-sign-out-alt"></i>Logout</a>
-    </div>
-  </div>
+                <div class="menu">
+                    <a class="active" ><i class="fas fa-th-large"></i>Dashboard</a>
+                    <a><i class="fas fa-user"></i>Profile</a>
+                    <a><i class="fas fa-clipboard-list"></i>Requests</a>
+                    <a><i class="fas fa-bell"></i>Notifications</a>
+                    <a><i class="fas fa-sign-out-alt"></i>Logout</a>
+                </div>
+            </div>
 
-<!-- MAIN -->
+<!-- ===== MAIN ===== -->
 <div class="main">
-
 <div class="header">Staff Dashboard</div>
 
-<!-- STATUS CARDS -->
-<div class="cards">
-  <div class="card">
-    <div class="card-item"><i class="fas fa-calendar-day"></i> Status Today <h3>Present</h3></div>
+<div class="dashboard-grid">
+
+  <!-- MY LEAVE -->
+  <div class="card my-leave">
+    <h3 class="section-title">My Leave</h3>
+    <div class="leave-cards">
+      <div class="leave-box annual"><h2>24</h2><p>Annual</p></div>
+      <div class="leave-box medical"><h2>10</h2><p>Medical</p></div>
+      <div class="leave-box casual"><h2>08</h2><p>Emergency</p></div>
+      <div class="leave-box unpaid"><h2>06</h2><p>Unpaid</p></div>
+    </div>
   </div>
 
-  <div class="card">
-          <div class="card-item"><i class="fas fa-users"></i> Leave Balance<h3>9 Days</h3></div>
-          
+  <!-- CALENDAR -->
+  <div class="card calendar-card">
+    <div class="calendar-header">
+      <button onclick="changeMonth(-1)">◀</button>
+      <div id="monthYear"></div>
+      <button onclick="changeMonth(1)">▶</button>
+    </div>
+    <div class="calendar-grid" id="calendar"></div>
   </div>
 
-  <div class="card">
-    <div class="card-item"><i class="fas fa-clock"></i> Pending Apply Leave <h3 style="font-size:14px; margin-top:8px; font-weight:600;">
-    31 December 2025 – 1 January 2026<br><span style="font-size:13px; color:#b71c1c;">Annual Leave</span>
-    </h3></div>
-          
-    
+  <!-- PENDING APPLY -->
+  <div class="card pending-card">
+    <h3 class="section-title">Pending Apply Leave</h3>
+    <table>
+      <tr><th>Type</th><th>From</th><th>To</th><th>Status</th></tr>
+      <tr>
+        <td>Annual</td>
+        <td>31 Dec 2025</td>
+        <td>1 Jan 2026</td>
+        <td><span class="status pending">Pending</span></td>
+      </tr>
+    </table>
   </div>
+
+  <!-- ABSENT -->
+  <div class="card info-card absent-card">
+    <h3 class="section-title">Absent Today</h3>
+    <div class="absent-item">
+      <strong>Al Mizan</strong>
+      <span>Medical Leave</span>
+    </div>
+  </div>
+
+  <!-- UPCOMING -->
+  <div class="card info-card upcoming-card">
+    <h3 class="section-title">Upcoming Leave</h3>
+    <div class="no-data">No upcoming leave</div>
+  </div>
+
 </div>
-
-<!-- INFO -->
-<div class="info-row">
-  <div class="section">
-    <h4>Absent Today</h4>
-    <p>Nur Aisyah – Medical</p>
-    <p>Daniel Hakim – Annual Leave</p>
-  </div>
-
-  <div class="section">
-    <h4>Upcoming Leave</h4>
-    <p>20 Jun – Aina</p>
-    <p>5 Jul – Emergency</p>
-  </div>
-</div>
-
-<!-- CALENDAR -->
-<div class="calendar">
-  <div class="calendar-header">
-    <button onclick="changeMonth(-1)">◀</button>
-    <div id="monthYear"></div>
-    <button onclick="changeMonth(1)">▶</button>
-  </div>
-
-  <div class="calendar-grid" id="calendar"></div>
-</div>
-
 </div>
 </div>
 
 <script>
-    function toggleSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  sidebar.classList.toggle('closed');
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("closed");
 }
 
 const calendar = document.getElementById("calendar");
 const monthYear = document.getElementById("monthYear");
-
-const leaveData = {
-  "2025-06-20": "AINA – Annual Leave",
-  "2025-06-21": "AINA – Annual Leave",
-  "2025-07-05": "HAKIM – Emergency Leave"
-};
-
 let currentDate = new Date();
+const leaveData = { "2026-01-05": "Medical" };
 
 function renderCalendar() {
   calendar.innerHTML = "";
@@ -355,8 +395,7 @@ function renderCalendar() {
   const month = currentDate.getMonth();
 
   monthYear.innerText = currentDate.toLocaleString("default", {
-    month: "long",
-    year: "numeric"
+    month: "long", year: "numeric"
   });
 
   ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].forEach(d => {
@@ -367,34 +406,32 @@ function renderCalendar() {
   });
 
   const firstDay = new Date(year, month, 1).getDay() || 7;
-  for (let i = 1; i < firstDay; i++) calendar.appendChild(document.createElement("div"));
+  for (let i = 1; i < firstDay; i++)
+    calendar.appendChild(document.createElement("div"));
 
   const days = new Date(year, month + 1, 0).getDate();
+  const today = new Date();
 
   for (let d = 1; d <= days; d++) {
-    const dateBox = document.createElement("div");
-    dateBox.className = "date";
-    dateBox.innerHTML = `<strong>${d}</strong>`;
-
-    const key = `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-    const today = new Date();
+    const box = document.createElement("div");
+    box.className = "date";
+    box.innerHTML = `<strong>${d}</strong>`;
 
     if (
       d === today.getDate() &&
       month === today.getMonth() &&
       year === today.getFullYear()
-    ) {
-      dateBox.classList.add("today");
-    }
+    ) box.classList.add("today");
 
+    const key = `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
     if (leaveData[key]) {
-      const leave = document.createElement("div");
-      leave.className = "leave-text";
-      leave.innerText = leaveData[key];
-      dateBox.appendChild(leave);
+      const t = document.createElement("div");
+      t.className = "leave-text";
+      t.innerText = leaveData[key];
+      box.appendChild(t);
     }
 
-    calendar.appendChild(dateBox);
+    calendar.appendChild(box);
   }
 }
 

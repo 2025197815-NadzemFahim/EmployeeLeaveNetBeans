@@ -1,59 +1,41 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
-<%@ page import="java.util.*, com.leave.model.LeaveRequest" %>
+<%@ page import="java.util.*" %>
 
 <%
-    /* ===== SESSION CHECK ===== */
+    /* ================= SESSION CHECK ================= */
     Integer employeeId = (Integer) session.getAttribute("employeeId");
     if (employeeId == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");
         return;
     }
 
-    /* ===== DATA FROM SERVLET ===== */
+    /* ================= SESSION DATA ================= */
     String empName = (String) session.getAttribute("name");
     String empRole = (String) session.getAttribute("role");
     String empDept = (String) session.getAttribute("department");
     String profileImage = (String) session.getAttribute("profile_image");
 
-    List<LeaveRequest> leaveList
-            = (List<LeaveRequest>) request.getAttribute("leaves");
-
-    Integer leaveBalance
-            = (Integer) request.getAttribute("leaveBalance");
-
-    String pendingInfo
-            = (String) request.getAttribute("pendingInfo");
-
-    List<String> absentTodayList
-            = (List<String>) request.getAttribute("absentToday");
-
-    List<String> upcomingLeaveList
-            = (List<String>) request.getAttribute("upcomingLeave");
-
-
-%>
-
-<%    Map calendarLeaves
-            = (Map) request.getAttribute("calendarLeaves");
-%>
-
-<%
-    Map leaveBalanceByType
-            = (Map) request.getAttribute("leaveBalanceByType");
+    /* ================= DATA FROM SERVLET ================= */
+    String statusToday = (String) request.getAttribute("statusToday");
+    Map leaveBalanceByType = (Map) request.getAttribute("leaveBalanceByType");
+    String pendingInfo = (String) request.getAttribute("pendingInfo");
+    List absentToday = (List) request.getAttribute("absentToday");
+    List upcomingLeave = (List) request.getAttribute("upcomingLeave");
+    Map calendarLeaves = (Map) request.getAttribute("calendarLeaves");
 %>
 
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Staff Dashboard</title>
-        <link rel="stylesheet"
-              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<head>
+<meta charset="UTF-8">
+<title>Staff Dashboard</title>
 
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
-        <style>
-            * {
+<style>
+* {
                 box-sizing: border-box;
                 font-family: "Poppins", sans-serif;
             }
@@ -67,7 +49,7 @@
                 display: flex;
                 min-height: 100vh;
             }
-            /* ===== SIDEBAR ===== */
+ /* ===== SIDEBAR ===== */
             .sidebar {
                 width: 260px;
                 background: #0f172a; /* UPDATED */
@@ -126,7 +108,7 @@
                 color: #aaaaaa; /* UPDATED */
             }
 
-            /* ===== MENU ===== */
+/* ===== MENU ===== */
             .menu a {
                 display: flex;
                 align-items: center;
@@ -171,146 +153,122 @@
                 font-size: 18px;
                 width: auto;
             }
-            /* ===== MAIN ===== */
-            .main {
-                flex: 1;
-                padding: 18px;
-                display: flex;
-                flex-direction: column;
-                overflow-x: hidden;   
-                overflow-y: auto;  
-            }
 
-            .header {
-                background: linear-gradient(to right, #0f172a, #94a3b8);
-                color:white;
-                padding: 14px;
-                font-size: 26px;
-                font-weight: bold;
-                margin-bottom: 12px;
-            }
+/* ===== MAIN ===== */
+.main {
+  flex: 1;
+  padding: 18px;
+}
 
-            /* ===== STATUS CARDS ===== 
-            .cards {
-              display: grid;
-              grid-template-columns: repeat(3, 1fr);
-              gap: 12px;
-              margin-bottom: 12px;
-            }
-            .card {
-              background: white;
-              padding: 14px;
-              border-radius: 8px;
-              text-align: center;
-              box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
-            }
-            .card h3 { margin: 6px 0 0; font-size: 22px; }*/
+.header {
+  background: linear-gradient(to right, #bdbdbd, #eeeeee);
+  padding: 14px;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 14px;
+}
 
-            /* ===== Dashboard Cards ===== */
-            .cards {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 12px;
-                margin-bottom: 12px;
-            }
+/* ========= CARD ========= */
+.card {
+  background:#fff;
+  border-radius:16px;
+  padding:16px;
+  border:1px solid #eef0f4;
+  box-shadow:0 4px 12px rgba(0,0,0,.04);
+}
 
-            .card-item {
-                background: white;
-                padding: 18px;
-                border-radius: 8px;
-                text-align: center;
-                font-weight: 600;
-                box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
-                color: #333;
-            }
+/* ========= GRID ========= */
+.dashboard-grid{
+  display:grid;
+  grid-template-columns:3fr 1.5fr;
+  grid-template-areas:
+    "myleave calendar"
+    "pending calendar"
+    "absent upcoming";
+  gap:12px;
+}
+.my-leave{grid-area:myleave;}
+.pending{grid-area:pending;}
+.absent{grid-area:absent;}
+.upcoming{grid-area:upcoming;}
+.calendar{grid-area:calendar;}
 
-            .card-item h3 {
-                margin: 8px 0 0;
-                font-size: 24px;
-                font-weight: 700;
-                color: #000;
-            }
+/* ========= MY LEAVE ========= */
+.leave-cards{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+.leave-box{
+  padding:14px;
+  border-radius:12px;
+  text-align:center;
+}
+.leave-box h2{margin:0;font-size:20px;}
+.leave-box p{margin:4px 0 0;font-size:12px;}
+.annual{background:#f3f7ff;}
+.medical{background:#fff4eb;}
+.casual{background:#eef9f8;}
+.unpaid{background:#eef7ef;}
 
-            /* ===== INFO ROW ===== */
-            .info-row {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 12px;
-                margin-bottom: 12px;
-            }
-            .section {
-                background: white;
-                padding: 14px;
-                border-radius: 8px;
-                box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
-            }
-            .section h4 { margin: 0 0 10px; font-size: 16px; }
+/* ========= TABLE ========= */
+table{width:100%;border-collapse:collapse;}
+th,td{padding:10px;text-align:center;font-size:13px;}
+th{color:#6b7280;border-bottom:1px solid #eef0f4;}
+td{border-bottom:1px solid #f1f3f7;}
+.status{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;}
+.pending-tag{background:#fff3cd;color:#856404;}
 
-            /* ===== CALENDAR ===== */
-            .calendar {
-                background: white;
-                padding: 14px;
-                border-radius: 8px;
-                box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
-                flex: 1;
-                width: 100%;       
-                min-width: 0;       
-            }
+/* ========= INFO ========= */
+.badge{
+  display:inline-block;
+  background:#fee2e2;
+  color:#b91c1c;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:600;
+}
+.no-data{
+  background:#f8fafc;
+  padding:10px;
+  border-radius:10px;
+  font-size:13px;
+  color:#6b7280;
+}
 
-            .calendar-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                font-weight: bold;
-                margin-bottom: 10px;
-            }
+/* ========= CALENDAR ========= */
+.calendar-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+}
+.calendar-grid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:4px;
+}
+.day-name{text-align:center;font-size:11px;font-weight:600;}
+.date{
+  background:#eeeeee;
+  border-radius:6px;
+  padding:4px;
+  font-size:11px;
+  min-height:54px;
+}
+.date.today{background:#c8e6c9;}
+.leave-text{
+  font-size:10px;
+  font-weight:600;
+  color:#b71c1c;
+}
+</style>
+</head>
 
-            .calendar-header button {
-                background: #d0d0d0;
-                border: none;
-                padding: 6px 10px;
-                border-radius: 6px;
-                cursor: pointer;
-            }
-
-            .calendar-grid {
-                display: grid;
-                grid-template-columns: repeat(7, minmax(0, 1fr));
-                gap: 6px;
-            }
-
-            .day-name {
-                text-align: center;
-                font-weight: 700;
-                font-size: 13px;
-                color: #555;
-            }
-
-            .date {
-                background: #eeeeee;
-                border-radius: 6px;
-                padding: 6px;
-                height: 72px;
-                font-size: 12px;
-            }
-
-            .date strong { font-size: 13px; }
-
-            .date.today { background: #c8e6c9; }
-
-            .leave-text {
-                margin-top: 4px;
-                font-size: 11px;
-                font-weight: 600;
-                color: #b71c1c;
-            }
-        </style>
-    </head>
-
-    <body>
-        <div class="wrapper">
-
-            <!-- ================= SIDEBAR ================= -->
+<body>
+<div class="wrapper">
+     <!-- Sidebar -->
             <div class="sidebar" id="sidebar">
                 <div class="brand">
                     <span>TERLAJAK LARIS</span>
@@ -318,218 +276,180 @@
                 </div>
 
                 <div class="profile">
-                    <img src="<%= profileImage != null ? profileImage : "https://i.imgur.com/7k12EPD.png"%>">
-                    <h4><%= empName%></h4>
-                    <p><%= empRole%> <%= empDept != null ? empDept : ""%></p>
+                    <img src="<%= request.getContextPath()%>/profile-image?path=<%= request.getAttribute("profileImg")%>"
+                         onerror="this.src='<%= request.getContextPath()%>/images/default_profile.png'">
+                    <h4><%= session.getAttribute("name") != null ? session.getAttribute("name") : "Staff User"%></h4>
+                    <p><%= session.getAttribute("position") != null ? session.getAttribute("position") : session.getAttribute("role")%></p>
                 </div>
 
                 <div class="menu">
                     <a href="<%= request.getContextPath()%>/DashboardStaffServlet" class="active"><i class="fas fa-th-large"></i>Dashboard</a>
-                    <a  href="<%= request.getContextPath()%>/ViewProfileServlet"><i class="fas fa-user"></i>Profile</a>
-                    <a href="<%= request.getContextPath()%>/staff/apply_leave.jsp"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
-                    <a href="<%= request.getContextPath()%>/LeaveHistoryStaffServlet"><i class="fas fa-history"></i>Leave History</a>
+                    <a href="<%= request.getContextPath()%>/ViewProfileServlet"><i class="fas fa-user"></i>Profile</a>
+                    <a  href="<%= request.getContextPath()%>/staff/apply_leave.jsp"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
+                    <a href="<%= request.getContextPath()%>/LeaveHistoryStaffServlet" ><i class="fas fa-history"></i>Leave History</a>
                     <a href="<%= request.getContextPath()%>/NotificationServlet"><i class="fas fa-bell"></i>Notifications</a>
-                    <a href="<%= request.getContextPath()%>/LogoutServlet">
-                        <i class="fas fa-sign-out-alt"></i>Logout
-                    </a>
+                    <a href="<%= request.getContextPath()%>/LogoutServlet"><i class="fas fa-sign-out-alt"></i>Logout</a>
                 </div>
             </div>
 
-            <!-- ================= MAIN ================= -->
-            <div class="main">
 
-                <div class="header">Staff Dashboard</div>
-                <!-- Live Clock -->
-                <div class="card" style="font-size:20px;font-weight:bold;margin-bottom:15px;text-align:center;">
-                    <i class="fas fa-clock"></i>
-                    <span id="liveClock"></span>
-                </div>
+<!-- ================= MAIN ================= -->
+<div class="main">
 
-                <!-- STATUS CARDS -->
-                <div class="cards">
-                    <div class="card-item">
-                        <i class="fas fa-calendar-day"></i><br>
-                        Status Today
-                        <h3><%= request.getAttribute("statusToday")%></h3>
-                    </div>
 
-                    <div class="card-item">
-                        <i class="fas fa-users"></i><br>
-                        Leave Balance
-                        <h3 style="font-size:14px; text-align:left;">
-                            <%
-                                if (leaveBalanceByType != null && !leaveBalanceByType.isEmpty()) {
-                                    Iterator it = leaveBalanceByType.entrySet().iterator();
-                                    while (it.hasNext()) {
-                                        Map.Entry e = (Map.Entry) it.next();
-                            %>
-                            <div>
-                                <strong><%= e.getKey()%></strong> :
-                                <%= e.getValue()%> days
-                            </div>
-                            <%
-                                }
-                            } else {
-                            %>
-                            0 days
-                            <%
-                                }
-                            %>
-                        </h3>
-                    </div>
+<div class="dashboard-grid">
 
-                    <div class="card-item">
-                        <i class="fas fa-clock"></i><br>
-                        Pending Apply Leave
-                        <h3 style="font-size:14px;">
-                            <%= pendingInfo != null ? pendingInfo : "No pending leave"%>
-                        </h3>
-                    </div>
-                </div>
-
-                <!-- INFO ROW -->
-                <div class="info-row">
-                    <div class="section">
-                        <h4>Absent Today</h4>
-                        <% if (absentTodayList != null && !absentTodayList.isEmpty()) {
-                for (String s : absentTodayList) {%>
-                        <p><%= s%></p>
-                        <% }
-        } else { %>
-                        <p>No absent today</p>
-                        <% } %>
-                    </div>
-
-                    <div class="section">
-                        <h4>Upcoming Leave</h4>
-
-                        <%
-                            if (upcomingLeaveList != null && !upcomingLeaveList.isEmpty()) {
-                                for (String s : upcomingLeaveList) {
-                        %>
-                        <p><%= s%></p>
-                        <%
-                            }
-                        } else {
-                        %>
-                        <p>No upcoming leave</p>
-                        <%
-                            }
-                        %>
-                    </div>
-
-                </div>
-
-                <!-- CALENDAR -->
-                <div class="calendar">
-                    <div class="calendar-header">
-                        <button onclick="changeMonth( - 1)">◀</button>
-                        <div id="monthYear"></div>
-                        <button onclick="changeMonth(1)">▶</button>
-                    </div>
-                    <div class="calendar-grid" id="calendar"></div>
-                </div>
-
-            </div> 
-        </div> 
-
-        <script>
-            // Live Clock
-            function updateClock() {
-            const now = new Date();
-            document.getElementById("liveClock").innerText =
-                    now.toLocaleDateString() + " " + now.toLocaleTimeString();
-            }
-            setInterval(updateClock, 1000);
-            updateClock();
-            function toggleSidebar() {
-            document.getElementById("sidebar").classList.toggle("closed");
-            }
-
-            var calendar = document.getElementById("calendar");
-            var monthYear = document.getElementById("monthYear");
-            /* ===== LEAVE DATA FROM SERVER ===== */
-            var leaveData = {
+<!-- ================= MY LEAVE ================= -->
+    <div class="card my-leave">
+        <h3>My Leave</h3>
+        <div class="leave-cards">
             <%
-            if (calendarLeaves != null) {
-                Iterator it = calendarLeaves.entrySet().iterator();
-                while (it.hasNext()) {
-                    Map.Entry entry = (Map.Entry) it.next();
-                    String date = (String) entry.getKey();
-                    List list = (List) entry.getValue();
+            if(leaveBalanceByType!=null){
+              for(Object o:leaveBalanceByType.entrySet()){
+                Map.Entry e=(Map.Entry)o;
             %>
-            "<%= date%>": [
+            <div class="leave-box annual">
+                <h2><%=e.getValue()%></h2>
+                <p><%=e.getKey()%></p>
+            </div>
+        <%}}%>
+        </div>
+    </div>
+
+<!-- ================= CALENDAR ================= -->
+    <div class="card calendar">
+        <div class="calendar-header">
+            <button onclick="changeMonth(-1)">◀</button>
+            <strong id="monthYear"></strong>
+            <button onclick="changeMonth(1)">▶</button>
+        </div>
+        <div class="calendar-grid" id="calendar"></div>
+    </div>
+
+<!-- ================= PENDING ================= -->
+    <div class="card pending">
+        <h3>Pending Apply Leave</h3>
+        <%= pendingInfo!=null ? pendingInfo : "<div class='no-data'>No pending leave</div>" %>
+    </div>
+
+<!-- ================= ABSENT ================= -->
+    <div class="card absent">
+        <h3>Absent Today</h3>
             <%
-            for (int i = 0; i < list.size(); i++) {
+            if(absentToday!=null && !absentToday.isEmpty()){
+            for(Object o:absentToday){
             %>
-            "<%= list.get(i)%>"<%= (i < list.size() - 1) ? "," : ""%>
+            <div><%=o%></div>
+                <%}}else{%>
+             <div class="no-data">No absent today</div>
+            <%}%>
+    </div>
+
+<!-- ================= UPCOMING ================= -->
+    <div class="card upcoming">
+        <h3>Upcoming Leave</h3>
             <%
-            }
+                if(upcomingLeave!=null && !upcomingLeave.isEmpty()){
+                    for(Object o:upcomingLeave){
             %>
-            ]<%= it.hasNext() ? "," : ""%>
-            <%
-                }
+                <div><%=o%></div>
+                <%}}else{%>
+                <div class="no-data">No upcoming leave</div>
+                <%}%>
+    </div>
+
+</div>
+</div>
+</div>
+
+<script>
+/* ========= CALENDAR ========= */
+var calendarData = {
+<%
+    if (calendarLeaves != null) {
+        Iterator it = calendarLeaves.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry e = (Map.Entry) it.next();
+%>
+    "<%= e.getKey() %>": [
+<%
+            List l = (List) e.getValue();
+            for (int i = 0; i < l.size(); i++) {
+%>
+        "<%= l.get(i) %>"<%= (i < l.size() - 1) ? "," : "" %>
+<%
             }
-            %>
-            };
-            var currentDate = new Date();
-            function renderCalendar() {
-            calendar.innerHTML = "";
-            var year = currentDate.getFullYear();
-            var month = currentDate.getMonth();
-            monthYear.innerHTML =
-                    currentDate.toLocaleString("default", { month: "long" }) +
-                    " " + year;
-            var days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-            for (var i = 0; i < days.length; i++){
-            var d = document.createElement("div");
-            d.className = "day-name";
-            d.innerHTML = days[i];
-            calendar.appendChild(d);
-            }
+%>
+    ]<%= it.hasNext() ? "," : "" %>
+<%
+        }
+    }
+%>
+};
 
-            var firstDay = new Date(year, month, 1).getDay() || 7;
-            for (var i = 1; i < firstDay; i++){
-            calendar.appendChild(document.createElement("div"));
-            }
+var currentDate = new Date();
 
-            var totalDays = new Date(year, month + 1, 0).getDate();
-            for (var d = 1; d <= totalDays; d++){
-            var box = document.createElement("div");
-            box.className = "date";
-            box.innerHTML = "<strong>" + d + "</strong>";
-            var key =
-                    year + "-" + (month + 1 < 10?"0":"") + (month + 1) + "-" + (d < 10?"0":"") + d;
-            var today = new Date();
-            if (d === today.getDate() &&
-                    month === today.getMonth() &&
-                    year === today.getFullYear()){
-            box.className += " today";
-            }
+function renderCalendar() {
+    calendar.innerHTML = "";
 
-            if (leaveData[key]){
-            for (var i = 0; i < leaveData[key].length; i++){
-            var l = document.createElement("div");
-            l.className = "leave-text";
-            l.innerHTML = leaveData[key][i];
-            box.appendChild(l);
-            }
-            }
+    var year  = currentDate.getFullYear();
+    var month = currentDate.getMonth();
 
-            calendar.appendChild(box);
-            }
-            }
+    monthYear.innerText = currentDate.toLocaleString("default", {
+        month: "long",
+        year: "numeric"
+    });
 
-            function changeMonth(step){
-            currentDate.setMonth(currentDate.getMonth() + step);
-            renderCalendar();
-            }
+    /* ===== DAY HEADER ===== */
+    ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].forEach(function (day) {
+        var el = document.createElement("div");
+        el.className = "day-name";
+        el.innerText = day;
+        calendar.appendChild(el);
+    });
 
-            renderCalendar();
-        </script>
+    /* ===== EMPTY SLOT BEFORE FIRST DAY ===== */
+    var firstDay = new Date(year, month, 1).getDay() || 7;
+    for (var i = 1; i < firstDay; i++) {
+        calendar.appendChild(document.createElement("div"));
+    }
+
+    /* ===== DATES ===== */
+    var totalDays = new Date(year, month + 1, 0).getDate();
+
+    for (var d = 1; d <= totalDays; d++) {
+        var box = document.createElement("div");
+        box.className = "date";
+        box.innerHTML = "<strong>" + d + "</strong>";
+
+        var key =
+            year + "-" +
+            String(month + 1).padStart(2, "0") + "-" +
+            String(d).padStart(2, "0");
+
+        /* ===== LEAVE INFO ===== */
+        if (calendarData[key]) {
+            calendarData[key].forEach(function (text) {
+                var leave = document.createElement("div");
+                leave.className = "leave-text";
+                leave.innerText = text;
+                box.appendChild(leave);
+            });
+        }
+
+        calendar.appendChild(box);
+    }
+}
+
+function changeMonth(step) {
+    currentDate.setMonth(currentDate.getMonth() + step);
+    renderCalendar();
+}
+
+/* ===== INIT ===== */
+renderCalendar();
+</script>
 
 
-
-
-    </body>
+</body>
 </html>
