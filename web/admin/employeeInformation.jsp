@@ -25,8 +25,16 @@
                 </div>
 
                 <div class="profile">
-                    <img src="<%= request.getContextPath()%>/profile-image?path=<%= request.getAttribute("profileImg")%>"
-                         onerror="this.src='<%= request.getContextPath()%>/images/default_profile.png'">
+                    <%
+                    String sidebarImage = (String) session.getAttribute("profileImage");
+                    if (sidebarImage == null) {
+                        sidebarImage = "uploads/default.png";
+                    }
+                    %>
+
+                    <img src="<%= request.getContextPath() %>/profile-image?path=<%= sidebarImage %>"
+                         onerror="this.src='<%= request.getContextPath() %>/images/default_profile.png'">
+
                     <h4><%= session.getAttribute("name") != null ? session.getAttribute("name") : "Staff User"%></h4>
                     <p><%= session.getAttribute("position") != null ? session.getAttribute("position") : session.getAttribute("role")%></p>
                 </div>

@@ -47,11 +47,14 @@
 
         /* ================= LEAVE INFO (DYNAMIC) ================= */
         psLeave = conn.prepareStatement(
-            "SELECT lt.type_id, lt.name, elb.balance " +
+            "SELECT lt.type_id, lt.name, elb.balance, lp.max_days AS max_days " +
             "FROM employee_leave_balance elb " +
             "JOIN leave_type lt ON elb.type_id = lt.type_id " +
+            "JOIN leave_policy lp ON lp.type_id = lt.type_id " +
             "WHERE elb.employee_id=? " +
+            "AND lp.status='Active' " +
             "ORDER BY lt.type_id"
+                
         );
         psLeave.setInt(1, empId);
         rsLeave = psLeave.executeQuery();
@@ -103,8 +106,17 @@
                 </div>
 
                 <div class="profile">
-                    <img src="<%= request.getContextPath()%>/profile-image?path=<%= request.getAttribute("profileImg")%>"
+                    <%
+                    String sidebarProfileImg = (String) session.getAttribute("profileImage");
+                    if (sidebarProfileImg == null || sidebarProfileImg.isEmpty()) {
+                        sidebarProfileImg = "uploads/default.png";
+                    }
+                    %>
+
+                    <img src="<%= request.getContextPath() %>/profile-image?path=<%= sidebarProfileImg %>"
                          onerror="this.src='<%= request.getContextPath()%>/images/default_profile.png'">
+
+                         
                     <h4><%= session.getAttribute("name") != null ? session.getAttribute("name") : "Staff User"%></h4>
                     <p><%= session.getAttribute("position") != null ? session.getAttribute("position") : session.getAttribute("role")%></p>
                 </div>
@@ -218,22 +230,27 @@
                         <div class="form-grid">
 
                             <%
-                            while (rsLeave.next()) {
-                                int typeId = rsLeave.getInt("type_id");
-                                String leaveName = rsLeave.getString("name");
-                                int balance = rsLeave.getInt("balance");
+                                if (rsLeave != null) {
+                                    while (rsLeave.next()) {
+                                        int typeId = rsLeave.getInt("type_id");
+                                        String leaveName = rsLeave.getString("name");
+                                        int balance = rsLeave.getInt("balance");
+                                        int maxDays = rsLeave.getInt("max_days");
                             %>
+
 
                             <div class="form-group">
                                 <label><%= leaveName %> Leave</label>
                                 <input type="number"
                                     name="leave_<%= typeId %>"
                                     value="<%= balance %>"
+                                    max="<%= maxDays %>"
                                     onfocus="this.defaultValue = this.value">
 
                             </div>
 
                             <%
+                                }
                             }
                             %>
 

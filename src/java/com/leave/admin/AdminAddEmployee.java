@@ -34,42 +34,72 @@ public class AdminAddEmployee extends HttpServlet {
                 ? Date.valueOf(admissionDate)
                 : null;
 
-        // 3️⃣ SQL INSERT
-        String sql = "INSERT INTO employee "
-                   + "(name, email, password, department, role, date_of_birth, address, admission_date, position) "
-                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
         // 4️⃣ JDBC
         try {
             Class.forName("org.apache.derby.jdbc.ClientDriver");
 
-            try (Connection conn = DriverManager.getConnection(
-                    "jdbc:derby://localhost:1527/LeaveDB","app","app");
-                 PreparedStatement ps = conn.prepareStatement(sql)) {
+            Connection conn = DriverManager.getConnection(
+                "jdbc:derby://localhost:1527/LeaveDB", "app", "app"
+            );
 
-                ps.setString(1, name);
-                ps.setString(2, email);
-                ps.setString(3, password); // later you can hash it
-                ps.setString(4, department);
-                ps.setString(5, role);
-                ps.setDate(6, sqlDob);
-                ps.setString(7, address);
-                ps.setDate(8, sqlAdmissionDate);
-                ps.setString(9, position);
+            conn.setAutoCommit(false); // ⭐ PENTING
 
-                ps.executeUpdate();
+            String sql = "INSERT INTO employee "
+                       + "(name, email, password, department, role, date_of_birth, address, admission_date, position) "
+                       + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+            PreparedStatement ps = conn.prepareStatement(
+                sql,
+                java.sql.Statement.RETURN_GENERATED_KEYS // ⭐ PENTING
+            );
+
+            ps.setString(1, name);
+            ps.setString(2, email);
+            ps.setString(3, password);
+            ps.setString(4, department);
+            ps.setString(5, role);
+            ps.setDate(6, sqlDob);
+            ps.setString(7, address);
+            ps.setDate(8, sqlAdmissionDate);
+            ps.setString(9, position);
+
+            ps.executeUpdate();
+
+            // ========= GET EMPLOYEE_ID =========
+            int employeeId;
+            try (java.sql.ResultSet rs = ps.getGeneratedKeys()) {
+                if (!rs.next()) {
+                    throw new SQLException("Failed to retrieve employee ID.");
+                }
+                employeeId = rs.getInt(1);
             }
 
-            // 5️⃣ Redirect after success
-            // SUCCESS
-            response.sendRedirect(request.getContextPath() + "/admin/addEmployeeInformation.jsp?status=success");
+            // ========= INSERT LEAVE BALANCE =========
+            String insertBalanceSQL =
+                "INSERT INTO employee_leave_balance (employee_id, type_id, balance) " +
+                "SELECT ?, lt.type_id, lp.max_days " +
+                "FROM leave_type lt " +
+                "JOIN leave_policy lp ON lp.type_id = lt.type_id " +
+                "WHERE lp.status = 'Active'";
 
+            PreparedStatement psBalance = conn.prepareStatement(insertBalanceSQL);
+            psBalance.setInt(1, employeeId);
+            psBalance.executeUpdate();
 
-        } catch (ClassNotFoundException | SQLException e) {
+            conn.commit(); // ✅ commit hanya bila SEMUA berjaya
+            conn.close();
+
+            response.sendRedirect(
+                request.getContextPath() +
+                "/admin/addEmployeeInformation.jsp?status=success"
+            );
+
+        } catch (Exception e) {
             e.printStackTrace();
-            // ERROR
-            response.sendRedirect(request.getContextPath() + "/admin/addEmployeeInformation.jsp?status=error");
-
+            response.sendRedirect(
+                request.getContextPath() +
+                "/admin/addEmployeeInformation.jsp?status=error"
+            );
         }
     }
 

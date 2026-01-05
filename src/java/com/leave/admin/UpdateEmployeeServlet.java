@@ -53,18 +53,47 @@ public class UpdateEmployeeServlet extends HttpServlet {
                 String param = params.nextElement();
 
                 if (param.startsWith("leave_")) {
+                    
                     int typeId = Integer.parseInt(param.substring(6));
                     String value = req.getParameter(param);
 
                     if (value == null || value.isEmpty()) {
                         value = "0";
                     }
+                    
+                    int balance = Integer.parseInt(value);
+
+                    /* ===== GET MAX DAYS FROM POLICY ===== */
+                    PreparedStatement psMax = conn.prepareStatement(
+                        "SELECT lp.max_days " +
+                        "FROM leave_policy lp " +
+                        "WHERE lp.type_id=? AND UPPER(lp.status)='ACTIVE'"
+                    );
+                    psMax.setInt(1, typeId);
+                    ResultSet rsMax = psMax.executeQuery();
+
+                    int maxDays = 0;
+                    if (rsMax.next()) {
+                        maxDays = rsMax.getInt("max_days");
+                    }
+
+                    rsMax.close();
+                    psMax.close();
+
+                    /* ===== VALIDATION ===== */
+                    if (balance < 0) {
+                        balance = 0;
+                    }
+
+                    if (balance > maxDays) {
+                        balance = maxDays;
+                    }
 
                     PreparedStatement psLeave = conn.prepareStatement(
                         "UPDATE employee_leave_balance SET balance=? " +
                         "WHERE employee_id=? AND type_id=?"
                     );
-                    psLeave.setInt(1, Integer.parseInt(value));
+                    psLeave.setInt(1, balance); // ✅ BETUL
                     psLeave.setInt(2, empId);
                     psLeave.setInt(3, typeId);
                     psLeave.executeUpdate();
