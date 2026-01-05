@@ -271,10 +271,12 @@
         </div>
 
         <div class="profile">
-            <img src="<%= cp %>/profile-image?path=<%= profileImg %>" onerror="this.src='<%= cp %>/images/default_profile.png'">
-            <h4><%= session.getAttribute("name") != null ? session.getAttribute("name") : "Admin User" %></h4>
-            <p><%= session.getAttribute("position") != null ? session.getAttribute("position") : (session.getAttribute("role") != null ? session.getAttribute("role") : "Admin") %></p>
-        </div>
+                    <img src="${pageContext.request.contextPath}/profile-image?path=${profileImage}"
+                         onerror="this.src='${pageContext.request.contextPath}/images/default_profile.png'">
+
+                    <h4>${profileName}</h4>
+                    <p>${profilePosition}</p>
+                </div>
 
         <div class="menu">
             <a href="<%= cp %>/AdminDashboardServlet"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
