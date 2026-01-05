@@ -13,20 +13,20 @@ public class GenerateRecordServlet extends HttpServlet {
     private Database db;
 
     @Override
-    public void init() {
-        db = new Database();
-    }
-
-    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        Database db = new Database();   // 🔥 create terus di sini
+
         List<GenerateRecord> records = db.getAllRecords();
-        System.out.println("Total records fetched: " + records.size());
+        List<String> leaveTypes = db.getLeaveTypes();
 
         request.setAttribute("recordList", records);
+        request.setAttribute("leaveTypes", leaveTypes);
+
         RequestDispatcher rd =
                 request.getRequestDispatcher("/admin/GenerateRecord.jsp");
         rd.forward(request, response);
     }
+
 }
