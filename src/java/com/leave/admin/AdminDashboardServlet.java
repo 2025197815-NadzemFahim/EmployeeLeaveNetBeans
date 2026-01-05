@@ -143,7 +143,9 @@ public class AdminDashboardServlet extends HttpServlet {
                 "SELECT e.name, lt.name, lr.start_date FROM leave_request lr " +
                 "JOIN employee e ON lr.submitted_by = e.employee_id " +
                 "JOIN leave_type lt ON lr.type_id = lt.type_id " +
-                "WHERE lr.start_date > CURRENT_DATE ORDER BY lr.start_date FETCH FIRST 5 ROWS ONLY")) {
+                "WHERE lr.status = 'APPROVED' " +   // ✅ approved only
+                "AND lr.start_date > CURRENT_DATE " +
+                "ORDER BY lr.start_date ")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         upcomingLeave.add(rs.getString(1) + " — " + rs.getString(2) + " (" + rs.getDate(3) + ")");
