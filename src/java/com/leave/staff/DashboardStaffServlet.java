@@ -58,9 +58,10 @@ public class DashboardStaffServlet extends HttpServlet {
                 "SELECT lt.name, elb.balance " +
                 "FROM employee_leave_balance elb " +
                 "JOIN leave_type lt ON elb.type_id = lt.type_id " +
-                "WHERE elb.employee_id = ?"
+                "JOIN leave_policy lp ON elb.type_id = lp.type_id " +
+                "WHERE elb.employee_id = ?" +
+                "AND lp.status = 'Active'"
             );
-
             psBalanceType.setInt(1, employeeId);
             ResultSet rsBalanceType = psBalanceType.executeQuery();
 

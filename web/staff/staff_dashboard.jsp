@@ -275,11 +275,12 @@ td{border-bottom:1px solid #f1f3f7;}
                     <span class="toggle-btn" onclick="toggleSidebar()">☰</span>
                 </div>
 
-                <div class="profile">
-                    <img src="<%= request.getContextPath()%>/profile-image?path=<%= request.getAttribute("profileImg")%>"
-                         onerror="this.src='<%= request.getContextPath()%>/images/default_profile.png'">
-                    <h4><%= session.getAttribute("name") != null ? session.getAttribute("name") : "Staff User"%></h4>
-                    <p><%= session.getAttribute("position") != null ? session.getAttribute("position") : session.getAttribute("role")%></p>
+                 <div class="profile">
+                    <img src="${pageContext.request.contextPath}/profile-image?path=${profileImage}"
+                         onerror="this.src='${pageContext.request.contextPath}/images/default_profile.png'">
+
+                    <h4>${profileName}</h4>
+                    <p>${profilePosition}</p>
                 </div>
 
                 <div class="menu">

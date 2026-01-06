@@ -392,23 +392,6 @@
 
                             </div>
                         </div>
-
-
-                        <div class="info-card">
-                            <h3>Leave Information</h3>
-
-                            <div class="info-grid">
-                                <% for (Map leave : leaveInfo) {%>
-                                <div class="field">
-                                    <label><%= leave.get("name")%></label>
-                                    <input type="text"
-                                           value="<%= leave.get("balance")%> / <%= leave.get("max_days")%> Days"
-                                           readonly>
-                                </div>
-                                <% }%>
-                            </div>
-                        </div>
-
                         <script>
                             function toggleSidebar() {
                                 const sidebar = document.getElementById('sidebar');
