@@ -417,7 +417,7 @@
 
                     <div class="table-actions">
                         <button class="btn btn-pdf">Export PDF</button>
-                        <button class="btn btn-excel">Export Excel</button>
+                        
                         <button class="btn btn-print">Print</button>
                     </div>
                 </div>
