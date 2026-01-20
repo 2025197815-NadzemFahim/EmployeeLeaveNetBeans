@@ -476,7 +476,7 @@
                                         }
                             %>
                             <tr>
-                                <td><%= lh.getRequestId()%></td>
+                                <td>L<%= lh.getRequestId()%></td>
                                 <td><%= lh.getLeaveType()%></td>
                                 <td class="<%= statusClass%>"><%= lh.getStatus()%></td>
                                 <td><%= lh.getStartDate()%></td>
