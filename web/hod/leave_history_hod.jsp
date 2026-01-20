@@ -357,7 +357,7 @@
                     <a href="<%= request.getContextPath()%>/HODDashboardServlet"><i class="fas fa-th-large"></i>Dashboard</a>
                     <a  href="<%= request.getContextPath()%>/ViewProfileHODServlet"><i class="fas fa-user"></i>Profile</a>
                     <a href="<%= request.getContextPath()%>/hod/apply_leave.jsp"><i class="fas fa-calendar-plus"></i>Apply Leave</a>
-                    <a href="<%= request.getContextPath()%>/LeaveListServlet"><i class="fas fa-bell"></i>Requests</a>
+                    <a href="<%= request.getContextPath()%>/LeaveListServlet"><i class="fas fa-clipboard-list"></i>Requests</a>
                     <a href="<%= request.getContextPath()%>/LeaveHistoryHodServlet" class="active"><i class="fas fa-history"></i>Leave History</a>
                     <a href="<%= request.getContextPath()%>/NotificationHodServlet"><i class="fas fa-bell"></i>Notifications</a>
                     <a href="<%= request.getContextPath()%>/LogoutServlet"><i class="fas fa-sign-out-alt"></i>Logout</a>
