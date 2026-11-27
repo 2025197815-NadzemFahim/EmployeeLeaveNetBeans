@@ -49,7 +49,7 @@ EmployeeLeaveNetBeans/
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/nadzemfahim/EmployeeLeaveNetBeans.git
+   git clone https://github.com/2025197815-NadzemFahim/EmployeeLeaveNetBeans.git
    ```
 2. Open **Apache NetBeans** and go to **File → Open Project**, then select the cloned folder.
 3. Set up the database:
